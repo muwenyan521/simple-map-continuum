@@ -1,7 +1,10 @@
 package com.muwenyan.simplemap.core.waypoint;
 
 import com.muwenyan.simplemap.core.model.BlockPos;
+import com.muwenyan.simplemap.core.model.DimensionId;
+import com.muwenyan.simplemap.core.navigation.Waypoint;
 import java.util.UUID;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,5 +24,18 @@ class WaypointCommandParserTest {
     void rejectsMalformedCommands() {
         assertThrows(IllegalArgumentException.class, () -> WaypointCommandParser.parse("map list"));
         assertThrows(IllegalArgumentException.class, () -> WaypointCommandParser.parse("waypoint add x 1 2"));
+    }
+
+    @Test
+    void executesAddAndRemoveAgainstStore() {
+        WaypointStore store = new WaypointStore();
+        WaypointCommandExecutor executor = new WaypointCommandExecutor(store);
+        UUID actor = UUID.randomUUID();
+        DimensionId dimension = new DimensionId("minecraft:overworld");
+        List<Waypoint> values = executor.execute(actor, dimension,
+                WaypointCommandParser.parse("waypoint add Home 1 64 2"));
+        assertEquals(1, values.size());
+        executor.execute(actor, dimension, new WaypointCommand.Remove(values.get(0).id()));
+        assertEquals(0, store.all().size());
     }
 }
