@@ -24,6 +24,18 @@ public final class MapBook {
         permissions.put(owner, BookPermission.OWNER);
     }
 
+    public MapBook(MapBookSnapshot snapshot) {
+        this(Objects.requireNonNull(snapshot, "snapshot").id(), snapshot.owner());
+        if (snapshot.status() == MapBookStatus.LEARNING) {
+            throw new IllegalArgumentException("learning books cannot be restored");
+        }
+        for (MapBookRegion region : snapshot.regions()) {
+            regions.put(region.position(), region);
+        }
+        revision = snapshot.revision();
+        status = snapshot.status();
+    }
+
     public synchronized UUID id() { return id; }
     public synchronized UUID owner() { return owner; }
     public synchronized MapBookStatus status() { return status; }
