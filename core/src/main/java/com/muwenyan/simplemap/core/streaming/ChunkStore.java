@@ -59,5 +59,11 @@ public final class ChunkStore {
     public int capacity() { return capacity; }
     public synchronized long revision() { return storeRevision; }
 
+    public synchronized boolean evict(DimensionId dimension, ChunkPos position) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(position, "position");
+        return snapshots.remove(new Key(dimension, position)) != null;
+    }
+
     private record Key(DimensionId dimension, ChunkPos position) { }
 }
