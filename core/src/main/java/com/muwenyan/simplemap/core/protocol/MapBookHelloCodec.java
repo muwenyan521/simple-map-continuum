@@ -8,6 +8,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public final class MapBookHelloCodec {
@@ -95,6 +96,6 @@ public final class MapBookHelloCodec {
                 throw new ProtocolException(ProtocolErrorCode.MALFORMED_BODY, "duplicate hello name");
             }
         }
-        return Set.copyOf(names);
+        return Collections.unmodifiableSet(names);
     }
 }
