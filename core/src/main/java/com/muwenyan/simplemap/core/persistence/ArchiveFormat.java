@@ -3,7 +3,7 @@ package com.muwenyan.simplemap.core.persistence;
 import java.util.Arrays;
 
 public enum ArchiveFormat {
-    SMAP("SMAP", 6, 1, 6), SMR2("SMR2", 2, 2, 2), CVR("CVR", 7, 7, 7);
+    SMAP("SMAP", 6, 1, 6), SMR2("SMR2", 2, 2, 2), CVR("CVR1", 7, 7, 7);
     private final String magic;
     private final int writeVersion;
     private final int minimumVersion;
