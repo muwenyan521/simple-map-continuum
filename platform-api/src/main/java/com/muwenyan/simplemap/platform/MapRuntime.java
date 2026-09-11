@@ -5,6 +5,8 @@ import com.muwenyan.simplemap.core.config.MapConfigCodec;
 import com.muwenyan.simplemap.core.map.MapRegion;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
 import com.muwenyan.simplemap.core.render.MapRenderFrame;
+import com.muwenyan.simplemap.core.render.RenderPlan;
+import com.muwenyan.simplemap.core.render.RenderPlanner;
 import com.muwenyan.simplemap.core.model.ChunkSnapshot;
 import com.muwenyan.simplemap.core.streaming.CenterOutChunkPlanner;
 import com.muwenyan.simplemap.core.streaming.ChunkDemand;
@@ -47,6 +49,13 @@ public final class MapRuntime {
     public void publish(MapRenderFrame frame) { render.publish(Objects.requireNonNull(frame, "frame")); }
     public void setRegion(MapRegion region) { currentRegion = Objects.requireNonNull(region, "region"); }
     public MapRegion currentRegion() { return currentRegion; }
+
+    public RenderPlan renderCurrent(int lod, long generation) {
+        MapRegion region = Objects.requireNonNull(currentRegion, "current region is not set");
+        RenderPlan plan = RenderPlanner.plan(region, lod, generation);
+        publish(plan.frame());
+        return plan;
+    }
 
     public List<ChunkMutation> refresh(ChunkDemand demand) {
         Objects.requireNonNull(demand, "demand");

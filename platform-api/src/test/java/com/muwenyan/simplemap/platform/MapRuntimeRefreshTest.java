@@ -8,6 +8,9 @@ import com.muwenyan.simplemap.core.navigation.MapViewport;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
 import com.muwenyan.simplemap.core.render.MapRenderFrame;
 import com.muwenyan.simplemap.core.streaming.ChunkDemand;
+import com.muwenyan.simplemap.core.map.MapCell;
+import com.muwenyan.simplemap.core.map.MapRegion;
+import com.muwenyan.simplemap.core.model.BlockPos;
 import com.muwenyan.simplemap.platform.port.RenderPort;
 import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.Optional;
@@ -23,7 +26,10 @@ public final class MapRuntimeRefreshTest {
         MapRuntime runtime = new MapRuntime(world, render,
                 new NavigationState(new MapViewport(0, 0, 1)), MapConfig.defaults());
         int count = runtime.refresh(new ChunkDemand(dimension, new ChunkPos(0, 0), 1, 5)).size();
-        if (count != 5 || runtime.loadedChunks().size() != 5) {
+        MapRegion region = new MapRegion(dimension, new ChunkPos(0, 0), 32, 32);
+        region.apply(0, 0, new MapCell(new BlockPos(8, 64, 8), 0xff336699, 1, false, true));
+        runtime.setRegion(region);
+        if (count != 5 || runtime.loadedChunks().size() != 5 || runtime.renderCurrent(0, 1).tiles().size() != 1) {
             throw new AssertionError("runtime refresh");
         }
         System.out.println("MAP_RUNTIME_REFRESH_PASS");
