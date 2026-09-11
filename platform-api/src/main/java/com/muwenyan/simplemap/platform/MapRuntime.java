@@ -1,6 +1,7 @@
 package com.muwenyan.simplemap.platform;
 
 import com.muwenyan.simplemap.core.config.MapConfig;
+import com.muwenyan.simplemap.core.config.MapConfigCodec;
 import com.muwenyan.simplemap.core.map.MapRegion;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
 import com.muwenyan.simplemap.core.render.MapRenderFrame;
@@ -10,6 +11,7 @@ import com.muwenyan.simplemap.core.streaming.ChunkDemand;
 import com.muwenyan.simplemap.core.streaming.ChunkMutation;
 import com.muwenyan.simplemap.core.streaming.ChunkStore;
 import com.muwenyan.simplemap.platform.port.RenderPort;
+import com.muwenyan.simplemap.platform.port.ConfigPort;
 import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,12 @@ public final class MapRuntime {
     public ChunkStore chunks() { return chunks; }
     public MapConfig config() { return config; }
     public void updateConfig(MapConfig next) { config = Objects.requireNonNull(next, "next"); }
+    public void loadConfig(ConfigPort port) {
+        Objects.requireNonNull(port, "port").read().map(MapConfigCodec::decode).ifPresent(this::updateConfig);
+    }
+    public void saveConfig(ConfigPort port) {
+        Objects.requireNonNull(port, "port").write(MapConfigCodec.encode(config));
+    }
     public void publish(MapRenderFrame frame) { render.publish(Objects.requireNonNull(frame, "frame")); }
     public void setRegion(MapRegion region) { currentRegion = Objects.requireNonNull(region, "region"); }
     public MapRegion currentRegion() { return currentRegion; }

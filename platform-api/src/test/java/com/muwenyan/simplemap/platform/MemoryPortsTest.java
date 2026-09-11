@@ -19,8 +19,11 @@ class MemoryPortsTest {
     @Test
     void portsPreserveBoundaries() throws Exception {
         MemoryConfigPort config = new MemoryConfigPort();
-        config.write("version=2");
-        assertEquals("version=2", config.read().orElseThrow());
+        MapRuntime runtime = new MapRuntime((dimension, position) -> java.util.Optional.empty(), frame -> { },
+                new com.muwenyan.simplemap.core.navigation.NavigationState(
+                        new com.muwenyan.simplemap.core.navigation.MapViewport(0, 0, 1)), MapConfig.defaults());
+        runtime.saveConfig(config);
+        assertEquals(MapConfig.defaults(), com.muwenyan.simplemap.core.config.MapConfigCodec.decode(config.read().orElseThrow()));
         MemoryRenderPort render = new MemoryRenderPort();
         render.publish(new MapRenderFrame(new DimensionId("minecraft:overworld"), 1, 1, List.of()));
         assertEquals(1, render.latest().orElseThrow().generation());
