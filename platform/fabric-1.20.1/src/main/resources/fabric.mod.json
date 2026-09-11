@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "simplemap",
+  "version": "0.1.0-SNAPSHOT",
+  "name": "Simple Map Continuum",
+  "description": "Continuously maintained cross-loader map core",
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+    "fabricloader": ">=0.14.0",
+    "minecraft": "1.20.1"
+  }
+}

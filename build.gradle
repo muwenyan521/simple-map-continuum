@@ -39,6 +39,9 @@ subprojects {
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
+        if (delegate.hasProperty('failOnNoDiscoveredTests')) {
+            delegate.setProperty('failOnNoDiscoveredTests', false)
+        }
     }
 }
 
@@ -57,6 +60,8 @@ configure([project(':fabric-1.20.1'), project(':fabric-1.21.1'), project(':forge
     description = 'Explicit loader/version adapter target'
     dependencies {
         implementation project(':platform-api')
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.0'
     }
 }
 

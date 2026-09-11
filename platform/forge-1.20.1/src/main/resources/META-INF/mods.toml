@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+[[mods]]
+modId="simplemap"
+version="0.1.0-SNAPSHOT"
+displayName="Simple Map Continuum"
+description='''Continuously maintained cross-loader map core'''
+[[dependencies.simplemap]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.simplemap]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="BOTH"
