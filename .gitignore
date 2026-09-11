@@ -1,0 +1,29 @@
+# Gradle and build output
+.gradle/
+build/
+out/
+bin/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Minecraft development runs and local data
+run/
+*.log
+config/
+
+# Local research, agent sessions, and private planning artifacts
+.omo/
+RESEARCH-NOTES.md
+REWRITE-ARCHITECTURE-PLAN.md
+*.local.md
+
+# Generated/local files
+*.class
+*.jar
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
