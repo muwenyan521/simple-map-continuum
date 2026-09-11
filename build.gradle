@@ -66,7 +66,11 @@ tasks.register('dependencyIsolationCheck') {
     dependsOn(':core:dependencies', ':platform-api:dependencies')
     doLast {
         def forbidden = subprojects.findAll { it.name == 'core' }.collectMany { p ->
-            p.configurations.findAll { it.canBeResolved }.collectMany { cfg ->
+            // Test fixtures may use JUnit; only the published main runtime must
+            // remain JDK-only.
+            p.configurations.findAll { cfg ->
+                cfg.name in ['compileClasspath', 'runtimeClasspath'] && cfg.canBeResolved
+            }.collectMany { cfg ->
                 cfg.incoming.resolutionResult.allDependencies.collect { it.requested.displayName }
             }
         }
