@@ -10,3 +10,19 @@ tasks.withType(Test).configureEach {
         delegate.setProperty('failOnNoDiscoveredTests', false)
     }
 }
+
+tasks.register('runtimeCompositionSelfTest', JavaExec) {
+    dependsOn(tasks.named('testClasses'))
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.muwenyan.simplemap.platform.MapRuntimeTest'
+}
+
+tasks.register('runtimeRefreshSelfTest', JavaExec) {
+    dependsOn(tasks.named('testClasses'))
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.muwenyan.simplemap.platform.MapRuntimeRefreshTest'
+}
+
+tasks.named('check') {
+    dependsOn(tasks.named('runtimeCompositionSelfTest'), tasks.named('runtimeRefreshSelfTest'))
+}
