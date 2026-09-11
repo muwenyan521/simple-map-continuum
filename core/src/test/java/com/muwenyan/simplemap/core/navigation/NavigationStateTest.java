@@ -17,9 +17,11 @@ public final class NavigationStateTest {
         state.upsertWaypoint(new Waypoint(id, overworld, new BlockPos(1, 64, 2), "home", true));
         state.upsertWaypoint(new Waypoint(id, overworld, new BlockPos(3, 64, 4), "home", false));
         require(state.waypoints().size() == 1 && !state.waypoints().get(0).visible(), "upsert");
+        state.followWaypoint(id);
+        require(state.followedWaypoint().isPresent(), "follow");
         state.setPin(new NavigationPin(UUID.randomUUID(), overworld, new BlockPos(0, 64, 0), "target"));
         state.clearDimension(overworld);
-        require(state.waypoints().isEmpty() && state.pin() == null, "dimension clear");
+        require(state.waypoints().isEmpty() && state.pin() == null && state.followedWaypoint().isEmpty(), "dimension clear");
         System.out.println("NAVIGATION_STATE_PASS");
     }
     private static void require(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
