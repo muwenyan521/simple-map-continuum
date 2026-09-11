@@ -9,6 +9,8 @@ import com.muwenyan.simplemap.core.render.MapRenderFrame;
 import com.muwenyan.simplemap.core.render.RenderPlan;
 import com.muwenyan.simplemap.core.render.RenderPlanner;
 import com.muwenyan.simplemap.core.model.ChunkSnapshot;
+import com.muwenyan.simplemap.core.model.BlockPos;
+import com.muwenyan.simplemap.core.info.WorldInfo;
 import com.muwenyan.simplemap.core.streaming.CenterOutChunkPlanner;
 import com.muwenyan.simplemap.core.streaming.ChunkDemand;
 import com.muwenyan.simplemap.core.streaming.ChunkMutation;
@@ -101,6 +103,14 @@ public final class MapRuntime {
     public void saveRegion(PersistencePort persistence) {
         Objects.requireNonNull(persistence, "persistence").writeRegion(
                 Objects.requireNonNull(currentRegion, "current region is not set"));
+    }
+
+    public WorldInfo inspect(BlockPos position) {
+        return world.inspect(navigationDimension(), Objects.requireNonNull(position, "position"));
+    }
+
+    private com.muwenyan.simplemap.core.model.DimensionId navigationDimension() {
+        return Objects.requireNonNull(currentRegion, "current region is not set").dimension();
     }
 
     public boolean loadRegion(PersistencePort persistence, com.muwenyan.simplemap.core.model.DimensionId dimension,
