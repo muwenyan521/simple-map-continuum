@@ -34,7 +34,7 @@ public final class ArchiveCodec {
             byte[] magic = in.readNBytes(4);
             if (!Arrays.equals(magic, expected.magic().getBytes(StandardCharsets.US_ASCII))) throw new ArchiveException("unexpected archive magic");
             int version = in.readUnsignedByte();
-            if (version != expected.version()) throw new ArchiveException("unsupported archive version: " + version);
+            if (!expected.supports(version)) throw new ArchiveException("unsupported archive version: " + version);
             int length = in.readInt();
             if (length < 0 || length > MAX_PAYLOAD_BYTES || in.available() != length + 4) throw new ArchiveException("invalid archive length");
             byte[] payload = in.readNBytes(length);

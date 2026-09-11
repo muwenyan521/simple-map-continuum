@@ -44,6 +44,10 @@ public final class ProtocolPersistenceSelfTest {
     }
 
     private static void crcAndAtomicStoreRejectCorruption() throws Exception {
+        if (!ArchiveFormat.SMAP.supports(1) || !ArchiveFormat.SMAP.supports(6)
+                || ArchiveFormat.SMAP.supports(7) || ArchiveFormat.SMAP.version() != 6) {
+            throw new AssertionError("SMAP version range");
+        }
         byte[] encoded = ArchiveCodec.encode(ArchiveFormat.SMR2, new byte[] {7, 8});
         encoded[encoded.length - 1] ^= 1;
         try { ArchiveCodec.decode(ArchiveFormat.SMR2, encoded); throw new AssertionError("CRC accepted"); }
