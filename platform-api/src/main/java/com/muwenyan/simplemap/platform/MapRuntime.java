@@ -18,6 +18,7 @@ import com.muwenyan.simplemap.core.telemetry.MapMetric;
 import com.muwenyan.simplemap.core.telemetry.MapTelemetry;
 import com.muwenyan.simplemap.platform.port.RenderPort;
 import com.muwenyan.simplemap.platform.port.ConfigPort;
+import com.muwenyan.simplemap.platform.port.PersistencePort;
 import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,5 +96,19 @@ public final class MapRuntime {
 
     public List<ChunkSnapshot> loadedChunks() {
         return chunks.snapshots();
+    }
+
+    public void saveRegion(PersistencePort persistence) {
+        Objects.requireNonNull(persistence, "persistence").writeRegion(
+                Objects.requireNonNull(currentRegion, "current region is not set"));
+    }
+
+    public boolean loadRegion(PersistencePort persistence, com.muwenyan.simplemap.core.model.DimensionId dimension,
+                              int regionX, int regionZ) {
+        MapRegion region = Objects.requireNonNull(persistence, "persistence")
+                .readRegion(dimension, regionX, regionZ).orElse(null);
+        if (region == null) return false;
+        setRegion(region);
+        return true;
     }
 }
