@@ -24,6 +24,7 @@ public final class MapRuntime {
     private final RenderPort render;
     private final NavigationState navigation;
     private final ChunkStore chunks;
+    private final DimensionRuntimeRegistry dimensions = new DimensionRuntimeRegistry();
     private MapConfig config;
     private MapRegion currentRegion;
 
@@ -38,6 +39,7 @@ public final class MapRuntime {
     public RenderPort render() { return render; }
     public NavigationState navigation() { return navigation; }
     public ChunkStore chunks() { return chunks; }
+    public DimensionRuntimeRegistry dimensions() { return dimensions; }
     public MapConfig config() { return config; }
     public void updateConfig(MapConfig next) { config = Objects.requireNonNull(next, "next"); }
     public void loadConfig(ConfigPort port) {
@@ -47,8 +49,16 @@ public final class MapRuntime {
         Objects.requireNonNull(port, "port").write(MapConfigCodec.encode(config));
     }
     public void publish(MapRenderFrame frame) { render.publish(Objects.requireNonNull(frame, "frame")); }
-    public void setRegion(MapRegion region) { currentRegion = Objects.requireNonNull(region, "region"); }
+    public void setRegion(MapRegion region) {
+        currentRegion = Objects.requireNonNull(region, "region");
+        dimensions.put(currentRegion);
+    }
     public MapRegion currentRegion() { return currentRegion; }
+
+    public void activateDimension(com.muwenyan.simplemap.core.model.DimensionId dimension) {
+        dimensions.activate(dimension);
+        currentRegion = dimensions.activeRegion().orElseThrow();
+    }
 
     public RenderPlan renderCurrent(int lod, long generation) {
         MapRegion region = Objects.requireNonNull(currentRegion, "current region is not set");
