@@ -1,0 +1,28 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'simple-map-continuum'
+
+include(':core')
+include(':platform-api')
+include(':fabric-1.20.1')
+include(':fabric-1.21.1')
+include(':forge-1.20.1')
+include(':neoforge-1.21.1')
+
+project(':platform-api').projectDir = file('platform-api')
+project(':fabric-1.20.1').projectDir = file('platform/fabric-1.20.1')
+project(':fabric-1.21.1').projectDir = file('platform/fabric-1.21.1')
+project(':forge-1.20.1').projectDir = file('platform/forge-1.20.1')
+project(':neoforge-1.21.1').projectDir = file('platform/neoforge-1.21.1')

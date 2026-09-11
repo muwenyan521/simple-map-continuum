@@ -27,3 +27,14 @@ REWRITE-ARCHITECTURE-PLAN.md
 *.bak
 .DS_Store
 Thumbs.db
+# Gradle build output
+.gradle/
+build/
+**/build/
+
+# IDE metadata
+.idea/
+*.iml
+
+# Local evidence and research are never repository artifacts.
+.omo/

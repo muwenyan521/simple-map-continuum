@@ -1,0 +1,83 @@
+plugins {
+    id 'base'
+}
+
+ext {
+    projectVersion = '0.1.0-SNAPSHOT'
+    javaReleaseByTarget = [
+        'fabric-1.20.1': 17,
+        'forge-1.20.1': 17,
+        'fabric-1.21.1': 21,
+        'neoforge-1.21.1': 21,
+    ]
+}
+
+allprojects {
+    group = 'com.muwenyan.simplemap'
+    version = rootProject.ext.projectVersion
+}
+
+subprojects {
+    apply plugin: 'java-library'
+
+    java {
+        toolchain {
+            // Core and ports target the oldest supported runtime so every loader
+            // family can consume them; platform targets retain their own baseline.
+            languageVersion = JavaLanguageVersion.of(
+                project == rootProject ? 21 :
+                    (name in ['core', 'platform-api'] ? 17 : (rootProject.ext.javaReleaseByTarget[name] ?: 21))
+            )
+        }
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs.addAll(['-Xlint:all', '-Werror'])
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}
+
+project(':core') {
+    description = 'Loader- and Minecraft-independent map domain and algorithms'
+}
+
+project(':platform-api') {
+    description = 'Project-owned ports and platform contracts'
+    dependencies {
+        api project(':core')
+    }
+}
+
+configure([project(':fabric-1.20.1'), project(':fabric-1.21.1'), project(':forge-1.20.1'), project(':neoforge-1.21.1')]) {
+    description = 'Explicit loader/version adapter target'
+    dependencies {
+        implementation project(':platform-api')
+    }
+}
+
+tasks.register('dependencyIsolationCheck') {
+    group = 'verification'
+    description = 'Ensures core has no external or loader runtime dependencies.'
+    dependsOn(':core:dependencies', ':platform-api:dependencies')
+    doLast {
+        def forbidden = subprojects.findAll { it.name == 'core' }.collectMany { p ->
+            p.configurations.findAll { it.canBeResolved }.collectMany { cfg ->
+                cfg.incoming.resolutionResult.allDependencies.collect { it.requested.displayName }
+            }
+        }
+        if (!forbidden.isEmpty()) {
+            throw new GradleException("core must remain dependency-free; found: ${forbidden}")
+        }
+    }
+}
+
+tasks.register('matrixCheck') {
+    group = 'verification'
+    description = 'Compiles every declared loader/version target.'
+    dependsOn(subprojects.collect { it.tasks.named('check') })
+}
