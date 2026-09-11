@@ -8,6 +8,9 @@ public final class Fabric1211TargetTest {
         if (bootstrap.descriptor().javaVersion() != 21) {
             throw new AssertionError("fabric target descriptor");
         }
+        if (com.muwenyan.simplemap.platform.PlatformDiscovery.installed().size() != 1) {
+            throw new AssertionError("fabric provider discovery");
+        }
         System.out.println("FABRIC_1211_TARGET_PASS");
     }
 }

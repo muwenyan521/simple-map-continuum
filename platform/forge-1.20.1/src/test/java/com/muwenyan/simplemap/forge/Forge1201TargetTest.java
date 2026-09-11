@@ -8,6 +8,9 @@ public final class Forge1201TargetTest {
         if (bootstrap.descriptor().loader().name().isEmpty()) {
             throw new AssertionError("forge target descriptor");
         }
+        if (com.muwenyan.simplemap.platform.PlatformDiscovery.installed().size() != 1) {
+            throw new AssertionError("forge provider discovery");
+        }
         System.out.println("FORGE_1201_TARGET_PASS");
     }
 }

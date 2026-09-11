@@ -8,6 +8,9 @@ public final class Fabric1201TargetTest {
         if (!"1.20.1".equals(bootstrap.descriptor().minecraftVersion())) {
             throw new AssertionError("fabric target descriptor");
         }
+        if (com.muwenyan.simplemap.platform.PlatformDiscovery.installed().size() != 1) {
+            throw new AssertionError("fabric provider discovery");
+        }
         System.out.println("FABRIC_1201_TARGET_PASS");
     }
 }
