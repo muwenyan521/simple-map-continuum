@@ -63,6 +63,20 @@ configure([project(':fabric-1.20.1'), project(':fabric-1.21.1'), project(':forge
         testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.0'
     }
+    tasks.register('targetJarCheck') {
+        dependsOn(tasks.named('jar'))
+        doLast {
+            def archive = tasks.named('jar').get().archiveFile.get().asFile
+            def entries = zipTree(archive).files.collect { it.path - (archive.parentFile.path + File.separator) }
+            if (!entries.any { it.endsWith('PlatformBootstrap') || it.endsWith('PlatformBootstrap.class') }) {
+                throw new GradleException("target jar missing compiled classes: ${project.name}")
+            }
+            if (archive.length() == 0) {
+                throw new GradleException("target jar is empty: ${project.name}")
+            }
+        }
+    }
+    tasks.named('check') { dependsOn(tasks.named('targetJarCheck')) }
 }
 
 tasks.register('dependencyIsolationCheck') {
