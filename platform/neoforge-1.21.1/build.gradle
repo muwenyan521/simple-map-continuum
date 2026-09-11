@@ -1,3 +1,14 @@
+dependencies {
+    compileOnly('net.neoforged.fancymodloader:loader:4.0.24') {
+        transitive = false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.remove('-Werror')
+    options.compilerArgs.add('-Xlint:none')
+}
+
 tasks.register('targetSelfTest', JavaExec) {
     dependsOn(tasks.named('testClasses'))
     classpath = sourceSets.test.runtimeClasspath

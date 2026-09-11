@@ -1,3 +1,7 @@
+dependencies {
+    compileOnly 'net.minecraftforge:javafmllanguage:1.20.1-47.3.0'
+}
+
 tasks.register('targetSelfTest', JavaExec) {
     dependsOn(tasks.named('testClasses'))
     classpath = sourceSets.test.runtimeClasspath
