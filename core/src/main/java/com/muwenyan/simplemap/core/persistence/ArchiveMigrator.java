@@ -10,6 +10,10 @@ public final class ArchiveMigrator {
     public static MigrationResult migrate(Path source, Path target, ArchiveFormat sourceFormat, ArchiveFormat targetFormat) throws IOException {
         byte[] payload = AtomicArchiveStore.read(source, sourceFormat);
         AtomicArchiveStore.write(target, targetFormat, payload);
+        byte[] verified = AtomicArchiveStore.read(target, targetFormat);
+        if (!java.util.Arrays.equals(payload, verified)) {
+            throw new ArchiveException("migration verification mismatch");
+        }
         return new MigrationResult(true, payload, sourceFormat.magic());
     }
 
