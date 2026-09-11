@@ -27,7 +27,7 @@ public final class RenderPlanner {
                     continue;
                 }
                 TileKey key = new TileKey(region.dimension(),
-                        new com.muwenyan.simplemap.core.model.RegionPos(origin.x(), origin.z()), lod, x, z);
+                        com.muwenyan.simplemap.core.model.RegionPos.fromChunk(origin), lod, x, z);
                 tiles.add(new RenderTile(key, region.revision(), 16, 16));
             }
         }
