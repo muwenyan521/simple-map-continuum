@@ -14,6 +14,8 @@ public interface PlatformBootstrap {
         Objects.requireNonNull(world, "world");
         Objects.requireNonNull(render, "render");
         Objects.requireNonNull(config, "config");
-        return new MapRuntime(world, render, new NavigationState(new MapViewport(0, 0, 1)), config);
+        MapRuntime runtime = new MapRuntime(world, render, new NavigationState(new MapViewport(0, 0, 1)), config);
+        runtime.initialize();
+        return runtime;
     }
 }

@@ -4,6 +4,7 @@ import com.muwenyan.simplemap.core.config.MapConfig;
 import com.muwenyan.simplemap.core.config.MapConfigCodec;
 import com.muwenyan.simplemap.core.map.MapRegion;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
+import com.muwenyan.simplemap.core.session.LifecycleState;
 import com.muwenyan.simplemap.core.render.MapRenderFrame;
 import com.muwenyan.simplemap.core.render.RenderPlan;
 import com.muwenyan.simplemap.core.render.RenderPlanner;
@@ -25,6 +26,7 @@ public final class MapRuntime {
     private final NavigationState navigation;
     private final ChunkStore chunks;
     private final DimensionRuntimeRegistry dimensions = new DimensionRuntimeRegistry();
+    private final LifecycleState lifecycle = new LifecycleState();
     private MapConfig config;
     private MapRegion currentRegion;
 
@@ -40,6 +42,11 @@ public final class MapRuntime {
     public NavigationState navigation() { return navigation; }
     public ChunkStore chunks() { return chunks; }
     public DimensionRuntimeRegistry dimensions() { return dimensions; }
+    public LifecycleState lifecycle() { return lifecycle; }
+    public void initialize() { lifecycle.initialize(); }
+    public void attachWorld() { lifecycle.attachWorld(); }
+    public void detachWorld() { lifecycle.detachWorld(); }
+    public void stop() { lifecycle.stop(); }
     public MapConfig config() { return config; }
     public void updateConfig(MapConfig next) { config = Objects.requireNonNull(next, "next"); }
     public void loadConfig(ConfigPort port) {
