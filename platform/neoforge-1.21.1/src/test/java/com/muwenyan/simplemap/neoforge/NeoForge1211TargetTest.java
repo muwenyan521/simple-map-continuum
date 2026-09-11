@@ -11,6 +11,11 @@ public final class NeoForge1211TargetTest {
         if (com.muwenyan.simplemap.platform.PlatformDiscovery.installed().size() != 1) {
             throw new AssertionError("neoforge provider discovery");
         }
+        if (bootstrap.createRuntime((dimension, position) -> java.util.Optional.empty(), frame -> { },
+                com.muwenyan.simplemap.core.config.MapConfig.defaults()).lifecycle().state()
+                != com.muwenyan.simplemap.core.session.RuntimeLifecycle.READY) {
+            throw new AssertionError("runtime lifecycle");
+        }
         System.out.println("NEOFORGE_1211_TARGET_PASS");
     }
 }
