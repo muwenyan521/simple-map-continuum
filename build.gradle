@@ -90,3 +90,33 @@ tasks.register('matrixCheck') {
     description = 'Compiles every declared loader/version target.'
     dependsOn(subprojects.collect { it.tasks.named('check') })
 }
+
+tasks.register('architectureBoundaryCheck') {
+    group = 'verification'
+    description = 'Checks loader isolation and target metadata presence.'
+    doLast {
+        def forbidden = ['net.minecraft.', 'net.fabricmc.', 'net.minecraftforge.', 'net.neoforged.',
+                         'com.mojang.blaze3d.', 'org.lwjgl.']
+        def leaked = fileTree('core/src/main/java').matching { include '**/*.java' }.findAll { file ->
+            def source = file.getText('UTF-8')
+            forbidden.any { source.contains(it) }
+        }
+        if (!leaked.isEmpty()) {
+            throw new GradleException("core loader boundary violation: ${leaked}")
+        }
+        def metadata = [
+            'platform/fabric-1.20.1/src/main/resources/fabric.mod.json',
+            'platform/fabric-1.21.1/src/main/resources/fabric.mod.json',
+            'platform/forge-1.20.1/src/main/resources/META-INF/mods.toml',
+            'platform/neoforge-1.21.1/src/main/resources/META-INF/neoforge.mods.toml'
+        ]
+        def missing = metadata.findAll { !file(it).isFile() }
+        if (!missing.isEmpty()) {
+            throw new GradleException("missing target metadata: ${missing}")
+        }
+    }
+}
+
+tasks.named('matrixCheck') {
+    dependsOn(tasks.named('architectureBoundaryCheck'))
+}
