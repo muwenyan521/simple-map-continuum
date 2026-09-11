@@ -3,6 +3,7 @@ package com.muwenyan.simplemap.core.config;
 import com.muwenyan.simplemap.core.model.ColorMode;
 import com.muwenyan.simplemap.core.model.MapMode;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public final class MapConfigCodec {
@@ -99,7 +100,7 @@ public final class MapConfigCodec {
 
     private static <T extends Enum<T>> T enumValue(String value, Class<T> type) {
         try {
-            return Enum.valueOf(type, value.toUpperCase());
+            return Enum.valueOf(type, value.toUpperCase(Locale.ROOT));
         } catch (RuntimeException exception) {
             throw new IllegalArgumentException("invalid " + type.getSimpleName(), exception);
         }
