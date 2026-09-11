@@ -18,6 +18,10 @@ public final class AtomicArchiveStore {
         try {
             Files.write(temporary, encoded, StandardOpenOption.TRUNCATE_EXISTING);
             ArchiveCodec.decode(format, Files.readAllBytes(temporary));
+            if (Files.exists(target)) {
+                Path backup = target.resolveSibling(target.getFileName() + ".bak");
+                Files.copy(target, backup, StandardCopyOption.REPLACE_EXISTING);
+            }
             try { Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); }
             catch (IOException atomicFailure) { Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING); }
             replaced = true;
