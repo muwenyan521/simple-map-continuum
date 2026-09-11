@@ -131,6 +131,28 @@ tasks.register('architectureBoundaryCheck') {
     }
 }
 
+tasks.register('metadataValidationCheck') {
+    group = 'verification'
+    description = 'Validates loader metadata and advertised mod identity.'
+    doLast {
+        def parser = new groovy.json.JsonSlurper()
+        ['platform/fabric-1.20.1/src/main/resources/fabric.mod.json',
+         'platform/fabric-1.21.1/src/main/resources/fabric.mod.json'].each { path ->
+            def metadata = parser.parse(file(path))
+            if (metadata.id != 'simplemap' || metadata.schemaVersion != 1 || !metadata.entrypoints?.client) {
+                throw new GradleException("invalid Fabric metadata: ${path}")
+            }
+        }
+        ['platform/forge-1.20.1/src/main/resources/META-INF/mods.toml',
+         'platform/neoforge-1.21.1/src/main/resources/META-INF/neoforge.mods.toml'].each { path ->
+            def text = file(path).getText('UTF-8')
+            if (!text.contains('modId="simplemap"') || !text.contains('license="MIT"')) {
+                throw new GradleException("invalid Forge metadata: ${path}")
+            }
+        }
+    }
+}
+
 tasks.named('matrixCheck') {
-    dependsOn(tasks.named('architectureBoundaryCheck'))
+    dependsOn(tasks.named('architectureBoundaryCheck'), tasks.named('metadataValidationCheck'))
 }
