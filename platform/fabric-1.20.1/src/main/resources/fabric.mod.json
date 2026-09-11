@@ -6,6 +6,9 @@
   "description": "Continuously maintained cross-loader map core",
   "license": "MIT",
   "environment": "*",
+  "entrypoints": {
+    "client": ["com.muwenyan.simplemap.fabric.Fabric1201ClientEntrypoint"]
+  },
   "depends": {
     "fabricloader": ">=0.14.0",
     "minecraft": "1.20.1"
