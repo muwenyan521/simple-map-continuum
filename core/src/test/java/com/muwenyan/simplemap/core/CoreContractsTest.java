@@ -36,5 +36,6 @@ class CoreContractsTest {
                 List.of(new com.muwenyan.simplemap.core.render.RenderTile(key, 2, 128, 128)));
         assertThrows(UnsupportedOperationException.class, () -> frame.tiles().clear());
         assertEquals(new RegionPos(-1, -2), RegionPos.fromChunk(new ChunkPos(-1, -33)));
+        assertEquals(0, key.parent().x());
     }
 }
