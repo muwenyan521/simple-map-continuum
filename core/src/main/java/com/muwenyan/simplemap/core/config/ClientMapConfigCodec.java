@@ -20,7 +20,7 @@ public final class ClientMapConfigCodec {
 
     public static String encode(ClientMapConfig config) {
         if (config == null) throw new IllegalArgumentException("config");
-        StringBuilder output = new StringBuilder(MapConfigCodec.encode(config.map()));
+        StringBuilder output = new StringBuilder("clientVersion=1\n").append(MapConfigCodec.encode(config.map()));
         MinimapConfig minimap = config.minimap();
         output.append("minimap.enabled=").append(minimap.enabled()).append('\n')
                 .append("minimap.size=").append(minimap.sizePixels()).append('\n')
@@ -47,6 +47,8 @@ public final class ClientMapConfigCodec {
     public static ClientMapConfig decode(String encoded) {
         if (encoded == null || encoded.isBlank()) throw new IllegalArgumentException("configuration is empty");
         Map<String, String> values = parse(encoded);
+        if (!"1".equals(values.remove("clientVersion"))) throw new IllegalArgumentException("unsupported client config version");
+        validateKeys(values);
         MapConfig map = MapConfigCodec.decode(MapConfigCodec.encode(new MapConfig(
                 bool(values, "enabled"), enumValue(values, "mode", com.muwenyan.simplemap.core.model.MapMode.class),
                 enumValue(values, "colorMode", com.muwenyan.simplemap.core.model.ColorMode.class),
@@ -60,7 +62,12 @@ public final class ClientMapConfigCodec {
         Map<Integer, Integer> overrides = new TreeMap<>();
         values.forEach((key, value) -> {
             if (key.startsWith("style.override.")) {
-                try { overrides.put(Integer.parseInt(key.substring("style.override.".length())), Integer.decode(value)); }
+                try {
+                    int blockId = Integer.parseInt(key.substring("style.override.".length()));
+                    long raw = Long.parseLong(value);
+                    if (raw < Integer.MIN_VALUE || raw > 0xffffffffL) throw new NumberFormatException("ARGB range");
+                    overrides.put(blockId, (int) raw);
+                }
                 catch (NumberFormatException exception) { throw new IllegalArgumentException("invalid style override", exception); }
             }
         });
@@ -98,6 +105,23 @@ public final class ClientMapConfigCodec {
             }
         }
         return values;
+    }
+
+    private static void validateKeys(Map<String, String> values) {
+        java.util.Set<String> known = java.util.Set.of("version", "enabled", "mode", "colorMode",
+                "renderDistance", "maxUploadBytes", "minimap.enabled", "minimap.size",
+                "minimap.zoom", "minimap.shape", "minimap.anchor", "minimap.rotate",
+                "minimap.coordinates", "cave.mode", "cave.topY", "cave.maxLayers",
+                "cave.light", "style.relief", "style.water", "style.flowers",
+                "style.colorProfile", "feature.fullscreenMap", "feature.minimap",
+                "feature.waypoints", "feature.blockInformation", "feature.biomeInformation",
+                "feature.caveMap", "feature.terrainRelief", "feature.waterShading",
+                "feature.flowers", "feature.mapBook", "feature.debugOverlay");
+        for (String key : values.keySet()) {
+            if (!known.contains(key) && !key.startsWith("style.override.")) {
+                throw new IllegalArgumentException("unknown client configuration key: " + key);
+            }
+        }
     }
 
     private static String require(Map<String, String> values, String key) {

@@ -8,6 +8,7 @@ import com.muwenyan.simplemap.core.style.WaterShading;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ClientMapConfigCodecTest {
     @Test
@@ -22,5 +23,7 @@ class ClientMapConfigCodecTest {
         assertEquals(source.cave(), decoded.cave());
         assertEquals(source.features(), decoded.features());
         assertEquals(source.style(), decoded.style());
+        assertThrows(IllegalArgumentException.class, () -> ClientMapConfigCodec.decode(
+                ClientMapConfigCodec.encode(source) + "unknown=true\n"));
     }
 }
