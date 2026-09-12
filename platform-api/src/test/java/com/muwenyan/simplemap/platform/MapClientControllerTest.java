@@ -70,6 +70,15 @@ class MapClientControllerTest {
     }
 
     @Test
+    void directWaypointCreationPersistsAndReturnsIdentity() {
+        var controller = new MapClientController();
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var waypoint = controller.addWaypoint(java.util.UUID.randomUUID(), dimension,
+                new com.muwenyan.simplemap.core.model.BlockPos(4, 5, 6), "Death");
+        org.junit.jupiter.api.Assertions.assertEquals(waypoint, controller.visibleWaypoints(dimension).get(0));
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();
