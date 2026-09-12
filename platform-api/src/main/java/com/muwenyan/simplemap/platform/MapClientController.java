@@ -192,6 +192,7 @@ public final class MapClientController {
     public synchronized int waypointCount(DimensionId dimension) {
         return visibleWaypoints(Objects.requireNonNull(dimension, "dimension")).size();
     }
+    public synchronized long waypointRevision() { return waypointRevision; }
     public synchronized byte[] encodeWaypointSync(long revision) {
         try { return WaypointSyncCodec.encode(new WaypointSyncMessage(revision, waypoints.all())); }
         catch (ProtocolException exception) { throw new IllegalStateException("cannot encode waypoint sync", exception); }

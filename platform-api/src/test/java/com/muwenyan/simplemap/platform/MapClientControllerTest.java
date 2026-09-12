@@ -67,6 +67,7 @@ class MapClientControllerTest {
         var receiver = new MapClientController();
         org.junit.jupiter.api.Assertions.assertEquals(9, receiver.applyWaypointSync(controller.encodeWaypointSync(9)));
         org.junit.jupiter.api.Assertions.assertEquals(1, receiver.visibleWaypoints(dimension).size());
+        org.junit.jupiter.api.Assertions.assertEquals(9, receiver.waypointRevision());
         org.junit.jupiter.api.Assertions.assertEquals(9, receiver.applyWaypointSync(new com.muwenyan.simplemap.core.protocol.WaypointSyncMessage(8, java.util.List.of())));
         org.junit.jupiter.api.Assertions.assertEquals(1, receiver.visibleWaypoints(dimension).size());
     }
