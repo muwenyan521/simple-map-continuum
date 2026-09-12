@@ -7,15 +7,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 public final class Fabric1201Items {
-    public static final Item EMPTY_MAP_BOOK = register("empty_map_book");
-    public static final Item MAP_BOOK = register("map_book");
+    public static final Item EMPTY_MAP_BOOK = register("empty_map_book", false);
+    public static final Item MAP_BOOK = register("map_book", true);
 
     private Fabric1201Items() { }
 
     public static void register() { }
 
-    private static Item register(String id) {
+    private static Item register(String id, boolean written) {
         return Registry.register(BuiltInRegistries.ITEM,
-                new ResourceLocation("simplemap", id), new Item(new FabricItemSettings().stacksTo(1)));
+                new ResourceLocation("simplemap", id), new Fabric1201MapBookItem(new FabricItemSettings().stacksTo(1), written));
     }
 }

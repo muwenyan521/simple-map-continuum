@@ -9,8 +9,8 @@ import net.minecraft.world.item.Item;
 @Mod("simplemap")
 public final class Forge1201Entrypoint {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "simplemap");
-    public static final RegistryObject<Item> EMPTY_MAP_BOOK = ITEMS.register("empty_map_book", () -> new Item(new Item.Properties().stacksTo(1)));
-    public static final RegistryObject<Item> MAP_BOOK = ITEMS.register("map_book", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> EMPTY_MAP_BOOK = ITEMS.register("empty_map_book", () -> new Forge1201MapBookItem(new Item.Properties().stacksTo(1), false));
+    public static final RegistryObject<Item> MAP_BOOK = ITEMS.register("map_book", () -> new Forge1201MapBookItem(new Item.Properties().stacksTo(1), true));
 
     public Forge1201Entrypoint() {
         ITEMS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
