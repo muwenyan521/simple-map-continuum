@@ -13,6 +13,8 @@ import com.muwenyan.simplemap.core.render.RenderPlanner;
 import com.muwenyan.simplemap.core.model.ChunkSnapshot;
 import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.BlockPos;
+import com.muwenyan.simplemap.core.model.CaveTile;
+import com.muwenyan.simplemap.core.model.TileKey;
 import com.muwenyan.simplemap.core.info.WorldInfo;
 import com.muwenyan.simplemap.core.streaming.CenterOutChunkPlanner;
 import com.muwenyan.simplemap.core.streaming.ChunkDemand;
@@ -33,6 +35,7 @@ import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class MapRuntime {
     private final WorldSourcePort world;
@@ -139,5 +142,13 @@ public final class MapRuntime {
         if (region == null) return false;
         setRegion(region);
         return true;
+    }
+
+    public Optional<CaveTile> loadCaveTile(PersistencePort persistence, long epoch, TileKey key) {
+        return Objects.requireNonNull(persistence, "persistence").read(epoch, Objects.requireNonNull(key, "key"));
+    }
+
+    public void saveCaveTile(PersistencePort persistence, CaveTile tile) {
+        Objects.requireNonNull(persistence, "persistence").write(Objects.requireNonNull(tile, "tile"));
     }
 }
