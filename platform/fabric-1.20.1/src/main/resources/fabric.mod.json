@@ -7,6 +7,7 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
+    "main": ["com.muwenyan.simplemap.fabric.Fabric1201MainEntrypoint"],
     "client": ["com.muwenyan.simplemap.fabric.Fabric1201ClientEntrypoint"]
   },
   "depends": {
