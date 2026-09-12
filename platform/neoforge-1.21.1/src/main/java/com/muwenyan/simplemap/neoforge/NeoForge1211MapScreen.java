@@ -92,6 +92,7 @@ public final class NeoForge1211MapScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 1) { bootstrap.clientController().clearFollowedWaypoint(); return true; }
         var region = bootstrap.clientController().runtime().currentRegion();
         var player = Minecraft.getInstance().player;
         if (region != null && player != null) {
