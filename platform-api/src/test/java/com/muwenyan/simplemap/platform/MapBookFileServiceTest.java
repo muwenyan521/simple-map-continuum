@@ -25,4 +25,17 @@ class MapBookFileServiceTest {
         assertEquals(book.id(), service.read(book.id()).id());
         assertTrue(java.nio.file.Files.exists(service.path(book.id()).resolveSibling(book.id() + ".smbk.bak")));
     }
+
+    @Test
+    void recoversFromVerifiedBackupAfterPrimaryCorruption() throws Exception {
+        UUID owner = UUID.randomUUID();
+        MapBook book = new MapBook(UUID.randomUUID(), owner);
+        book.save(owner, new RegionPos(0, 0), new byte[]{1});
+        MapBookFileService service = new MapBookFileService(temporary);
+        service.write(book);
+        book.save(owner, new RegionPos(1, 0), new byte[]{2});
+        service.write(book);
+        java.nio.file.Files.write(service.path(book.id()), new byte[]{0});
+        assertEquals(1, service.readRecovering(book.id()).snapshot().regions().size());
+    }
 }

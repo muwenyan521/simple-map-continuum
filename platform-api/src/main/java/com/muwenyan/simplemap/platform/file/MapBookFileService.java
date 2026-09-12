@@ -48,4 +48,20 @@ public final class MapBookFileService {
         Path target = path(id);
         return MapBookArchiveCodec.decode(Files.readAllBytes(target));
     }
+
+    public MapBook readRecovering(UUID id) throws IOException {
+        Objects.requireNonNull(id, "id");
+        try {
+            return read(id);
+        } catch (IOException primary) {
+            Path backup = path(id).resolveSibling(id + ".smbk.bak");
+            if (!Files.isRegularFile(backup)) throw primary;
+            try {
+                return MapBookArchiveCodec.decode(Files.readAllBytes(backup));
+            } catch (IOException recovery) {
+                recovery.addSuppressed(primary);
+                throw recovery;
+            }
+        }
+    }
 }
