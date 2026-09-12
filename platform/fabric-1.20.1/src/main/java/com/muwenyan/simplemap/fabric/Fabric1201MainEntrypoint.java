@@ -16,6 +16,7 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
     public void onInitialize() {
         Fabric1201Items.register();
         new MapFabric1201Bootstrap().descriptor();
+        Fabric1201Network.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> registerCommands(dispatcher));
     }
 
