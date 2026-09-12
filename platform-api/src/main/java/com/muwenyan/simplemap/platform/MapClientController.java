@@ -135,6 +135,8 @@ public final class MapClientController {
     }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
     public synchronized java.util.Optional<Waypoint> followedWaypoint() { return waypoints.followed(); }
+    public synchronized void followWaypoint(UUID id, DimensionId dimension) { waypoints.follow(id, dimension); }
+    public synchronized void clearFollowedWaypoint() { waypoints.clearFollowed(); }
     public synchronized byte[] encodeWaypointSync(long revision) {
         try { return WaypointSyncCodec.encode(new WaypointSyncMessage(revision, waypoints.all())); }
         catch (ProtocolException exception) { throw new IllegalStateException("cannot encode waypoint sync", exception); }

@@ -92,4 +92,25 @@ public final class Fabric1201MapScreen extends Screen {
         bootstrap.clientController().runtime().navigation().pan(-dragX, -dragY);
         return true;
     }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        var region = bootstrap.clientController().runtime().currentRegion();
+        var player = Minecraft.getInstance().player;
+        if (region != null && player != null) {
+            int size = Math.min(12, Math.max(1, Math.min(width, height) / 40));
+            int left = width / 2 - 16 * size;
+            int top = height / 2 - 16 * size;
+            var dimension = new DimensionId(player.level().dimension().location().toString());
+            for (var waypoint : bootstrap.clientController().visibleWaypoints(dimension)) {
+                int wx = left + ((waypoint.position().x() >> 4) - region.origin().x()) * size;
+                int wz = top + ((waypoint.position().z() >> 4) - region.origin().z()) * size;
+                if (Math.abs(mouseX - wx) <= size && Math.abs(mouseY - wz) <= size) {
+                    bootstrap.clientController().followWaypoint(waypoint.id(), dimension);
+                    return true;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 }
