@@ -5,5 +5,6 @@
   "key.simplemap.toggle_mode": "Toggle map mode",
   "screen.simplemap.map": "Simple Map",
   "screen.simplemap.mode": "Mode: %s",
+  "screen.simplemap.cells": "Mapped chunks: %s",
   "screen.simplemap.close": "Press Escape to close"
 }
