@@ -70,4 +70,17 @@ class MapBookRuntimeTest {
         org.junit.jupiter.api.Assertions.assertThrows(SecurityException.class,
                 () -> revoked.save(reader, new RegionPos(3, 3), new byte[]{4}));
     }
+
+    @Test
+    void archivedPermissionSurvivesReload() throws Exception {
+        MapBookRuntime runtime = new MapBookRuntime(temporary);
+        UUID owner = UUID.randomUUID();
+        UUID reader = UUID.randomUUID();
+        var book = runtime.create(owner);
+        runtime.grant(book.id(), owner, reader, com.muwenyan.simplemap.core.book.BookPermission.READ);
+        var restored = runtime.load(book.id());
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> restored.snapshot());
+        org.junit.jupiter.api.Assertions.assertThrows(SecurityException.class,
+                () -> restored.save(reader, new RegionPos(1, 1), new byte[]{1}));
+    }
 }
