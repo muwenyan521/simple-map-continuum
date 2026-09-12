@@ -20,6 +20,7 @@ import java.util.List;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
+@SuppressWarnings("deprecation")
 public final class NeoForge1211WorldSource implements WorldSourcePort, SurfaceColumnSourcePort, CaveColumnSourcePort {
     private final Supplier<ClientLevel> level;
     private final AtomicLong revision = new AtomicLong();
