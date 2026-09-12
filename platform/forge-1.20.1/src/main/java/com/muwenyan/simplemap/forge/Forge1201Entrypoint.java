@@ -5,6 +5,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod("simplemap")
 public final class Forge1201Entrypoint {
@@ -14,6 +16,14 @@ public final class Forge1201Entrypoint {
 
     public Forge1201Entrypoint() {
         ITEMS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
+        net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
         new MapForge1201Bootstrap().descriptor();
+    }
+
+    private static void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(EMPTY_MAP_BOOK);
+            event.accept(MAP_BOOK);
+        }
     }
 }

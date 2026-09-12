@@ -5,6 +5,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 
 public final class Fabric1201Items {
     public static final Item EMPTY_MAP_BOOK = register("empty_map_book", false);
@@ -12,7 +14,12 @@ public final class Fabric1201Items {
 
     private Fabric1201Items() { }
 
-    public static void register() { }
+    public static void register() {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+            entries.accept(EMPTY_MAP_BOOK);
+            entries.accept(MAP_BOOK);
+        });
+    }
 
     private static Item register(String id, boolean written) {
         return Registry.register(BuiltInRegistries.ITEM,

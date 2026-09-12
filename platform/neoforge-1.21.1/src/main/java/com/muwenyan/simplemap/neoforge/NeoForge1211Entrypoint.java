@@ -5,6 +5,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod("simplemap")
 public final class NeoForge1211Entrypoint {
@@ -14,6 +16,14 @@ public final class NeoForge1211Entrypoint {
 
     public NeoForge1211Entrypoint() {
         ITEMS.register(net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus());
+        net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::addCreative);
         new MapNeoForge1211Bootstrap().descriptor();
+    }
+
+    private static void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(EMPTY_MAP_BOOK);
+            event.accept(MAP_BOOK);
+        }
     }
 }
