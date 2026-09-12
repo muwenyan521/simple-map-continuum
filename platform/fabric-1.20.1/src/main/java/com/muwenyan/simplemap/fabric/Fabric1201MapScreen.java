@@ -61,6 +61,10 @@ public final class Fabric1201MapScreen extends Screen {
                 int px = left + (player.chunkPosition().x - region.origin().x()) * size;
                 int pz = top + (player.chunkPosition().z - region.origin().z()) * size;
                 graphics.fill(px - 2, pz - 2, px + 3, pz + 3, 0xFFFFFFFF);
+                double radians = Math.toRadians(player.getYRot());
+                int dx = (int) Math.round(-Math.sin(radians) * size * 2);
+                int dz = (int) Math.round(Math.cos(radians) * size * 2);
+                graphics.fill(px, pz, px + dx, pz + dz, 0xFFFFFFFF);
                 var dimension = new DimensionId(player.level().dimension().location().toString());
                 for (var waypoint : bootstrap.clientController().visibleWaypoints(dimension)) {
                     int wx = left + ((waypoint.position().x() >> 4) - region.origin().x()) * size;
