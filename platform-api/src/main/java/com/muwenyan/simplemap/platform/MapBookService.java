@@ -6,6 +6,7 @@ import com.muwenyan.simplemap.core.protocol.MapBookRegionCodec;
 import com.muwenyan.simplemap.core.protocol.ProtocolException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.List;
 
 public final class MapBookService {
     private final MapBook book;
@@ -30,5 +31,30 @@ public final class MapBookService {
 
     public void merge(UUID actor, MapBook source) {
         book.merge(actor, source);
+    }
+
+    public int learn(UUID actor, List<byte[]> encodedRegions) throws ProtocolException {
+        if (encodedRegions == null || encodedRegions.size() > 4096) {
+            throw new ProtocolException(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.LIMIT_EXCEEDED,
+                    "too many regions");
+        }
+        MapBook.LearningSession session = book.beginLearning(Objects.requireNonNull(actor, "actor"));
+        try {
+            for (byte[] encoded : encodedRegions) {
+                if (encoded == null || encoded.length > maxPayloadBytes) {
+                    throw new ProtocolException(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.LIMIT_EXCEEDED,
+                            "region payload exceeds service limit");
+                }
+                MapBookRegion region = MapBookRegionCodec.decode(encoded);
+                session.accept(region.position(), region.payload());
+            }
+            int staged = session.stagedCount();
+            session.commit();
+            return staged;
+        } catch (ProtocolException | RuntimeException exception) {
+            session.abort();
+            if (exception instanceof ProtocolException protocolException) throw protocolException;
+            throw exception;
+        }
     }
 }
