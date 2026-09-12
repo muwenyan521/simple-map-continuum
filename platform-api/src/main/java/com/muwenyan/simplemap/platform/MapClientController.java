@@ -18,6 +18,11 @@ import com.muwenyan.simplemap.core.waypoint.WaypointStore;
 import java.util.List;
 import java.util.UUID;
 import java.util.Objects;
+import com.muwenyan.simplemap.core.navigation.PlayerMapState;
+import com.muwenyan.simplemap.core.minimap.MinimapConfig;
+import com.muwenyan.simplemap.core.minimap.MinimapFrame;
+import com.muwenyan.simplemap.core.minimap.MinimapFrameBuilder;
+import com.muwenyan.simplemap.core.minimap.MinimapTile;
 
 public final class MapClientController {
     private final MapRuntime runtime;
@@ -43,6 +48,19 @@ public final class MapClientController {
                 Objects.requireNonNull(dimension, "dimension"), WaypointCommandParser.parse(command));
     }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
+
+    public MinimapFrame buildMinimap(PlayerMapState player, MinimapConfig config, long generation) {
+        Objects.requireNonNull(player, "player");
+        MapRegion region = runtime.currentRegion();
+        java.util.ArrayList<MinimapTile> tiles = new java.util.ArrayList<>();
+        if (region != null && region.dimension().equals(player.dimension())) {
+            for (int z = 0; z < 32; z++) for (int x = 0; x < 32; x++) {
+                var cell = region.cell(x, z);
+                if (cell != null) tiles.add(new MinimapTile(new ChunkPos(region.origin().x() + x, region.origin().z() + z), cell.colorArgb(), region.revision()));
+            }
+        }
+        return MinimapFrameBuilder.build(player, Objects.requireNonNull(config, "config"), generation, tiles);
+    }
 
     public boolean refreshSurface(DimensionId dimension, ChunkPos center, int radius) {
         Objects.requireNonNull(dimension, "dimension");
