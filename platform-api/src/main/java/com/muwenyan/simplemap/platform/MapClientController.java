@@ -164,6 +164,20 @@ public final class MapClientController {
 
     public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() { return Map.copyOf(caveSnapshots); }
 
+    public synchronized int restoreCave(DimensionId dimension, int epoch, int regionX, int regionZ) {
+        if (caveFiles == null) throw new IllegalStateException("cave storage is not bound");
+        Objects.requireNonNull(dimension, "dimension");
+        try {
+            CaveRegionFileService files = new CaveRegionFileService(caveRoot.resolve(
+                    dimension.value().replace(':', '_').replace('/', '_')));
+            Map<ChunkPos, CaveSnapshot> restored = files.read(epoch, mode().ordinal(), regionX, regionZ);
+            caveSnapshots.putAll(restored);
+            return restored.size();
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot restore cave snapshots", exception);
+        }
+    }
+
     private void persistCaveSnapshot(DimensionId dimension, CaveSnapshot snapshot, CaveConfig config) {
         try {
             int regionX = Math.floorDiv(snapshot.chunk().x(), 32);
