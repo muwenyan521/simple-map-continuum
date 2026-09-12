@@ -12,6 +12,9 @@ public final class NeoForge1211Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private NeoForge1211Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void sendToPlayer(net.minecraft.server.level.ServerPlayer player, byte[] payload) {
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, new FramePayload(payload));
+    }
     public static void sendToServer(byte[] payload) { net.neoforged.neoforge.network.PacketDistributor.sendToServer(new FramePayload(payload)); }
     public static void register(RegisterPayloadHandlersEvent event) {
         event.registrar("1").playToServer(FramePayload.TYPE, FramePayload.CODEC,

@@ -9,6 +9,7 @@ import com.muwenyan.simplemap.core.model.DimensionId;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.UuidArgument;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 public final class Fabric1211MainEntrypoint implements ModInitializer {
@@ -18,6 +19,12 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
         new MapFabric1211Bootstrap().descriptor();
         Fabric1211Network.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> registerCommands(dispatcher));
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            var source = handler.player.createCommandSourceStack();
+            bindServerStorage(source);
+            sender.sendPacket(new Fabric1211Network.FramePayload(
+                    new MapFabric1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0)));
+        });
     }
 
     private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {

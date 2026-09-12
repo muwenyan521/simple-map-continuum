@@ -10,6 +10,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.UuidArgument;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public final class Fabric1201MainEntrypoint implements ModInitializer {
     @Override
@@ -18,6 +20,13 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
         new MapFabric1201Bootstrap().descriptor();
         Fabric1201Network.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> registerCommands(dispatcher));
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            var source = handler.player.createCommandSourceStack();
+            bindServerStorage(source);
+            var bytes = new MapFabric1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0);
+            var buffer = PacketByteBufs.create(); buffer.writeBytes(bytes);
+            sender.sendPacket(new net.minecraft.resources.ResourceLocation("simplemap", "protocol"), buffer);
+        });
     }
 
     private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {

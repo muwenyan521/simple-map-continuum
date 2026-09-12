@@ -29,6 +29,7 @@ public final class NeoForge1211Entrypoint {
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::addCreative);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::registerCommands);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onCrafted);
+        NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onLogin);
         new MapNeoForge1211Bootstrap().descriptor();
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::registerPayloads);
     }
@@ -88,6 +89,13 @@ public final class NeoForge1211Entrypoint {
                     : runtime.mergeItems(states.get(0), states.get(1), player.getUUID(), "Merged Map Book");
             NeoForge1211MapBookItem.writeState(event.getCrafting(), result);
         } catch (java.io.IOException | RuntimeException ignored) { }
+    }
+
+    private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
+        bindServerStorage(player.createCommandSourceStack());
+        NeoForge1211Network.sendToPlayer(player,
+                new MapNeoForge1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
     }
 
     private static void bindServerStorage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context) {

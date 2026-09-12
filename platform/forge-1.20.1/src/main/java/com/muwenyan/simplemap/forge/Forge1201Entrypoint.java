@@ -29,6 +29,7 @@ public final class Forge1201Entrypoint {
         net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onCrafted);
+        MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onLogin);
         new MapForge1201Bootstrap().descriptor();
         Forge1201Network.register();
     }
@@ -85,6 +86,13 @@ public final class Forge1201Entrypoint {
                     : runtime.mergeItems(states.get(0), states.get(1), player.getUUID(), "Merged Map Book");
             Forge1201MapBookItem.writeState(event.getCrafting(), result);
         } catch (java.io.IOException | RuntimeException ignored) { }
+    }
+
+    private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
+        bindServerStorage(player.createCommandSourceStack());
+        Forge1201Network.sendToPlayer(player,
+                new MapForge1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
