@@ -86,8 +86,11 @@ public final class NeoForge1211ClientEntrypoint {
                                         com.muwenyan.simplemap.core.minimap.MinimapFrame frame) {
             var config = frame.config();
             int size = config.sizePixels();
-            int left = 4;
-            int top = 4;
+            var layout = com.muwenyan.simplemap.core.minimap.MinimapLayout.place(config,
+                    Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                    Minecraft.getInstance().getWindow().getGuiScaledHeight(), 4);
+            int left = layout.x();
+            int top = layout.y();
             graphics.fill(left - 2, top - 2, left + size + 2, top + size + 2, 0xA0000000);
             for (var tile : frame.tiles()) {
                 var point = com.muwenyan.simplemap.core.minimap.MinimapProjection.chunkCenterToScreen(tile.chunk(), frame.playerX(), frame.playerZ(), config.zoom(), frame.playerYaw(), config.rotateWithPlayer(), size);
