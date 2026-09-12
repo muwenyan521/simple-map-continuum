@@ -56,15 +56,20 @@ public final class Forge1201Entrypoint {
         var x = Commands.argument("x", IntegerArgumentType.integer()).then(y);
         var name = Commands.argument("name", StringArgumentType.word()).then(x);
         var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name))
-                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().serverController().executeWaypointCommand(
-                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
-                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().serverController().executeWaypointCommand(
-                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint remove " + UuidArgument.getUuid(context, "id")))))
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint follow " + UuidArgument.getUuid(context, "id")))));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
         new MapForge1201Bootstrap().serverController().bindWaypointStorage(
                 source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+    }
+
+    private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        bindServerStorage(source);
+        return new MapForge1201Bootstrap().serverController().executeWaypointCommand(
+                source.getEntityOrException().getUUID(),
+                new DimensionId(source.getLevel().dimension().location().toString()), command).size();
     }
 }

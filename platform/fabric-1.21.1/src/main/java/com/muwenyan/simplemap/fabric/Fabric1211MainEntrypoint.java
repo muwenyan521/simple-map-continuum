@@ -42,17 +42,20 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
                                                                     new DimensionId(source.getLevel().dimension().location().toString()), command).size();
                                         })))));
         var waypoint = Commands.literal("waypoint").then(list).then(add)
-                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
-                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
-                        "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
-                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
-                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
-                        "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint remove " + UuidArgument.getUuid(context, "id")))))
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint follow " + UuidArgument.getUuid(context, "id")))));
         dispatcher.register(Commands.literal("simplemap").then(waypoint));
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
         new MapFabric1211Bootstrap().serverController().bindWaypointStorage(
                 source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+    }
+
+    private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        bindServerStorage(source);
+        return new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
+                source.getEntityOrException().getUUID(),
+                new DimensionId(source.getLevel().dimension().location().toString()), command).size();
     }
 }
