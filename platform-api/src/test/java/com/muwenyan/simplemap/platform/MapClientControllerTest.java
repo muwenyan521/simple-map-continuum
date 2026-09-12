@@ -79,6 +79,15 @@ class MapClientControllerTest {
     }
 
     @Test
+    void deathWaypointUsesStableLabel() {
+        var controller = new MapClientController();
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var waypoint = controller.addDeathWaypoint(java.util.UUID.randomUUID(), dimension,
+                new com.muwenyan.simplemap.core.model.BlockPos(7, 8, 9));
+        org.junit.jupiter.api.Assertions.assertEquals("Death", waypoint.name());
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();

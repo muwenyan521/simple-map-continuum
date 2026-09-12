@@ -164,6 +164,9 @@ public final class MapClientController {
         if (waypointFiles != null) saveWaypoints();
         return waypoint;
     }
+    public synchronized Waypoint addDeathWaypoint(UUID actor, DimensionId dimension, com.muwenyan.simplemap.core.model.BlockPos position) {
+        return addWaypoint(actor, dimension, position, "Death");
+    }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
     public synchronized java.util.Optional<Waypoint> followedWaypoint() { return waypoints.followed(); }
     public synchronized void followWaypoint(UUID id, DimensionId dimension) { waypoints.follow(id, dimension); }
