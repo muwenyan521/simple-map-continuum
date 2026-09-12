@@ -25,6 +25,8 @@ import com.muwenyan.simplemap.core.minimap.MinimapFrameBuilder;
 import com.muwenyan.simplemap.core.minimap.MinimapTile;
 import com.muwenyan.simplemap.platform.file.FileConfigPort;
 import com.muwenyan.simplemap.platform.file.WaypointFileService;
+import com.muwenyan.simplemap.platform.file.CaveRegionFileService;
+import com.muwenyan.simplemap.core.persistence.CaveRegionArchive;
 import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import com.muwenyan.simplemap.core.cave.CaveConfig;
 import com.muwenyan.simplemap.core.cave.CaveSnapshot;
@@ -36,6 +38,8 @@ public final class MapClientController {
     private final WaypointStore waypoints = new WaypointStore();
     private MapBookRuntime books;
     private WaypointFileService waypointFiles;
+    private CaveRegionFileService caveFiles;
+    private java.nio.file.Path caveRoot;
     private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
     private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
@@ -64,6 +68,13 @@ public final class MapClientController {
         waypointFiles = new WaypointFileService(normalized);
         try { waypointFiles.readInto(waypoints); }
         catch (java.io.IOException exception) { throw new IllegalStateException("cannot load waypoints", exception); }
+    }
+    public synchronized void bindCaveStorage(java.nio.file.Path root) {
+        java.nio.file.Path normalized = Objects.requireNonNull(root, "root").toAbsolutePath().normalize();
+        if (!normalized.equals(caveRoot)) {
+            caveRoot = normalized;
+            caveFiles = new CaveRegionFileService(normalized);
+        }
     }
     public synchronized void saveWaypoints() {
         if (waypointFiles == null) throw new IllegalStateException("waypoint storage is not bound");
@@ -131,7 +142,10 @@ public final class MapClientController {
         for (int z = center.z() - radius; z <= center.z() + radius; z++) {
             for (int x = center.x() - radius; x <= center.x() + radius; x++) {
                 runtime.scanCave(new ChunkPos(x, z), source, caveConfig, caveSnapshots.size() + 1)
-                        .ifPresent(snapshot -> { caveSnapshots.put(snapshot.chunk(), snapshot); });
+                        .ifPresent(snapshot -> {
+                            caveSnapshots.put(snapshot.chunk(), snapshot);
+                            if (caveFiles != null) persistCaveSnapshot(snapshot, caveConfig);
+                        });
                 scanned++;
             }
         }
@@ -139,4 +153,17 @@ public final class MapClientController {
     }
 
     public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() { return Map.copyOf(caveSnapshots); }
+
+    private void persistCaveSnapshot(CaveSnapshot snapshot, CaveConfig config) {
+        try {
+            int regionX = Math.floorDiv(snapshot.chunk().x(), 32);
+            int regionZ = Math.floorDiv(snapshot.chunk().z(), 32);
+            Map<ChunkPos, CaveSnapshot> region = new LinkedHashMap<>();
+            region.putAll(caveFiles.read(0, mode().ordinal(), regionX, regionZ));
+            region.put(snapshot.chunk(), snapshot);
+            caveFiles.write(0, mode().ordinal(), regionX, regionZ, region);
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot persist cave snapshot", exception);
+        }
+    }
 }

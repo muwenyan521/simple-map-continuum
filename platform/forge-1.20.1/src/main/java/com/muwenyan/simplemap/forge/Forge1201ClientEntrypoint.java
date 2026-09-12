@@ -31,6 +31,7 @@ public final class Forge1201ClientEntrypoint {
         event.register(TOGGLE_MINIMAP);
         BOOTSTRAP.bindWorld(new Forge1201WorldSource(() -> Minecraft.getInstance().level));
         BOOTSTRAP.clientController().bindBookStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
+        BOOTSTRAP.clientController().bindCaveStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/caves"));
         BOOTSTRAP.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
     }
