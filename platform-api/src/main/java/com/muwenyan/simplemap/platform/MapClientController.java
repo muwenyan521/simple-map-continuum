@@ -93,6 +93,12 @@ public final class MapClientController {
                 if (cell != null) tiles.add(new MinimapTile(new ChunkPos(region.origin().x() + x, region.origin().z() + z), cell.colorArgb(), region.revision()));
             }
         }
+        if (mode() == MapMode.CAVE) {
+            for (var entry : caveSnapshots.entrySet()) {
+                var runs = entry.getValue().columns().stream().flatMap(List::stream).findFirst();
+                if (runs.isPresent()) tiles.add(new MinimapTile(entry.getKey(), runs.get().argb(), entry.getValue().revision()));
+            }
+        }
         return MinimapFrameBuilder.build(player, Objects.requireNonNull(config, "config"), generation, tiles);
     }
 
