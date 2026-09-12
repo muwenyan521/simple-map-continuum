@@ -27,6 +27,7 @@ import com.muwenyan.simplemap.core.minimap.MinimapTile;
 public final class MapClientController {
     private final MapRuntime runtime;
     private final WaypointStore waypoints = new WaypointStore();
+    private MapBookRuntime books;
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -40,6 +41,8 @@ public final class MapClientController {
     }
 
     public MapRuntime runtime() { return runtime; }
+    public synchronized void bindBookStorage(java.nio.file.Path root) { books = new MapBookRuntime(root); }
+    public synchronized MapBookRuntime books() { return Objects.requireNonNull(books, "book storage is not bound"); }
     public MapMode mode() { return runtime.mode().mode(); }
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
