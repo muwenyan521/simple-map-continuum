@@ -22,4 +22,5 @@ public final class MapNeoForge1211Bootstrap implements PlatformBootstrap {
     public synchronized void bindWorld(WorldSourcePort world) {
         client = new MapClientController(world);
     }
+
 }

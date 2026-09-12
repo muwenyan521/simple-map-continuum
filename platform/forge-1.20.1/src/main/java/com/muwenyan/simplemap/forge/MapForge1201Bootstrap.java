@@ -22,4 +22,5 @@ public final class MapForge1201Bootstrap implements PlatformBootstrap {
     public synchronized void bindWorld(WorldSourcePort world) {
         client = new MapClientController(world);
     }
+
 }
