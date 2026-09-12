@@ -50,6 +50,7 @@ public final class MapClientController {
     private boolean minimapEnabled = true;
     private MinimapConfig minimapConfig = MinimapConfig.defaults();
     private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
+    private long waypointRevision = -1;
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -209,7 +210,9 @@ public final class MapClientController {
     }
     public synchronized long applyWaypointSync(com.muwenyan.simplemap.core.protocol.WaypointSyncMessage message) {
         Objects.requireNonNull(message, "message");
+        if (message.revision() <= waypointRevision) return waypointRevision;
         waypoints.replaceAll(message.waypoints());
+        waypointRevision = message.revision();
         return message.revision();
     }
 
