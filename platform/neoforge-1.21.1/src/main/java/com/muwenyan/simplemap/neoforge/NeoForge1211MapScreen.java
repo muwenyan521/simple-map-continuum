@@ -59,6 +59,11 @@ public final class NeoForge1211MapScreen extends Screen {
                 int px = left + (player.chunkPosition().x - region.origin().x()) * size;
                 int pz = top + (player.chunkPosition().z - region.origin().z()) * size;
                 graphics.fill(px - 2, pz - 2, px + 3, pz + 3, 0xFFFFFFFF);
+                bootstrap.clientController().pin().filter(value -> value.dimension().equals(new DimensionId(player.level().dimension().location().toString()))).ifPresent(value -> {
+                    int x = left + ((value.position().x() >> 4) - region.origin().x()) * size;
+                    int z = top + ((value.position().z() >> 4) - region.origin().z()) * size;
+                    graphics.fill(x - 2, z - 2, x + 3, z + 3, 0xFF00FFFF);
+                });
                 double radians = Math.toRadians(player.getYRot());
                 int dx = (int) Math.round(-Math.sin(radians) * size * 2);
                 int dz = (int) Math.round(Math.cos(radians) * size * 2);

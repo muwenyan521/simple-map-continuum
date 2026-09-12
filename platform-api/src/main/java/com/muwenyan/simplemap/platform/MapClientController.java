@@ -232,6 +232,8 @@ public final class MapClientController {
             tiles.add(new MinimapTile(new ChunkPos(Math.floorDiv(waypoint.position().x(), 16),
                     Math.floorDiv(waypoint.position().z(), 16)), color, Long.MAX_VALUE));
         }
+        pin().filter(value -> value.dimension().equals(player.dimension())).ifPresent(value -> tiles.add(new MinimapTile(
+                new ChunkPos(Math.floorDiv(value.position().x(), 16), Math.floorDiv(value.position().z(), 16)), 0xFF00FFFF, Long.MAX_VALUE)));
         return MinimapFrameBuilder.build(player, Objects.requireNonNull(config, "config"), generation, tiles);
     }
 
