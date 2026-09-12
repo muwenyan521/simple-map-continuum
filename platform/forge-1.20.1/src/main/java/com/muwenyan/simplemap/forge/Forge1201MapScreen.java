@@ -34,6 +34,12 @@ public final class Forge1201MapScreen extends Screen {
         graphics.drawCenteredString(font, Component.translatable("screen.simplemap.cells",
                 bootstrap.clientController().runtime().currentRegion() == null ? 0
                         : bootstrap.clientController().runtime().currentRegion().completedCells().size()), width / 2, height / 2 + 10, 0xFFB0D0B0);
+        if (Minecraft.getInstance().player != null) {
+            var playerInfo = Minecraft.getInstance().player;
+            var info = bootstrap.clientController().runtime().world().inspect(new DimensionId(playerInfo.level().dimension().location().toString()),
+                    new com.muwenyan.simplemap.core.model.BlockPos(playerInfo.getBlockX(), playerInfo.getBlockY(), playerInfo.getBlockZ()));
+            info.block().ifPresent(block -> graphics.drawCenteredString(font, block.displayName(), width / 2, height / 2 + 30, block.colorArgb()));
+        }
         var region = bootstrap.clientController().runtime().currentRegion();
         if (region != null) {
             int size = Math.min(12, Math.max(1, Math.min(width, height) / 40));
