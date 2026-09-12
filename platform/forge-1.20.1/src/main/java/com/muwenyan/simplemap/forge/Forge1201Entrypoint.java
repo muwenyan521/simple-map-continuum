@@ -27,6 +27,7 @@ public final class Forge1201Entrypoint {
         net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
         new MapForge1201Bootstrap().descriptor();
+        Forge1201Network.register();
     }
 
     private static void addCreative(BuildCreativeModeTabContentsEvent event) {
