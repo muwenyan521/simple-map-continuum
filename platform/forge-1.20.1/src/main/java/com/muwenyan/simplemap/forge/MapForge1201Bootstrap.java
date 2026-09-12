@@ -4,10 +4,11 @@ import com.muwenyan.simplemap.platform.LoaderPlatform;
 import com.muwenyan.simplemap.platform.PlatformBootstrap;
 import com.muwenyan.simplemap.platform.PlatformDescriptor;
 import com.muwenyan.simplemap.platform.MapClientController;
+import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 
 public final class MapForge1201Bootstrap implements PlatformBootstrap {
     private static final PlatformDescriptor DESCRIPTOR = new PlatformDescriptor(LoaderPlatform.FORGE, "1.20.1", 17);
-    private static final MapClientController CLIENT = new MapClientController();
+    private static MapClientController client = new MapClientController();
 
     @Override
     public PlatformDescriptor descriptor() {
@@ -15,6 +16,10 @@ public final class MapForge1201Bootstrap implements PlatformBootstrap {
     }
 
     public MapClientController clientController() {
-        return CLIENT;
+        return client;
+    }
+
+    public synchronized void bindWorld(WorldSourcePort world) {
+        client = new MapClientController(world);
     }
 }

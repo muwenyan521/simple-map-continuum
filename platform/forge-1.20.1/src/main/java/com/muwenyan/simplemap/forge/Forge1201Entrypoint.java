@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.Minecraft;
 
 @Mod("simplemap")
 public final class Forge1201Entrypoint {
@@ -18,6 +19,7 @@ public final class Forge1201Entrypoint {
 
     public Forge1201Entrypoint() {
         bootstrap.descriptor();
+        bootstrap.bindWorld(new Forge1201WorldSource(() -> Minecraft.getInstance().level));
         MinecraftForge.EVENT_BUS.register(this);
     }
 

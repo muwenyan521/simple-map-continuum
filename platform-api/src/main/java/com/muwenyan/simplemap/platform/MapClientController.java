@@ -5,13 +5,18 @@ import com.muwenyan.simplemap.core.model.MapMode;
 import com.muwenyan.simplemap.core.navigation.MapViewport;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
 import com.muwenyan.simplemap.platform.memory.MemoryRenderPort;
+import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.Objects;
 
 public final class MapClientController {
     private final MapRuntime runtime;
 
     public MapClientController() {
-        runtime = new MapRuntime((dimension, position) -> java.util.Optional.empty(),
+        this((dimension, position) -> java.util.Optional.empty());
+    }
+
+    public MapClientController(WorldSourcePort world) {
+        runtime = new MapRuntime(Objects.requireNonNull(world, "world"),
                 new MemoryRenderPort(), new NavigationState(new MapViewport(0, 0, 1)),
                 MapConfig.defaults());
         runtime.initialize();

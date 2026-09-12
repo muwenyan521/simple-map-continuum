@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.Minecraft;
 
 public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping TOGGLE_MODE = KeyBindingHelper.registerKeyBinding(
@@ -16,6 +17,7 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
     public void onInitializeClient() {
         MapFabric1211Bootstrap bootstrap = new MapFabric1211Bootstrap();
         bootstrap.descriptor();
+        bootstrap.bindWorld(new Fabric1211WorldSource(() -> Minecraft.getInstance().level));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (TOGGLE_MODE.consumeClick()) {
                 bootstrap.clientController().toggleMode();

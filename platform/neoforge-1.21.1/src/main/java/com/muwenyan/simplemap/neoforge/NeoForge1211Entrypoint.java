@@ -7,6 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.Minecraft;
 
 @Mod("simplemap")
 public final class NeoForge1211Entrypoint {
@@ -17,6 +18,7 @@ public final class NeoForge1211Entrypoint {
 
     public NeoForge1211Entrypoint() {
         bootstrap.descriptor();
+        bootstrap.bindWorld(new NeoForge1211WorldSource(() -> Minecraft.getInstance().level));
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(this);
     }
 
