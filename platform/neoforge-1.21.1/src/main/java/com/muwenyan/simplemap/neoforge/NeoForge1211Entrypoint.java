@@ -36,7 +36,7 @@ public final class NeoForge1211Entrypoint {
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {
-        var list = Commands.literal("list").executes(context -> new MapNeoForge1211Bootstrap().clientController()
+        var list = Commands.literal("list").executes(context -> new MapNeoForge1211Bootstrap().serverController()
                 .visibleWaypoints(new DimensionId(context.getSource().getLevel().dimension().location().toString())).size());
         var z = Commands.argument("z", IntegerArgumentType.integer()).executes(context -> {
             var source = context.getSource();
@@ -44,7 +44,7 @@ public final class NeoForge1211Entrypoint {
                     + IntegerArgumentType.getInteger(context, "x") + " "
                     + IntegerArgumentType.getInteger(context, "y") + " "
                     + IntegerArgumentType.getInteger(context, "z");
-            return new MapNeoForge1211Bootstrap().clientController().executeWaypointCommand(
+            return new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
                     source.getEntityOrException().getUUID(),
                     new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         });
@@ -52,9 +52,9 @@ public final class NeoForge1211Entrypoint {
         var x = Commands.argument("x", IntegerArgumentType.integer()).then(y);
         var name = Commands.argument("name", StringArgumentType.word()).then(x);
         var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name))
-                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapNeoForge1211Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
-                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapNeoForge1211Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
     }

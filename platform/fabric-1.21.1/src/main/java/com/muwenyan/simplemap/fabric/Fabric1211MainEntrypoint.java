@@ -22,7 +22,7 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
     private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         var list = Commands.literal("list").executes(context -> {
             var source = context.getSource();
-            return new MapFabric1211Bootstrap().clientController().visibleWaypoints(
+            return new MapFabric1211Bootstrap().serverController().visibleWaypoints(
                     new DimensionId(source.getLevel().dimension().location().toString())).size();
         });
         var add = Commands.literal("add").then(Commands.argument("name", StringArgumentType.word())
@@ -35,15 +35,15 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
                                                                     + IntegerArgumentType.getInteger(context, "x") + " "
                                                                     + IntegerArgumentType.getInteger(context, "y") + " "
                                                                     + IntegerArgumentType.getInteger(context, "z");
-                                                            return new MapFabric1211Bootstrap().clientController().executeWaypointCommand(
+                                            return new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
                                                                     source.getEntityOrException().getUUID(),
                                                                     new DimensionId(source.getLevel().dimension().location().toString()), command).size();
                                         })))));
         var waypoint = Commands.literal("waypoint").then(list).then(add)
-                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
                         "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
-                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
                         "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         dispatcher.register(Commands.literal("simplemap").then(waypoint));

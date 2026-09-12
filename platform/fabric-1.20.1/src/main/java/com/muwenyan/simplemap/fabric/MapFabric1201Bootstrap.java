@@ -9,6 +9,7 @@ import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 public final class MapFabric1201Bootstrap implements PlatformBootstrap {
     private static final PlatformDescriptor DESCRIPTOR = new PlatformDescriptor(LoaderPlatform.FABRIC, "1.20.1", 17);
     private static MapClientController client = new MapClientController();
+    private static final MapClientController SERVER = new MapClientController();
 
     @Override
     public PlatformDescriptor descriptor() {
@@ -22,5 +23,7 @@ public final class MapFabric1201Bootstrap implements PlatformBootstrap {
     public synchronized void bindWorld(WorldSourcePort world) {
         client = new MapClientController(world);
     }
+
+    public MapClientController serverController() { return SERVER; }
 
 }

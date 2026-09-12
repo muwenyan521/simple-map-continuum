@@ -37,7 +37,7 @@ public final class Forge1201Entrypoint {
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {
-        var list = Commands.literal("list").executes(context -> new MapForge1201Bootstrap().clientController()
+        var list = Commands.literal("list").executes(context -> new MapForge1201Bootstrap().serverController()
                 .visibleWaypoints(new DimensionId(context.getSource().getLevel().dimension().location().toString())).size());
         var z = Commands.argument("z", IntegerArgumentType.integer()).executes(context -> {
             var source = context.getSource();
@@ -45,7 +45,7 @@ public final class Forge1201Entrypoint {
                     + IntegerArgumentType.getInteger(context, "x") + " "
                     + IntegerArgumentType.getInteger(context, "y") + " "
                     + IntegerArgumentType.getInteger(context, "z");
-            return new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+            return new MapForge1201Bootstrap().serverController().executeWaypointCommand(
                     source.getEntityOrException().getUUID(),
                     new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         });
@@ -53,9 +53,9 @@ public final class Forge1201Entrypoint {
         var x = Commands.argument("x", IntegerArgumentType.integer()).then(y);
         var name = Commands.argument("name", StringArgumentType.word()).then(x);
         var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name))
-                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
-                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
     }
