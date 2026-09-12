@@ -15,6 +15,11 @@ public final class WaypointStoreTest {
         store.upsert(new Waypoint(UUID.randomUUID(), dim, new BlockPos(0, 64, 0), "alpha", true));
         if (store.visible(dim).get(0).name().equals("zeta")) throw new AssertionError("sort");
         if (!store.remove(id) || store.all().size() != 1) throw new AssertionError("remove");
+        UUID followId = store.all().get(0).id();
+        store.follow(followId, dim);
+        if (store.followed().isEmpty()) throw new AssertionError("follow");
+        store.remove(followId);
+        if (store.followed().isPresent()) throw new AssertionError("follow clear");
         System.out.println("WAYPOINT_STORE_PASS");
     }
 }

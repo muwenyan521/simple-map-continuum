@@ -102,6 +102,7 @@ public final class MapClientController {
         return result;
     }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
+    public synchronized java.util.Optional<Waypoint> followedWaypoint() { return waypoints.followed(); }
 
     public MinimapFrame buildMinimap(PlayerMapState player, MinimapConfig config, long generation) {
         Objects.requireNonNull(player, "player");

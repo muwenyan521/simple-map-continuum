@@ -22,8 +22,7 @@ public final class WaypointCommandExecutor {
         } else if (command instanceof WaypointCommand.Remove remove) {
             store.remove(remove.id());
         } else if (command instanceof WaypointCommand.Follow follow) {
-            store.visible(dimension).stream().filter(value -> value.id().equals(follow.id()))
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException("waypoint is not visible"));
+            store.follow(follow.id(), dimension);
         }
         return store.visible(dimension);
     }
