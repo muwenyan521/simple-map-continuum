@@ -16,8 +16,11 @@ public final class Fabric1211MapScreen extends Screen {
         this.bootstrap = bootstrap;
         if (Minecraft.getInstance().player != null) {
             var player = Minecraft.getInstance().player;
-            bootstrap.clientController().refreshSurface(new DimensionId(player.level().dimension().location().toString()),
-                    new ChunkPos(player.chunkPosition().x, player.chunkPosition().z), 4);
+            var dimension = new DimensionId(player.level().dimension().location().toString());
+            var center = new ChunkPos(player.chunkPosition().x, player.chunkPosition().z);
+            if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE)
+                bootstrap.clientController().refreshCave(dimension, center, 4, com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
+            else bootstrap.clientController().refreshSurface(dimension, center, 4);
         }
     }
 

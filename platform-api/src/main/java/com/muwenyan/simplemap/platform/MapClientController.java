@@ -25,6 +25,11 @@ import com.muwenyan.simplemap.core.minimap.MinimapFrameBuilder;
 import com.muwenyan.simplemap.core.minimap.MinimapTile;
 import com.muwenyan.simplemap.platform.file.FileConfigPort;
 import com.muwenyan.simplemap.platform.file.WaypointFileService;
+import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
+import com.muwenyan.simplemap.core.cave.CaveConfig;
+import com.muwenyan.simplemap.core.cave.CaveSnapshot;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public final class MapClientController {
     private final MapRuntime runtime;
@@ -33,6 +38,7 @@ public final class MapClientController {
     private WaypointFileService waypointFiles;
     private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
+    private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -108,4 +114,23 @@ public final class MapClientController {
         }
         return target.revision() > 0;
     }
+
+    public synchronized int refreshCave(DimensionId dimension, ChunkPos center, int radius, CaveConfig caveConfig) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(center, "center");
+        Objects.requireNonNull(caveConfig, "caveConfig");
+        if (radius < 0 || radius > 8) throw new IllegalArgumentException("invalid radius");
+        if (!(runtime.world() instanceof CaveColumnSourcePort source)) return 0;
+        int scanned = 0;
+        for (int z = center.z() - radius; z <= center.z() + radius; z++) {
+            for (int x = center.x() - radius; x <= center.x() + radius; x++) {
+                runtime.scanCave(new ChunkPos(x, z), source, caveConfig, caveSnapshots.size() + 1)
+                        .ifPresent(snapshot -> { caveSnapshots.put(snapshot.chunk(), snapshot); });
+                scanned++;
+            }
+        }
+        return scanned;
+    }
+
+    public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() { return Map.copyOf(caveSnapshots); }
 }
