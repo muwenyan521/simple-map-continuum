@@ -10,6 +10,8 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.minecraft.world.Container;
 import net.minecraft.commands.Commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -26,6 +28,7 @@ public final class NeoForge1211Entrypoint {
         ITEMS.register(net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus());
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::addCreative);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::registerCommands);
+        NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onCrafted);
         new MapNeoForge1211Bootstrap().descriptor();
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::registerPayloads);
     }
@@ -64,6 +67,27 @@ public final class NeoForge1211Entrypoint {
                 .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint remove " + UuidArgument.getUuid(context, "id")))))
                 .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint follow " + UuidArgument.getUuid(context, "id")))));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
+    }
+
+    private static void onCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
+        if (event.getCrafting().getItem() != MAP_BOOK.get()) return;
+        Container inventory = event.getInventory();
+        java.util.List<com.muwenyan.simplemap.core.book.MapBookItemState> states = new java.util.ArrayList<>();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            var stack = inventory.getItem(i);
+            if (stack.is(MAP_BOOK.get())) states.add(NeoForge1211MapBookItem.readState(stack));
+            else if (stack.is(EMPTY_MAP_BOOK.get())) states.add(com.muwenyan.simplemap.core.book.MapBookItemState.empty());
+        }
+        try {
+            var root = player.server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+            var runtime = new com.muwenyan.simplemap.platform.MapBookRuntime(root);
+            var result = states.size() == 2 && states.stream().anyMatch(s -> s.status() == com.muwenyan.simplemap.core.book.MapBookStatus.EMPTY)
+                    ? runtime.copyItem(states.get(0).status() == com.muwenyan.simplemap.core.book.MapBookStatus.WRITTEN ? states.get(0) : states.get(1),
+                    com.muwenyan.simplemap.core.book.MapBookItemState.empty(), player.getUUID(), player.getUUID())
+                    : runtime.mergeItems(states.get(0), states.get(1), player.getUUID(), "Merged Map Book");
+            NeoForge1211MapBookItem.writeState(event.getCrafting(), result);
+        } catch (java.io.IOException | RuntimeException ignored) { }
     }
 
     private static void bindServerStorage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context) {

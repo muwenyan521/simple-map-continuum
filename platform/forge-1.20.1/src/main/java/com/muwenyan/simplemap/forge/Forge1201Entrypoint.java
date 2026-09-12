@@ -9,6 +9,8 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraft.world.Container;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -26,6 +28,7 @@ public final class Forge1201Entrypoint {
         ITEMS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
         net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
+        MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onCrafted);
         new MapForge1201Bootstrap().descriptor();
         Forge1201Network.register();
     }
@@ -60,6 +63,28 @@ public final class Forge1201Entrypoint {
                 .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint remove " + UuidArgument.getUuid(context, "id")))))
                 .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> executeWaypoint(context.getSource(), "waypoint follow " + UuidArgument.getUuid(context, "id")))));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
+    }
+
+    private static void onCrafted(PlayerEvent.ItemCraftedEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
+        Item crafted = event.getCrafting().getItem();
+        if (crafted != MAP_BOOK.get()) return;
+        Container inventory = event.getInventory();
+        java.util.List<com.muwenyan.simplemap.core.book.MapBookItemState> states = new java.util.ArrayList<>();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            var stack = inventory.getItem(i);
+            if (stack.is(MAP_BOOK.get())) states.add(Forge1201MapBookItem.readState(stack));
+            else if (stack.is(EMPTY_MAP_BOOK.get())) states.add(com.muwenyan.simplemap.core.book.MapBookItemState.empty());
+        }
+        try {
+            var root = player.server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+            var runtime = new com.muwenyan.simplemap.platform.MapBookRuntime(root);
+            var result = states.size() == 2 && states.stream().anyMatch(s -> s.status() == com.muwenyan.simplemap.core.book.MapBookStatus.EMPTY)
+                    ? runtime.copyItem(states.get(0).status() == com.muwenyan.simplemap.core.book.MapBookStatus.WRITTEN ? states.get(0) : states.get(1),
+                    com.muwenyan.simplemap.core.book.MapBookItemState.empty(), player.getUUID(), player.getUUID())
+                    : runtime.mergeItems(states.get(0), states.get(1), player.getUUID(), "Merged Map Book");
+            Forge1201MapBookItem.writeState(event.getCrafting(), result);
+        } catch (java.io.IOException | RuntimeException ignored) { }
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
