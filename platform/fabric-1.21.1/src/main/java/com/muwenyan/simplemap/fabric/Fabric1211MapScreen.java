@@ -72,6 +72,7 @@ public final class Fabric1211MapScreen extends Screen {
                     int x = left + ((value.position().x() >> 4) - region.origin().x()) * size;
                     int z = top + ((value.position().z() >> 4) - region.origin().z()) * size;
                     graphics.fill(x - 2, z - 2, x + 3, z + 3, 0xFF00FFFF);
+                    graphics.drawString(font, value.label(), x + 5, z - 5, 0xFF00FFFF, true);
                 });
                 double radians = Math.toRadians(player.getYRot());
                 int dx = (int) Math.round(-Math.sin(radians) * size * 2);
