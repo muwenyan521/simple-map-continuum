@@ -130,7 +130,6 @@ public final class MapRuntime {
         Objects.requireNonNull(chunk, "chunk");
         Objects.requireNonNull(source, "source");
         Objects.requireNonNull(caveConfig, "caveConfig");
-        if (!(source instanceof CaveColumnSourcePort)) return Optional.empty();
         return Optional.of(CaveScanner.scan(chunk, caveConfig, (localX, localZ) -> source.sample(chunk, localX, localZ, caveConfig), revision));
     }
 

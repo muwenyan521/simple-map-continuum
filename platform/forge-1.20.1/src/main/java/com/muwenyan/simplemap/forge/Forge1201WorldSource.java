@@ -18,6 +18,7 @@ import com.muwenyan.simplemap.core.cave.CaveColumnRun;
 import com.muwenyan.simplemap.core.cave.CaveConfig;
 import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import java.util.List;
+import java.nio.ByteBuffer;
 
 @SuppressWarnings("deprecation")
 public final class Forge1201WorldSource implements WorldSourcePort, SurfaceColumnSourcePort, CaveColumnSourcePort {
@@ -31,7 +32,13 @@ public final class Forge1201WorldSource implements WorldSourcePort, SurfaceColum
     public Optional<ChunkSnapshot> snapshot(DimensionId dimension, ChunkPos position) {
         ClientLevel current = level.get();
         if (current == null || !dimension.equals(dimension(current))) return Optional.empty();
-        return Optional.of(new ChunkSnapshot(dimension, position, 0, new byte[0]));
+        ByteBuffer payload = ByteBuffer.allocate(16 * 16 * Integer.BYTES);
+        for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
+            int worldX = position.x() * 16 + x;
+            int worldZ = position.z() * 16 + z;
+            payload.putInt(current.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, worldX, worldZ));
+        }
+        return Optional.of(new ChunkSnapshot(dimension, position, 0, payload.array()));
     }
 
     @Override
