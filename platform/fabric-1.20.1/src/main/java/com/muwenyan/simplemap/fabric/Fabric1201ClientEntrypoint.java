@@ -33,6 +33,7 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
         bootstrap.clientController().bindCaveStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/caves"));
         bootstrap.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         bootstrap.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
+        bootstrap.clientController().loadMinimapConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap-minimap.cfg"));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> save(bootstrap, client));
         UseItemCallback.EVENT.register((player, level, hand) -> {
             var item = player.getItemInHand(hand).getItem();
@@ -67,6 +68,7 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
         java.nio.file.Path root = client.gameDirectory.toPath();
         bootstrap.clientController().saveWaypoints();
         bootstrap.clientController().saveConfig(root.resolve("config/simplemap.cfg"));
+        bootstrap.clientController().saveMinimapConfig(root.resolve("config/simplemap-minimap.cfg"));
     }
 
     private static void drawMinimap(net.minecraft.client.gui.GuiGraphics graphics,

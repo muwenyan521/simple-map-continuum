@@ -94,6 +94,20 @@ public final class MapClientController {
                 minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
         return minimapConfig;
     }
+    public synchronized void loadMinimapConfig(java.nio.file.Path path) {
+        java.util.Optional<String> encoded = new FileConfigPort(path).read();
+        if (encoded.isEmpty()) return;
+        try {
+            double zoom = Double.parseDouble(encoded.get().trim());
+            if (Double.isFinite(zoom) && zoom >= 0.125d && zoom <= 64d) {
+                minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), zoom,
+                        minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+            }
+        } catch (NumberFormatException ignored) { }
+    }
+    public synchronized void saveMinimapConfig(java.nio.file.Path path) {
+        new FileConfigPort(path).write(Double.toString(minimapConfig.zoom()));
+    }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),

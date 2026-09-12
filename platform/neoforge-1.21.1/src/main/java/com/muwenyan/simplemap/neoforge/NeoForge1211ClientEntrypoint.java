@@ -40,6 +40,7 @@ public final class NeoForge1211ClientEntrypoint {
         BOOTSTRAP.clientController().bindCaveStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/caves"));
         BOOTSTRAP.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
+        BOOTSTRAP.clientController().loadMinimapConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap-minimap.cfg"));
     }
 
     @EventBusSubscriber(modid = "simplemap", value = Dist.CLIENT)
@@ -69,6 +70,7 @@ public final class NeoForge1211ClientEntrypoint {
         public static void loggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
             BOOTSTRAP.clientController().saveWaypoints();
             BOOTSTRAP.clientController().saveConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
+            BOOTSTRAP.clientController().saveMinimapConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap-minimap.cfg"));
         }
 
         @SubscribeEvent
