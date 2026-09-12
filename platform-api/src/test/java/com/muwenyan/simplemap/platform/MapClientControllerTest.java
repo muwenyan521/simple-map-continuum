@@ -100,6 +100,16 @@ class MapClientControllerTest {
     }
 
     @Test
+    void pinCanBeSetAndCleared() {
+        var controller = new MapClientController();
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        controller.setPin(dimension, new com.muwenyan.simplemap.core.model.BlockPos(10, 64, 10), "Target");
+        org.junit.jupiter.api.Assertions.assertEquals("Target", controller.pin().orElseThrow().label());
+        controller.clearPin();
+        org.junit.jupiter.api.Assertions.assertTrue(controller.pin().isEmpty());
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();

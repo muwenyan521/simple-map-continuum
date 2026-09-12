@@ -176,6 +176,14 @@ public final class MapClientController {
     public synchronized java.util.Optional<Waypoint> followedWaypoint() { return waypoints.followed(); }
     public synchronized void followWaypoint(UUID id, DimensionId dimension) { waypoints.follow(id, dimension); }
     public synchronized void clearFollowedWaypoint() { waypoints.clearFollowed(); }
+    public synchronized void setPin(DimensionId dimension, com.muwenyan.simplemap.core.model.BlockPos position, String label) {
+        runtime.navigation().setPin(new com.muwenyan.simplemap.core.navigation.NavigationPin(UUID.randomUUID(),
+                Objects.requireNonNull(dimension, "dimension"), Objects.requireNonNull(position, "position"), label));
+    }
+    public synchronized void clearPin() { runtime.navigation().clearPin(); }
+    public synchronized java.util.Optional<com.muwenyan.simplemap.core.navigation.NavigationPin> pin() {
+        return java.util.Optional.ofNullable(runtime.navigation().pin());
+    }
     public synchronized void clearDimension(DimensionId dimension) {
         waypoints.clearDimension(Objects.requireNonNull(dimension, "dimension"));
         if (waypointFiles != null) saveWaypoints();
