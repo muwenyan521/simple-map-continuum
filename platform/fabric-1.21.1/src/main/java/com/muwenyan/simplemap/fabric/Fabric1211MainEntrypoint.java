@@ -77,7 +77,7 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(source.getPlayerOrException(),
                 new Fabric1211Network.FramePayload(new MapFabric1211Bootstrap().serverController()
-                        .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), result)));
+                        .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), new MapFabric1211Bootstrap().serverController().waypointRevision())));
         return result;
     }
 }

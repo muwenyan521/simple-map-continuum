@@ -159,6 +159,7 @@ public final class MapClientController {
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),
                 Objects.requireNonNull(dimension, "dimension"), WaypointCommandParser.parse(command));
+        if (!command.trim().equalsIgnoreCase("waypoint list")) waypointRevision++;
         if (waypointFiles != null) saveWaypoints();
         return result;
     }

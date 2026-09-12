@@ -118,7 +118,7 @@ public final class Forge1201Entrypoint {
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
             Forge1201Network.sendToPlayer(player, new MapForge1201Bootstrap().serverController()
-                    .encodeWaypointSyncFrame(player.getUUID(), result));
+                    .encodeWaypointSyncFrame(player.getUUID(), new MapForge1201Bootstrap().serverController().waypointRevision()));
         }
         return result;
     }

@@ -125,7 +125,7 @@ public final class NeoForge1211Entrypoint {
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
             NeoForge1211Network.sendToPlayer(player, new MapNeoForge1211Bootstrap().serverController()
-                    .encodeWaypointSyncFrame(player.getUUID(), result));
+                    .encodeWaypointSyncFrame(player.getUUID(), new MapNeoForge1211Bootstrap().serverController().waypointRevision()));
         }
         return result;
     }

@@ -79,7 +79,7 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
         var packet = PacketByteBufs.create();
         packet.writeBytes(new MapFabric1201Bootstrap().serverController()
-                .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), result));
+                .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), new MapFabric1201Bootstrap().serverController().waypointRevision()));
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(source.getPlayerOrException(),
                 new net.minecraft.resources.ResourceLocation("simplemap", "protocol"), packet);
         return result;
