@@ -3,6 +3,7 @@ package com.muwenyan.simplemap.fabric;
 import com.muwenyan.simplemap.platform.MapProtocolEndpoint;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,6 +21,11 @@ public final class Fabric1211Network {
                 catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
             });
         });
+    }
+    public static void registerClient() {
+        PayloadTypeRegistry.playS2C().register(FramePayload.TYPE, FramePayload.CODEC);
+        ClientPlayNetworking.registerGlobalReceiver(FramePayload.TYPE, (payload, context) ->
+                context.client().execute(() -> { try { ENDPOINT.receive(payload.data()); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } }));
     }
 
     public record FramePayload(byte[] data) implements CustomPacketPayload {

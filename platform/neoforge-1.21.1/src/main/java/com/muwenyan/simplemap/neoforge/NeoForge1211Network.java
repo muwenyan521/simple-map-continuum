@@ -17,6 +17,11 @@ public final class NeoForge1211Network {
                     try { ENDPOINT.receive(payload.data()); }
                     catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
                 }));
+        event.registrar("1").playToClient(FramePayload.TYPE, FramePayload.CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    try { ENDPOINT.receive(payload.data()); }
+                    catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
+                }));
     }
 
     public record FramePayload(byte[] data) implements CustomPacketPayload {
