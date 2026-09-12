@@ -2,5 +2,9 @@
   "item.simplemap.map_book": "Map Book",
   "key.simplemap.open_map": "Open map",
   "category.simplemap": "Simple Map",
-  "key.simplemap.toggle_mode": "Toggle map mode"
+  "key.simplemap.toggle_mode": "Toggle map mode",
+  "key.simplemap.open_map": "Open map",
+  "screen.simplemap.map": "Simple Map",
+  "screen.simplemap.mode": "Mode: %s",
+  "screen.simplemap.close": "Press Escape to close"
 }

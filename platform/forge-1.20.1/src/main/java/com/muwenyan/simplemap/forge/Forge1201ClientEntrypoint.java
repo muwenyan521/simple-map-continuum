@@ -13,6 +13,8 @@ import org.lwjgl.glfw.GLFW;
 public final class Forge1201ClientEntrypoint {
     private static final KeyMapping TOGGLE_MODE = new KeyMapping(
             "key.simplemap.toggle_mode", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "category.simplemap");
+    private static final KeyMapping OPEN_MAP = new KeyMapping(
+            "key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap");
     private static final MapForge1201Bootstrap BOOTSTRAP = new MapForge1201Bootstrap();
 
     private Forge1201ClientEntrypoint() { }
@@ -20,6 +22,7 @@ public final class Forge1201ClientEntrypoint {
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_MODE);
+        event.register(OPEN_MAP);
         BOOTSTRAP.bindWorld(new Forge1201WorldSource(() -> Minecraft.getInstance().level));
     }
 
@@ -31,6 +34,7 @@ public final class Forge1201ClientEntrypoint {
         public static void clientTick(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) return;
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
+            while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
         }
     }
 }

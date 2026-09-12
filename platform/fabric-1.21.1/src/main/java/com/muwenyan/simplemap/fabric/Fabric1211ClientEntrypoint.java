@@ -12,6 +12,8 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping TOGGLE_MODE = KeyBindingHelper.registerKeyBinding(
             new KeyMapping("key.simplemap.toggle_mode", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M,
                     "category.simplemap"));
+    private static final KeyMapping OPEN_MAP = KeyBindingHelper.registerKeyBinding(
+            new KeyMapping("key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap"));
 
     @Override
     public void onInitializeClient() {
@@ -22,6 +24,7 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
             while (TOGGLE_MODE.consumeClick()) {
                 bootstrap.clientController().toggleMode();
             }
+            while (OPEN_MAP.consumeClick()) client.setScreen(new Fabric1211MapScreen(bootstrap));
         });
     }
 }
