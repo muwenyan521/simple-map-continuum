@@ -2,11 +2,13 @@ package com.muwenyan.simplemap.platform;
 
 import com.muwenyan.simplemap.core.model.MapMode;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.UUID;
 
 class MapClientControllerTest {
+    @TempDir java.nio.file.Path temporary;
     @Test
     void togglesModeThroughSharedRuntime() {
         MapClientController controller = new MapClientController();
@@ -79,8 +81,8 @@ class MapClientControllerTest {
 
     @Test
     void minimapConfigRoundTripsPresentationAndMode() throws Exception {
-        java.nio.file.Path config = java.nio.file.Files.createTempFile("simplemap-minimap", ".cfg");
-        try {
+        java.nio.file.Path config = temporary.resolve("simplemap-minimap.cfg");
+        {
             var controller = new MapClientController();
             controller.cycleMinimapAnchor();
             controller.toggleMinimapCoordinates();
@@ -91,8 +93,6 @@ class MapClientControllerTest {
             org.junit.jupiter.api.Assertions.assertEquals(controller.minimapConfig().anchor(), restored.minimapConfig().anchor());
             org.junit.jupiter.api.Assertions.assertEquals(controller.minimapConfig().showCoordinates(), restored.minimapConfig().showCoordinates());
             org.junit.jupiter.api.Assertions.assertEquals(controller.mode(), restored.mode());
-        } finally {
-            java.nio.file.Files.deleteIfExists(config);
         }
     }
 
