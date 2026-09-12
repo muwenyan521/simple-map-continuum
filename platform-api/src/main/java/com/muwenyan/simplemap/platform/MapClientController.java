@@ -18,6 +18,9 @@ import com.muwenyan.simplemap.core.waypoint.WaypointStore;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncCodec;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
 import com.muwenyan.simplemap.core.protocol.ProtocolException;
+import com.muwenyan.simplemap.core.protocol.MapBookFrame;
+import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
+import com.muwenyan.simplemap.core.protocol.FrameCodec;
 import java.util.List;
 import java.util.UUID;
 import java.util.Objects;
@@ -135,6 +138,12 @@ public final class MapClientController {
     public synchronized byte[] encodeWaypointSync(long revision) {
         try { return WaypointSyncCodec.encode(new WaypointSyncMessage(revision, waypoints.all())); }
         catch (ProtocolException exception) { throw new IllegalStateException("cannot encode waypoint sync", exception); }
+    }
+    public synchronized byte[] encodeWaypointSyncFrame(java.util.UUID session, long revision) {
+        Objects.requireNonNull(session, "session");
+        try { return FrameCodec.encode(new MapBookFrame(FrameCodec.FRAME_VERSION, MapBookMessageType.WAYPOINT_SYNC,
+                session, encodeWaypointSync(revision))); }
+        catch (java.io.IOException | RuntimeException exception) { throw new IllegalStateException("cannot encode waypoint sync frame", exception); }
     }
     public synchronized long applyWaypointSync(byte[] payload) {
         try {
