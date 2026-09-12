@@ -8,7 +8,8 @@ public final class MapBookCrafting {
 
     public static boolean matchesCopy(List<MapBookItemState> inputs) {
         Objects.requireNonNull(inputs, "inputs");
-        return inputs.size() == 2 && inputs.stream().filter(s -> s.status() == MapBookStatus.WRITTEN).count() == 1
+        return inputs.size() == 2 && inputs.stream().allMatch(Objects::nonNull)
+                && inputs.stream().filter(s -> s.status() == MapBookStatus.WRITTEN).count() == 1
                 && inputs.stream().filter(s -> s.status() == MapBookStatus.EMPTY).count() == 1;
     }
 
@@ -20,7 +21,8 @@ public final class MapBookCrafting {
 
     public static boolean matchesMerge(List<MapBookItemState> inputs) {
         Objects.requireNonNull(inputs, "inputs");
-        return inputs.size() == 2 && inputs.stream().allMatch(s -> s.status() == MapBookStatus.WRITTEN);
+        return inputs.size() == 2 && inputs.stream().allMatch(Objects::nonNull)
+                && inputs.stream().allMatch(s -> s.status() == MapBookStatus.WRITTEN);
     }
 
     public static MapBookItemState merge(List<MapBookItemState> inputs, java.util.UUID newId, String title) {

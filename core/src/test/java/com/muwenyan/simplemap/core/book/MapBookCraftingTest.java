@@ -15,6 +15,7 @@ class MapBookCraftingTest {
         MapBookItemState written = new MapBookItemState(MapBookStatus.WRITTEN, id, "Atlas");
         assertEquals(true, MapBookCrafting.matchesCopy(List.of(written, MapBookItemState.empty())));
         assertEquals(false, MapBookCrafting.matchesCopy(List.of(written, written)));
+        assertEquals(false, MapBookCrafting.matchesCopy(java.util.Arrays.asList(written, null)));
         assertThrows(IllegalArgumentException.class, () -> MapBookCrafting.copy(written, written, UUID.randomUUID()));
     }
 
