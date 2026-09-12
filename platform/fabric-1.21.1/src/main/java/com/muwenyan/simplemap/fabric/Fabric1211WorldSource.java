@@ -14,8 +14,12 @@ import java.util.function.Supplier;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
+import com.muwenyan.simplemap.core.cave.CaveColumnRun;
+import com.muwenyan.simplemap.core.cave.CaveConfig;
+import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
+import java.util.List;
 
-public final class Fabric1211WorldSource implements WorldSourcePort, SurfaceColumnSourcePort {
+public final class Fabric1211WorldSource implements WorldSourcePort, SurfaceColumnSourcePort, CaveColumnSourcePort {
     private final Supplier<ClientLevel> level;
 
     public Fabric1211WorldSource(Supplier<ClientLevel> level) {
@@ -41,6 +45,24 @@ public final class Fabric1211WorldSource implements WorldSourcePort, SurfaceColu
         BlockState state = current.getBlockState(nativePosition);
         int color = state.getMapColor(current, nativePosition).col | 0xFF000000;
         return Optional.of(new SurfaceColumn(localX, localZ, y, color, !state.getFluidState().isEmpty(), state.isSolidRender(current, nativePosition)));
+    }
+
+    @Override
+    public List<CaveColumnRun> sample(ChunkPos chunk, int localX, int localZ, CaveConfig config) {
+        ClientLevel current = level.get();
+        if (current == null) return List.of();
+        int x = chunk.x() * 16 + localX;
+        int z = chunk.z() * 16 + localZ;
+        int top = current.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+        for (int y = Math.min(top, config.topY()); y >= current.getMinBuildHeight(); y--) {
+            net.minecraft.core.BlockPos position = new net.minecraft.core.BlockPos(x, y, z);
+            BlockState state = current.getBlockState(position);
+            if (!state.isAir() && state.isSolidRender(current, position)) {
+                int color = state.getMapColor(current, position).col | 0xFF000000;
+                return List.of(new CaveColumnRun(y, y, color, current.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, position), !state.getFluidState().isEmpty(), state.getLightEmission() > 0));
+            }
+        }
+        return List.of();
     }
 
     @Override

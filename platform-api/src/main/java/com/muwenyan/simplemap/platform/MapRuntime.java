@@ -15,6 +15,9 @@ import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.BlockPos;
 import com.muwenyan.simplemap.core.model.CaveTile;
 import com.muwenyan.simplemap.core.model.TileKey;
+import com.muwenyan.simplemap.core.cave.CaveConfig;
+import com.muwenyan.simplemap.core.cave.CaveScanner;
+import com.muwenyan.simplemap.core.cave.CaveSnapshot;
 import com.muwenyan.simplemap.core.info.WorldInfo;
 import com.muwenyan.simplemap.core.streaming.CenterOutChunkPlanner;
 import com.muwenyan.simplemap.core.streaming.ChunkDemand;
@@ -27,6 +30,7 @@ import com.muwenyan.simplemap.platform.port.RenderPort;
 import com.muwenyan.simplemap.platform.port.ConfigPort;
 import com.muwenyan.simplemap.platform.port.PersistencePort;
 import com.muwenyan.simplemap.platform.port.SurfaceColumnSourcePort;
+import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import com.muwenyan.simplemap.core.surface.ColumnSource;
 import com.muwenyan.simplemap.core.surface.SurfaceRegionAssembler;
 import com.muwenyan.simplemap.core.surface.SurfaceScanner;
@@ -120,6 +124,14 @@ public final class MapRuntime {
         ColumnSource columns = (localX, localZ) -> source.sample(chunk, localX, localZ);
         SurfaceSample sample = SurfaceScanner.scan(chunk, columns, revision).orElse(null);
         return sample != null && SurfaceRegionAssembler.apply(region, sample);
+    }
+
+    public Optional<CaveSnapshot> scanCave(ChunkPos chunk, CaveColumnSourcePort source, CaveConfig caveConfig, long revision) {
+        Objects.requireNonNull(chunk, "chunk");
+        Objects.requireNonNull(source, "source");
+        Objects.requireNonNull(caveConfig, "caveConfig");
+        if (!(source instanceof CaveColumnSourcePort)) return Optional.empty();
+        return Optional.of(CaveScanner.scan(chunk, caveConfig, (localX, localZ) -> source.sample(chunk, localX, localZ, caveConfig), revision));
     }
 
     public void saveRegion(PersistencePort persistence) {
