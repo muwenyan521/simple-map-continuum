@@ -35,6 +35,15 @@ public final class Fabric1211MapBookItem extends Item {
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
+    @Override
+    public void onCraftedBy(ItemStack stack, Level level, Player player) {
+        if (!written || level.isClientSide() || level.getServer() == null || readState(stack).status() != MapBookStatus.EMPTY) return;
+        try {
+            var book = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)).create(player.getUUID());
+            writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+        } catch (java.io.IOException ignored) { }
+    }
+
     private static boolean hasBookId(CustomData data) {
         if (data == null) return false;
         try { java.util.UUID.fromString(data.copyTag().getString("MapBookID")); return true; }

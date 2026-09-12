@@ -30,6 +30,15 @@ public final class Forge1201MapBookItem extends Item {
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
+    @Override
+    public void onCraftedBy(ItemStack stack, Level level, Player player) {
+        if (!written || level.isClientSide() || level.getServer() == null || hasBookId(stack)) return;
+        try {
+            var book = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)).create(player.getUUID());
+            writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+        } catch (java.io.IOException ignored) { }
+    }
+
     private static boolean hasBookId(ItemStack stack) {
         if (!stack.hasTag()) return false;
         try { java.util.UUID.fromString(stack.getTag().getString("MapBookID")); return true; }
