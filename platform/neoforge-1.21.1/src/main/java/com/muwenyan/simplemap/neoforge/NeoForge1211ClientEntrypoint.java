@@ -27,6 +27,7 @@ public final class NeoForge1211ClientEntrypoint {
         event.register(TOGGLE_MODE);
         event.register(OPEN_MAP);
         BOOTSTRAP.bindWorld(new NeoForge1211WorldSource(() -> Minecraft.getInstance().level));
+        BOOTSTRAP.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
     }
 
     @EventBusSubscriber(modid = "simplemap", value = Dist.CLIENT)
