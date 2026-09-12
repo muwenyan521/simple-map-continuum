@@ -285,6 +285,12 @@ public final class MapClientController {
             return regionFiles.read(dimension, regionX, regionZ).map(region -> { runtime.setRegion(region); return true; }).orElse(false);
         } catch (java.io.IOException exception) { throw new IllegalStateException("cannot restore surface region", exception); }
     }
+    public synchronized void clearMapCache(DimensionId dimension) {
+        Objects.requireNonNull(dimension, "dimension");
+        caveSnapshots.clear();
+        runtime.dimensions().remove(dimension);
+        runtime.clearRegion();
+    }
 
     public synchronized int refreshCave(DimensionId dimension, ChunkPos center, int radius, CaveConfig caveConfig) {
         Objects.requireNonNull(dimension, "dimension");

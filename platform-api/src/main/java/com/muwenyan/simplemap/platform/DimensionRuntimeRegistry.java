@@ -36,4 +36,8 @@ public final class DimensionRuntimeRegistry {
     public synchronized int size() {
         return regions.size();
     }
+    public synchronized void remove(DimensionId dimension) {
+        regions.remove(Objects.requireNonNull(dimension, "dimension"));
+        if (dimension.equals(active)) active = regions.keySet().stream().findFirst().orElse(null);
+    }
 }

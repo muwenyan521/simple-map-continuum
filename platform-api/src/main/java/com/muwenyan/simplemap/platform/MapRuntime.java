@@ -86,6 +86,7 @@ public final class MapRuntime {
         dimensions.put(currentRegion);
     }
     public MapRegion currentRegion() { return currentRegion; }
+    public void clearRegion() { currentRegion = null; }
 
     public void activateDimension(com.muwenyan.simplemap.core.model.DimensionId dimension) {
         dimensions.activate(dimension);
