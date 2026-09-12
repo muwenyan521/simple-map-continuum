@@ -39,6 +39,18 @@ public final class NeoForge1211MapScreen extends Screen {
                 graphics.fill(left + x * size, top + z * size, left + (x + 1) * size, top + (z + 1) * size,
                         cell == null ? 0x40202020 : cell.colorArgb());
             }
+            if (Minecraft.getInstance().player != null) {
+                var player = Minecraft.getInstance().player;
+                int px = left + (player.chunkPosition().x - region.origin().x()) * size;
+                int pz = top + (player.chunkPosition().z - region.origin().z()) * size;
+                graphics.fill(px - 2, pz - 2, px + 3, pz + 3, 0xFFFFFFFF);
+                var dimension = new DimensionId(player.level().dimension().location().toString());
+                for (var waypoint : bootstrap.clientController().visibleWaypoints(dimension)) {
+                    int wx = left + ((waypoint.position().x() >> 4) - region.origin().x()) * size;
+                    int wz = top + ((waypoint.position().z() >> 4) - region.origin().z()) * size;
+                    graphics.fill(wx - 2, wz - 2, wx + 3, wz + 3, 0xFFFFD040);
+                }
+            }
         }
         graphics.drawCenteredString(font, Component.translatable("screen.simplemap.close"), width / 2, height - 30, 0xFFAAAAAA);
         super.render(graphics, mouseX, mouseY, partialTick);
