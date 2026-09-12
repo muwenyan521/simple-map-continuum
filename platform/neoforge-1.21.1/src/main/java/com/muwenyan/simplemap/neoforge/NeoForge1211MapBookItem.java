@@ -6,6 +6,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
 
 public final class NeoForge1211MapBookItem extends Item {
     private final boolean written;
@@ -13,6 +15,10 @@ public final class NeoForge1211MapBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        if (written && (data == null || !data.copyTag().contains("MapBookID"))) {
+            return InteractionResultHolder.fail(stack);
+        }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 }
