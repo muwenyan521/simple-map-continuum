@@ -103,16 +103,27 @@ public final class MapClientController {
     public synchronized void loadMinimapConfig(java.nio.file.Path path) {
         java.util.Optional<String> encoded = new FileConfigPort(path).read();
         if (encoded.isEmpty()) return;
+        java.util.Map<String, String> values = new java.util.HashMap<>();
+        for (String line : encoded.get().split("\\R")) {
+            int separator = line.indexOf('=');
+            if (separator > 0) values.put(line.substring(0, separator).trim(), line.substring(separator + 1).trim());
+        }
         try {
-            double zoom = Double.parseDouble(encoded.get().trim());
+            double zoom = Double.parseDouble(values.getOrDefault("zoom", encoded.get().trim()));
+            var anchor = values.containsKey("anchor") ? com.muwenyan.simplemap.core.minimap.MinimapAnchor.valueOf(values.get("anchor")) : minimapConfig.anchor();
+            boolean coordinates = values.containsKey("coordinates") ? Boolean.parseBoolean(values.get("coordinates")) : minimapConfig.showCoordinates();
             if (Double.isFinite(zoom) && zoom >= 0.125d && zoom <= 64d) {
                 minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), zoom,
-                        minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+                        minimapConfig.shape(), anchor, minimapConfig.rotateWithPlayer(), coordinates);
             }
-        } catch (NumberFormatException ignored) { }
+            if (values.containsKey("mode")) setMode(MapMode.valueOf(values.get("mode")));
+        } catch (RuntimeException ignored) { }
     }
     public synchronized void saveMinimapConfig(java.nio.file.Path path) {
-        new FileConfigPort(path).write(Double.toString(minimapConfig.zoom()));
+        new FileConfigPort(path).write("zoom=" + minimapConfig.zoom() + "\n"
+                + "anchor=" + minimapConfig.anchor() + "\n"
+                + "coordinates=" + minimapConfig.showCoordinates() + "\n"
+                + "mode=" + mode());
     }
     public synchronized boolean cycleMinimapAnchor() {
         var anchors = com.muwenyan.simplemap.core.minimap.MinimapAnchor.values();

@@ -78,6 +78,25 @@ class MapClientControllerTest {
     }
 
     @Test
+    void minimapConfigRoundTripsPresentationAndMode() throws Exception {
+        java.nio.file.Path config = java.nio.file.Files.createTempFile("simplemap-minimap", ".cfg");
+        try {
+            var controller = new MapClientController();
+            controller.cycleMinimapAnchor();
+            controller.toggleMinimapCoordinates();
+            controller.toggleMode();
+            controller.saveMinimapConfig(config);
+            var restored = new MapClientController();
+            restored.loadMinimapConfig(config);
+            org.junit.jupiter.api.Assertions.assertEquals(controller.minimapConfig().anchor(), restored.minimapConfig().anchor());
+            org.junit.jupiter.api.Assertions.assertEquals(controller.minimapConfig().showCoordinates(), restored.minimapConfig().showCoordinates());
+            org.junit.jupiter.api.Assertions.assertEquals(controller.mode(), restored.mode());
+        } finally {
+            java.nio.file.Files.deleteIfExists(config);
+        }
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
