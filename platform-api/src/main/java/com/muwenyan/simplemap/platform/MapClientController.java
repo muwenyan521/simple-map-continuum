@@ -111,6 +111,18 @@ public final class MapClientController {
     public synchronized void saveMinimapConfig(java.nio.file.Path path) {
         new FileConfigPort(path).write(Double.toString(minimapConfig.zoom()));
     }
+    public synchronized boolean cycleMinimapAnchor() {
+        var anchors = com.muwenyan.simplemap.core.minimap.MinimapAnchor.values();
+        int next = (minimapConfig.anchor().ordinal() + 1) % anchors.length;
+        minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), minimapConfig.zoom(),
+                minimapConfig.shape(), anchors[next], minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+        return true;
+    }
+    public synchronized boolean toggleMinimapCoordinates() {
+        minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), minimapConfig.zoom(),
+                minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), !minimapConfig.showCoordinates());
+        return minimapConfig.showCoordinates();
+    }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),

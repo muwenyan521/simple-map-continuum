@@ -68,6 +68,16 @@ class MapClientControllerTest {
     }
 
     @Test
+    void minimapPresentationControlsCycleAnchorAndCoordinates() {
+        var controller = new MapClientController();
+        var initial = controller.minimapConfig();
+        controller.cycleMinimapAnchor();
+        org.junit.jupiter.api.Assertions.assertNotEquals(initial.anchor(), controller.minimapConfig().anchor());
+        boolean shown = controller.minimapConfig().showCoordinates();
+        org.junit.jupiter.api.Assertions.assertEquals(!shown, controller.toggleMinimapCoordinates());
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
