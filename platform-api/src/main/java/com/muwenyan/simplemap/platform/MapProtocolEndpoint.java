@@ -8,14 +8,27 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class MapProtocolEndpoint {
     private final AtomicReference<MapBookFrame> lastFrame = new AtomicReference<>();
+    private final AtomicReference<ProtocolException> lastError = new AtomicReference<>();
     private final AtomicLong received = new AtomicLong();
 
     public void receive(byte[] payload) throws ProtocolException {
         MapBookFrame frame = FrameCodec.decode(payload);
         lastFrame.set(frame);
+        lastError.set(null);
         received.incrementAndGet();
+    }
+
+    public boolean receiveSafely(byte[] payload) {
+        try {
+            receive(payload);
+            return true;
+        } catch (ProtocolException exception) {
+            lastError.set(exception);
+            return false;
+        }
     }
 
     public long receivedCount() { return received.get(); }
     public java.util.Optional<MapBookFrame> lastFrame() { return java.util.Optional.ofNullable(lastFrame.get()); }
+    public java.util.Optional<ProtocolException> lastError() { return java.util.Optional.ofNullable(lastError.get()); }
 }

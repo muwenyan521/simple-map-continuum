@@ -16,7 +16,7 @@ public final class Forge1201Network {
 
     public static void register() {
         CHANNEL.registerMessage(0, FrameMessage.class, Forge1201Network::encode, Forge1201Network::decode,
-                (message, context) -> { context.get().enqueueWork(() -> { try { ENDPOINT.receive(message.payload); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } }); context.get().setPacketHandled(true); });
+                (message, context) -> { context.get().enqueueWork(() -> ENDPOINT.receiveSafely(message.payload)); context.get().setPacketHandled(true); });
     }
 
     public static void sendToServer(byte[] payload) {

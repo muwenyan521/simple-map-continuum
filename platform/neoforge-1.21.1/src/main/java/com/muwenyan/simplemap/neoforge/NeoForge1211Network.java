@@ -15,13 +15,11 @@ public final class NeoForge1211Network {
     public static void register(RegisterPayloadHandlersEvent event) {
         event.registrar("1").playToServer(FramePayload.TYPE, FramePayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
-                    try { ENDPOINT.receive(payload.data()); }
-                    catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
+                    ENDPOINT.receiveSafely(payload.data());
                 }));
         event.registrar("1").playToClient(FramePayload.TYPE, FramePayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
-                    try { ENDPOINT.receive(payload.data()); }
-                    catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
+                    ENDPOINT.receiveSafely(payload.data());
                 }));
     }
 

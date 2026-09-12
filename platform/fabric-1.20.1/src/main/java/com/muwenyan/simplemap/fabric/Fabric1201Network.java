@@ -14,14 +14,14 @@ public final class Fabric1201Network {
         ServerPlayNetworking.registerGlobalReceiver(CHANNEL, (server, player, handler, buffer, responseSender) -> {
             byte[] payload = new byte[buffer.readableBytes()];
             buffer.readBytes(payload);
-            server.execute(() -> { try { ENDPOINT.receive(payload); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } });
+            server.execute(() -> ENDPOINT.receiveSafely(payload));
         });
     }
     public static void registerClient() {
         ClientPlayNetworking.registerGlobalReceiver(CHANNEL, (client, handler, buffer, responseSender) -> {
             byte[] payload = new byte[buffer.readableBytes()];
             buffer.readBytes(payload);
-            client.execute(() -> { try { ENDPOINT.receive(payload); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } });
+            client.execute(() -> ENDPOINT.receiveSafely(payload));
         });
     }
 }

@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MapProtocolEndpointTest {
     @Test
@@ -16,5 +17,13 @@ class MapProtocolEndpointTest {
         endpoint.receive(FrameCodec.encode(frame));
         assertEquals(frame, endpoint.lastFrame().orElseThrow());
         assertEquals(1, endpoint.receivedCount());
+    }
+
+    @Test
+    void retainsProtocolFailureForDiagnostics() {
+        MapProtocolEndpoint endpoint = new MapProtocolEndpoint();
+        assertFalse(endpoint.receiveSafely(new byte[]{1, 2, 3}));
+        assertEquals(true, endpoint.lastError().isPresent());
+        assertEquals(0, endpoint.receivedCount());
     }
 }

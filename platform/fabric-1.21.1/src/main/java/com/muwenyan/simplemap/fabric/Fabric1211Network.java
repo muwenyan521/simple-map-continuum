@@ -18,15 +18,14 @@ public final class Fabric1211Network {
         PayloadTypeRegistry.playC2S().register(FramePayload.TYPE, FramePayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(FramePayload.TYPE, (payload, context) -> {
             context.server().execute(() -> {
-                try { ENDPOINT.receive(payload.data()); }
-                catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { }
+                ENDPOINT.receiveSafely(payload.data());
             });
         });
     }
     public static void registerClient() {
         PayloadTypeRegistry.playS2C().register(FramePayload.TYPE, FramePayload.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(FramePayload.TYPE, (payload, context) ->
-                context.client().execute(() -> { try { ENDPOINT.receive(payload.data()); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } }));
+                context.client().execute(() -> ENDPOINT.receiveSafely(payload.data())));
     }
 
     public record FramePayload(byte[] data) implements CustomPacketPayload {
