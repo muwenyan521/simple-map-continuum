@@ -111,10 +111,12 @@ public final class MapClientController {
         try {
             double zoom = Double.parseDouble(values.getOrDefault("zoom", encoded.get().trim()));
             var anchor = values.containsKey("anchor") ? com.muwenyan.simplemap.core.minimap.MinimapAnchor.valueOf(values.get("anchor")) : minimapConfig.anchor();
+            var shape = values.containsKey("shape") ? com.muwenyan.simplemap.core.minimap.MinimapShape.valueOf(values.get("shape")) : minimapConfig.shape();
+            int size = values.containsKey("size") ? Integer.parseInt(values.get("size")) : minimapConfig.sizePixels();
             boolean coordinates = values.containsKey("coordinates") ? Boolean.parseBoolean(values.get("coordinates")) : minimapConfig.showCoordinates();
+            boolean rotate = values.containsKey("rotate") ? Boolean.parseBoolean(values.get("rotate")) : minimapConfig.rotateWithPlayer();
             if (Double.isFinite(zoom) && zoom >= 0.125d && zoom <= 64d) {
-                minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), zoom,
-                        minimapConfig.shape(), anchor, minimapConfig.rotateWithPlayer(), coordinates);
+                minimapConfig = new MinimapConfig(minimapConfig.enabled(), size, zoom, shape, anchor, rotate, coordinates);
             }
             if (values.containsKey("mode")) setMode(MapMode.valueOf(values.get("mode")));
         } catch (RuntimeException ignored) { }
@@ -122,6 +124,9 @@ public final class MapClientController {
     public synchronized void saveMinimapConfig(java.nio.file.Path path) {
         new FileConfigPort(path).write("zoom=" + minimapConfig.zoom() + "\n"
                 + "anchor=" + minimapConfig.anchor() + "\n"
+                + "shape=" + minimapConfig.shape() + "\n"
+                + "size=" + minimapConfig.sizePixels() + "\n"
+                + "rotate=" + minimapConfig.rotateWithPlayer() + "\n"
                 + "coordinates=" + minimapConfig.showCoordinates() + "\n"
                 + "mode=" + mode());
     }
