@@ -168,6 +168,7 @@ public final class MapClientController {
         Waypoint waypoint = new Waypoint(UUID.randomUUID(), Objects.requireNonNull(dimension, "dimension"),
                 Objects.requireNonNull(position, "position"), Objects.requireNonNull(name, "name"), true);
         waypoints.upsert(waypoint);
+        waypointRevision++;
         if (waypointFiles != null) saveWaypoints();
         return waypoint;
     }
