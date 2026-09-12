@@ -101,6 +101,10 @@ public final class NeoForge1211ClientEntrypoint {
                 int y = top + (int) Math.floor(point.z()) - 2;
                 graphics.fill(x, y, x + 4, y + 4, tile.argb());
             }
+            var markerPlayer = Minecraft.getInstance().player;
+            if (markerPlayer != null) {
+                graphics.fill(left + size / 2 - 2, top + size / 2 - 2, left + size / 2 + 3, top + size / 2 + 3, 0xFFFFFFFF);
+            }
             if (config.showCoordinates() && Minecraft.getInstance().player != null) {
                 var player = Minecraft.getInstance().player;
                 graphics.drawString(Minecraft.getInstance().font, player.getBlockX() + ", " + player.getBlockZ(), left + 2, top + size - 10, 0xFFFFFFFF, true);
