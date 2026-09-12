@@ -3,6 +3,8 @@ package com.muwenyan.simplemap.platform;
 import com.muwenyan.simplemap.core.protocol.FrameCodec;
 import com.muwenyan.simplemap.core.protocol.MapBookFrame;
 import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
+import com.muwenyan.simplemap.core.protocol.WaypointSyncCodec;
+import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -25,5 +27,14 @@ class MapProtocolEndpointTest {
         assertFalse(endpoint.receiveSafely(new byte[]{1, 2, 3}));
         assertEquals(true, endpoint.lastError().isPresent());
         assertEquals(0, endpoint.receivedCount());
+    }
+
+    @Test
+    void extractsWaypointSyncFrames() throws Exception {
+        MapProtocolEndpoint endpoint = new MapProtocolEndpoint();
+        var message = new WaypointSyncMessage(4, java.util.List.of());
+        var frame = new MapBookFrame(1, MapBookMessageType.WAYPOINT_SYNC, UUID.randomUUID(), WaypointSyncCodec.encode(message));
+        endpoint.receive(FrameCodec.encode(frame));
+        assertEquals(4, endpoint.lastWaypointSync().orElseThrow().revision());
     }
 }

@@ -1,7 +1,7 @@
 package com.muwenyan.simplemap.core.protocol;
 
 public enum MapBookMessageType {
-    HELLO(1), HELLO_ACK(2), REGION_DATA(3), ACK(4), ERROR(5);
+    HELLO(1), HELLO_ACK(2), REGION_DATA(3), ACK(4), ERROR(5), WAYPOINT_SYNC(6);
     private final int wireValue;
     MapBookMessageType(int wireValue) { this.wireValue = wireValue; }
     public int wireValue() { return wireValue; }
