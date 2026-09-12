@@ -31,6 +31,7 @@ public final class MapClientController {
     private final WaypointStore waypoints = new WaypointStore();
     private MapBookRuntime books;
     private WaypointFileService waypointFiles;
+    private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
 
     public MapClientController() {
@@ -50,7 +51,11 @@ public final class MapClientController {
     public synchronized void loadConfig(java.nio.file.Path path) { runtime.loadConfig(new FileConfigPort(path)); }
     public synchronized void saveConfig(java.nio.file.Path path) { runtime.saveConfig(new FileConfigPort(path)); }
     public synchronized void bindWaypointStorage(java.nio.file.Path root) {
-        waypointFiles = new WaypointFileService(root);
+        java.nio.file.Path normalized = Objects.requireNonNull(root, "root").toAbsolutePath().normalize();
+        if (normalized.equals(waypointRoot)) return;
+        waypoints.clear();
+        waypointRoot = normalized;
+        waypointFiles = new WaypointFileService(normalized);
         try { waypointFiles.readInto(waypoints); }
         catch (java.io.IOException exception) { throw new IllegalStateException("cannot load waypoints", exception); }
     }

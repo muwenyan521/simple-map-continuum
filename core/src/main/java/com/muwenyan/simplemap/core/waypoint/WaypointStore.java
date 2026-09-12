@@ -23,6 +23,7 @@ public final class WaypointStore {
         if (id == null) throw new NullPointerException("id");
         return values.removeIf(w -> w.id().equals(id));
     }
+    public synchronized void clear() { values.clear(); }
     public synchronized void clearDimension(DimensionId dimension) {
         if (dimension == null) throw new NullPointerException("dimension");
         values.removeIf(w -> w.dimension().equals(dimension));
