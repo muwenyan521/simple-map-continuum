@@ -24,11 +24,13 @@ import com.muwenyan.simplemap.core.minimap.MinimapFrame;
 import com.muwenyan.simplemap.core.minimap.MinimapFrameBuilder;
 import com.muwenyan.simplemap.core.minimap.MinimapTile;
 import com.muwenyan.simplemap.platform.file.FileConfigPort;
+import com.muwenyan.simplemap.platform.file.WaypointFileService;
 
 public final class MapClientController {
     private final MapRuntime runtime;
     private final WaypointStore waypoints = new WaypointStore();
     private MapBookRuntime books;
+    private WaypointFileService waypointFiles;
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -46,6 +48,16 @@ public final class MapClientController {
     public synchronized MapBookRuntime books() { return Objects.requireNonNull(books, "book storage is not bound"); }
     public synchronized void loadConfig(java.nio.file.Path path) { runtime.loadConfig(new FileConfigPort(path)); }
     public synchronized void saveConfig(java.nio.file.Path path) { runtime.saveConfig(new FileConfigPort(path)); }
+    public synchronized void bindWaypointStorage(java.nio.file.Path root) {
+        waypointFiles = new WaypointFileService(root);
+        try { waypointFiles.readInto(waypoints); }
+        catch (java.io.IOException exception) { throw new IllegalStateException("cannot load waypoints", exception); }
+    }
+    public synchronized void saveWaypoints() {
+        if (waypointFiles == null) throw new IllegalStateException("waypoint storage is not bound");
+        try { waypointFiles.write(waypoints); }
+        catch (java.io.IOException exception) { throw new IllegalStateException("cannot save waypoints", exception); }
+    }
     public MapMode mode() { return runtime.mode().mode(); }
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
