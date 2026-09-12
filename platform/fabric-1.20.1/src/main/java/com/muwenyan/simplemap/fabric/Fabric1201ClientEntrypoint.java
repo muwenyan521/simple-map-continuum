@@ -24,6 +24,8 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping ZOOM_OUT = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.zoom_out", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, "category.simplemap"));
     private static final KeyMapping TOGGLE_ROTATION = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.toggle_rotation", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.simplemap"));
     private static final KeyMapping CYCLE_SHAPE = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.cycle_shape", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_P, "category.simplemap"));
+    private static final KeyMapping TOGGLE_COORDS = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.toggle_coordinates", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "category.simplemap"));
+    private static final KeyMapping CYCLE_ANCHOR = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.cycle_anchor", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_O, "category.simplemap"));
 
     @Override
     public void onInitializeClient() {
@@ -56,6 +58,8 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
             while (ZOOM_OUT.consumeClick()) bootstrap.clientController().zoomMinimap(0.8d);
             while (TOGGLE_ROTATION.consumeClick()) bootstrap.clientController().toggleMinimapRotation();
             while (CYCLE_SHAPE.consumeClick()) bootstrap.clientController().cycleMinimapShape();
+            while (TOGGLE_COORDS.consumeClick()) bootstrap.clientController().toggleMinimapCoordinates();
+            while (CYCLE_ANCHOR.consumeClick()) bootstrap.clientController().cycleMinimapAnchor();
         });
         HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
             if (Minecraft.getInstance().player == null || !bootstrap.clientController().minimapEnabled()) return;

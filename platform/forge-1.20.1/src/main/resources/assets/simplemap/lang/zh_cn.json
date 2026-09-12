@@ -8,6 +8,8 @@
   "key.simplemap.zoom_out": "缩小小地图",
   "key.simplemap.toggle_rotation": "切换小地图旋转",
   "key.simplemap.cycle_shape": "切换小地图形状",
+  "key.simplemap.toggle_coordinates": "切换小地图坐标",
+  "key.simplemap.cycle_anchor": "切换小地图位置",
   "screen.simplemap.map": "Simple Map",
   "screen.simplemap.mode": "模式：%s",
   "screen.simplemap.cells": "已绘制区块：%s",

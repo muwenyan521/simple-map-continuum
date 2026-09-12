@@ -8,6 +8,8 @@
   "key.simplemap.zoom_out": "Zoom out minimap",
   "key.simplemap.toggle_rotation": "Toggle minimap rotation",
   "key.simplemap.cycle_shape": "Cycle minimap shape",
+  "key.simplemap.toggle_coordinates": "Toggle minimap coordinates",
+  "key.simplemap.cycle_anchor": "Cycle minimap anchor",
   "screen.simplemap.map": "Simple Map",
   "screen.simplemap.mode": "Mode: %s",
   "screen.simplemap.cells": "Mapped chunks: %s",
