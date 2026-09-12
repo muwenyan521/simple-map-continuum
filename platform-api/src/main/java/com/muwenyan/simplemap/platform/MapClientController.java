@@ -137,6 +137,18 @@ public final class MapClientController {
                 minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), !minimapConfig.showCoordinates());
         return minimapConfig.showCoordinates();
     }
+    public synchronized boolean toggleMinimapRotation() {
+        minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), minimapConfig.zoom(),
+                minimapConfig.shape(), minimapConfig.anchor(), !minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+        return minimapConfig.rotateWithPlayer();
+    }
+    public synchronized MinimapConfig cycleMinimapShape() {
+        var shapes = com.muwenyan.simplemap.core.minimap.MinimapShape.values();
+        var next = shapes[(minimapConfig.shape().ordinal() + 1) % shapes.length];
+        minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), minimapConfig.zoom(),
+                next, minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+        return minimapConfig;
+    }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),

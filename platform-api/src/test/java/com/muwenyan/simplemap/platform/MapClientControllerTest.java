@@ -97,6 +97,17 @@ class MapClientControllerTest {
     }
 
     @Test
+    void minimapRotationAndShapeControlsChangeConfiguration() {
+        var controller = new MapClientController();
+        boolean rotation = controller.minimapConfig().rotateWithPlayer();
+        controller.toggleMinimapRotation();
+        org.junit.jupiter.api.Assertions.assertEquals(!rotation, controller.minimapConfig().rotateWithPlayer());
+        var shape = controller.minimapConfig().shape();
+        controller.cycleMinimapShape();
+        org.junit.jupiter.api.Assertions.assertNotEquals(shape, controller.minimapConfig().shape());
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
