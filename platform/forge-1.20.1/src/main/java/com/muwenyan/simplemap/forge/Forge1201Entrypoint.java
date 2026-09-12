@@ -10,6 +10,7 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraft.world.Container;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandSourceStack;
@@ -30,6 +31,7 @@ public final class Forge1201Entrypoint {
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onCrafted);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onLogin);
+        MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onDeath);
         new MapForge1201Bootstrap().descriptor();
         Forge1201Network.register();
     }
@@ -93,6 +95,14 @@ public final class Forge1201Entrypoint {
         bindServerStorage(player.createCommandSourceStack());
         Forge1201Network.sendToPlayer(player,
                 new MapForge1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
+    }
+
+    private static void onDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            var bootstrap = new MapForge1201Bootstrap();
+            bindServerStorage(player.createCommandSourceStack());
+            bootstrap.serverController().addDeathWaypoint(player.getUUID(), new DimensionId(player.level().dimension().location().toString()), new com.muwenyan.simplemap.core.model.BlockPos(player.getBlockX(), player.getBlockY(), player.getBlockZ()));
+        }
     }
 
     private static void bindServerStorage(CommandSourceStack source) {

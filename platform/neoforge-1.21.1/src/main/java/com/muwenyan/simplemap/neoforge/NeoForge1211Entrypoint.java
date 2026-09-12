@@ -11,6 +11,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.minecraft.world.Container;
 import net.minecraft.commands.Commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -30,6 +31,7 @@ public final class NeoForge1211Entrypoint {
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::registerCommands);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onCrafted);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onLogin);
+        NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onDeath);
         new MapNeoForge1211Bootstrap().descriptor();
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::registerPayloads);
     }
@@ -96,6 +98,14 @@ public final class NeoForge1211Entrypoint {
         bindServerStorage(player.createCommandSourceStack());
         NeoForge1211Network.sendToPlayer(player,
                 new MapNeoForge1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
+    }
+
+    private static void onDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            var bootstrap = new MapNeoForge1211Bootstrap();
+            bindServerStorage(player.createCommandSourceStack());
+            bootstrap.serverController().addDeathWaypoint(player.getUUID(), new DimensionId(player.level().dimension().location().toString()), new com.muwenyan.simplemap.core.model.BlockPos(player.getBlockX(), player.getBlockY(), player.getBlockZ()));
+        }
     }
 
     private static void bindServerStorage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context) {

@@ -18,6 +18,15 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
         Fabric1211Items.register();
         new MapFabric1211Bootstrap().descriptor();
         Fabric1211Network.register();
+        net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+            if (entity instanceof net.minecraft.server.level.ServerPlayer player) {
+                var bootstrap = new MapFabric1211Bootstrap();
+                bindServerStorage(player.createCommandSourceStack());
+                bootstrap.serverController().addDeathWaypoint(player.getUUID(),
+                        new DimensionId(player.level().dimension().location().toString()),
+                        new com.muwenyan.simplemap.core.model.BlockPos(player.getBlockX(), player.getBlockY(), player.getBlockZ()));
+            }
+        });
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> registerCommands(dispatcher));
         net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             var source = handler.player.createCommandSourceStack();
