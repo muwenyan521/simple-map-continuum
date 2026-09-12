@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import com.muwenyan.simplemap.core.book.MapBookItemState;
 import com.muwenyan.simplemap.core.book.MapBookStatus;
 import java.util.UUID;
+import com.muwenyan.simplemap.platform.MapBookRuntime;
 
 public final class Forge1201MapBookItem extends Item {
     private final boolean written;
@@ -16,6 +17,15 @@ public final class Forge1201MapBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (!written && !level.isClientSide() && level.getServer() != null) {
+            try {
+                var root = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+                var book = new MapBookRuntime(root).create(player.getUUID());
+                writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+            } catch (java.io.IOException exception) {
+                return InteractionResultHolder.fail(stack);
+            }
+        }
         if (written && !hasBookId(stack)) return InteractionResultHolder.fail(stack);
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
