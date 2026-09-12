@@ -51,6 +51,7 @@ class MapBookRuntimeTest {
         var merged = runtime.mergeItems(MapBookItemState.written(left, "Atlas"),
                 MapBookItemState.written(right, "Atlas"), owner, "Merged");
         assertEquals(com.muwenyan.simplemap.core.book.MapBookStatus.WRITTEN, merged.status());
-        assertEquals(2, runtime.load(left.id()).snapshot().regions().size());
+        assertEquals(2, runtime.load(merged.id().orElseThrow()).snapshot().regions().size());
+        org.junit.jupiter.api.Assertions.assertNotEquals(left.id(), merged.id().orElseThrow());
     }
 }

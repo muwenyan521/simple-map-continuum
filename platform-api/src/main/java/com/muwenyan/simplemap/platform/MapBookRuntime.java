@@ -55,8 +55,9 @@ public final class MapBookRuntime {
         }
         MapBook target = load(left.id().orElseThrow());
         MapBook source = load(right.id().orElseThrow());
-        merge(target, source, actor);
-        return MapBookItemState.written(target, title);
+        MapBook merged = target.copy(actor, UUID.randomUUID(), actor);
+        merge(merged, source, actor);
+        return MapBookItemState.written(merged, title);
     }
 
     public static MapBookItemState emptyItem() { return MapBookItemState.empty(); }
