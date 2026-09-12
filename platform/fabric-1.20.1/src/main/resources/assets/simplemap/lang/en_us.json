@@ -1,5 +1,6 @@
 {
   "item.simplemap.map_book": "Map Book",
   "key.simplemap.open_map": "Open map",
-  "category.simplemap": "Simple Map"
+  "category.simplemap": "Simple Map",
+  "key.simplemap.toggle_mode": "Toggle map mode"
 }

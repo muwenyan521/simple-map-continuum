@@ -4,6 +4,8 @@ import com.muwenyan.simplemap.core.config.MapConfig;
 import com.muwenyan.simplemap.core.config.MapConfigCodec;
 import com.muwenyan.simplemap.core.map.MapRegion;
 import com.muwenyan.simplemap.core.navigation.NavigationState;
+import com.muwenyan.simplemap.core.navigation.MapModeController;
+import com.muwenyan.simplemap.core.model.MapMode;
 import com.muwenyan.simplemap.core.session.LifecycleState;
 import com.muwenyan.simplemap.core.render.MapRenderFrame;
 import com.muwenyan.simplemap.core.render.RenderPlan;
@@ -36,6 +38,7 @@ public final class MapRuntime {
     private final WorldSourcePort world;
     private final RenderPort render;
     private final NavigationState navigation;
+    private final MapModeController mode = new MapModeController(MapMode.SURFACE);
     private final ChunkStore chunks;
     private final DimensionRuntimeRegistry dimensions = new DimensionRuntimeRegistry();
     private final LifecycleState lifecycle = new LifecycleState();
@@ -53,6 +56,7 @@ public final class MapRuntime {
     public WorldSourcePort world() { return world; }
     public RenderPort render() { return render; }
     public NavigationState navigation() { return navigation; }
+    public MapModeController mode() { return mode; }
     public ChunkStore chunks() { return chunks; }
     public DimensionRuntimeRegistry dimensions() { return dimensions; }
     public LifecycleState lifecycle() { return lifecycle; }
