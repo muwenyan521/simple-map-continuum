@@ -23,6 +23,7 @@ import com.muwenyan.simplemap.core.minimap.MinimapConfig;
 import com.muwenyan.simplemap.core.minimap.MinimapFrame;
 import com.muwenyan.simplemap.core.minimap.MinimapFrameBuilder;
 import com.muwenyan.simplemap.core.minimap.MinimapTile;
+import com.muwenyan.simplemap.platform.file.FileConfigPort;
 
 public final class MapClientController {
     private final MapRuntime runtime;
@@ -43,6 +44,8 @@ public final class MapClientController {
     public MapRuntime runtime() { return runtime; }
     public synchronized void bindBookStorage(java.nio.file.Path root) { books = new MapBookRuntime(root); }
     public synchronized MapBookRuntime books() { return Objects.requireNonNull(books, "book storage is not bound"); }
+    public synchronized void loadConfig(java.nio.file.Path path) { runtime.loadConfig(new FileConfigPort(path)); }
+    public synchronized void saveConfig(java.nio.file.Path path) { runtime.saveConfig(new FileConfigPort(path)); }
     public MapMode mode() { return runtime.mode().mode(); }
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
