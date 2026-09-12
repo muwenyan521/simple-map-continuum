@@ -17,7 +17,7 @@ public final class Fabric1201MapBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!written && !level.isClientSide() && level.getServer() != null) {
+        if (!written && !hasBookId(stack) && !level.isClientSide() && level.getServer() != null) {
             try {
                 var root = level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
                 var book = new MapBookRuntime(root).create(player.getUUID());
