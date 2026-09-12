@@ -134,6 +134,12 @@ public final class MapClientController {
                 if (runs.isPresent()) tiles.add(new MinimapTile(entry.getKey(), runs.get().argb(), entry.getValue().revision()));
             }
         }
+        for (Waypoint waypoint : visibleWaypoints(player.dimension())) {
+            int color = followedWaypoint().map(value -> value.id().equals(waypoint.id())).orElse(false)
+                    ? 0xFFFF4040 : 0xFFFFD040;
+            tiles.add(new MinimapTile(new ChunkPos(Math.floorDiv(waypoint.position().x(), 16),
+                    Math.floorDiv(waypoint.position().z(), 16)), color, Long.MAX_VALUE));
+        }
         return MinimapFrameBuilder.build(player, Objects.requireNonNull(config, "config"), generation, tiles);
     }
 

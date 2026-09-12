@@ -57,6 +57,16 @@ class MapClientControllerTest {
         assertEquals(1, frame.tiles().size());
     }
 
+    @Test
+    void minimapFrameContainsWaypointMarker() {
+        MapClientController controller = new MapClientController(new MapClientControllerTestSource());
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        controller.executeWaypointCommand(java.util.UUID.randomUUID(), dimension, "waypoint add home 16 64 16");
+        var frame = controller.buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(dimension, 0, 0, 64, 0),
+                com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 1);
+        org.junit.jupiter.api.Assertions.assertTrue(frame.tiles().stream().anyMatch(tile -> tile.argb() == 0xFFFFD040));
+    }
+
     private static final class MapClientControllerTestSource implements com.muwenyan.simplemap.platform.port.WorldSourcePort,
             com.muwenyan.simplemap.platform.port.SurfaceColumnSourcePort {
         @Override public java.util.Optional<com.muwenyan.simplemap.core.model.ChunkSnapshot> snapshot(
