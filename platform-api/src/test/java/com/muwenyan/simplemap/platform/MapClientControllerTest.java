@@ -88,6 +88,18 @@ class MapClientControllerTest {
     }
 
     @Test
+    void clearingDimensionRemovesOnlyMatchingWaypoints() {
+        var controller = new MapClientController();
+        var overworld = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var nether = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:the_nether");
+        controller.addWaypoint(java.util.UUID.randomUUID(), overworld, new com.muwenyan.simplemap.core.model.BlockPos(1, 2, 3), "a");
+        controller.addWaypoint(java.util.UUID.randomUUID(), nether, new com.muwenyan.simplemap.core.model.BlockPos(4, 5, 6), "b");
+        controller.clearDimension(overworld);
+        org.junit.jupiter.api.Assertions.assertEquals(0, controller.visibleWaypoints(overworld).size());
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.visibleWaypoints(nether).size());
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();
