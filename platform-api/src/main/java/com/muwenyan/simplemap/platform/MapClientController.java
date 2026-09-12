@@ -232,7 +232,7 @@ public final class MapClientController {
         if (mode() == MapMode.CAVE) {
             for (var entry : caveSnapshots.entrySet()) {
                 var runs = entry.getValue().columns().stream().flatMap(List::stream).findFirst();
-                if (runs.isPresent()) tiles.add(new MinimapTile(entry.getKey(), runs.get().argb(), entry.getValue().revision()));
+                if (runs.isPresent()) tiles.add(new MinimapTile(entry.getKey(), runs.get().layer().shadedArgb(com.muwenyan.simplemap.core.cave.CaveLightMode.BRIGHT), entry.getValue().revision()));
             }
         }
         for (Waypoint waypoint : visibleWaypoints(player.dimension())) {

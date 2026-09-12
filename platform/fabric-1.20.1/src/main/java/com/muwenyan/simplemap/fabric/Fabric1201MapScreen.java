@@ -59,7 +59,7 @@ public final class Fabric1201MapScreen extends Screen {
                     if (run.isPresent()) {
                         int cx = left + (entry.getKey().x() - region.origin().x()) * size;
                         int cz = top + (entry.getKey().z() - region.origin().z()) * size;
-                        graphics.fill(cx, cz, cx + size, cz + size, run.get().argb());
+                        graphics.fill(cx, cz, cx + size, cz + size, run.get().layer().shadedArgb(com.muwenyan.simplemap.core.cave.CaveLightMode.BRIGHT));
                     }
                 }
             }
