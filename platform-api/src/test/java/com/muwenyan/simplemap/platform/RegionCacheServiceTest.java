@@ -20,8 +20,8 @@ class RegionCacheServiceTest {
         RegionCacheService cache = new RegionCacheService(temporary);
         MapRegion region = new MapRegion(dimension, new ChunkPos(1, -2), 32, 32);
         cache.write(region);
-        assertEquals(region.origin(), cache.read(dimension, 1, -2).orElseThrow().origin());
-        assertTrue(cache.invalidate(dimension, 1, -2));
-        assertTrue(cache.path(dimension, 1, -2).resolveSibling("r.1.-2.smap.invalid").toFile().isFile());
+        assertEquals(region.origin(), cache.read(dimension, 0, -1).orElseThrow().origin());
+        assertTrue(cache.invalidate(dimension, 0, -1));
+        assertTrue(cache.path(dimension, 0, -1).resolveSibling("r.0.-1.smap.invalid").toFile().isFile());
     }
 }
