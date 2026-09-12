@@ -72,7 +72,7 @@ public final class NeoForge1211ClientEntrypoint {
             var frame = BOOTSTRAP.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
                     new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
                     player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
-                    com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
+                    BOOTSTRAP.clientController().minimapConfig(), 0);
             drawMinimap(event.getGuiGraphics(), frame);
         }
 

@@ -52,7 +52,7 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
             var frame = bootstrap.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
                     new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
                     player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
-                    com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
+                    bootstrap.clientController().minimapConfig(), 0);
             drawMinimap(graphics, frame);
         });
     }

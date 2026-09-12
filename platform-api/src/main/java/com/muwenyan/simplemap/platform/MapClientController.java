@@ -42,6 +42,7 @@ public final class MapClientController {
     private java.nio.file.Path caveRoot;
     private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
+    private MinimapConfig minimapConfig = MinimapConfig.defaults();
     private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
 
     public MapClientController() {
@@ -85,6 +86,14 @@ public final class MapClientController {
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public synchronized boolean minimapEnabled() { return minimapEnabled; }
     public synchronized boolean toggleMinimap() { minimapEnabled = !minimapEnabled; return minimapEnabled; }
+    public synchronized MinimapConfig minimapConfig() { return minimapConfig; }
+    public synchronized MinimapConfig zoomMinimap(double factor) {
+        if (!Double.isFinite(factor) || factor <= 0) throw new IllegalArgumentException("invalid zoom factor");
+        double zoom = Math.max(0.125d, Math.min(64d, minimapConfig.zoom() * factor));
+        minimapConfig = new MinimapConfig(minimapConfig.enabled(), minimapConfig.sizePixels(), zoom,
+                minimapConfig.shape(), minimapConfig.anchor(), minimapConfig.rotateWithPlayer(), minimapConfig.showCoordinates());
+        return minimapConfig;
+    }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),
