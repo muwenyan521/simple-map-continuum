@@ -14,6 +14,7 @@ import net.minecraft.commands.CommandSourceStack;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.muwenyan.simplemap.core.model.DimensionId;
+import net.minecraft.commands.arguments.UuidArgument;
 
 @Mod("simplemap")
 public final class Forge1201Entrypoint {
@@ -51,7 +52,11 @@ public final class Forge1201Entrypoint {
         var y = Commands.argument("y", IntegerArgumentType.integer()).then(z);
         var x = Commands.argument("x", IntegerArgumentType.integer()).then(y);
         var name = Commands.argument("name", StringArgumentType.word()).then(x);
-        var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name));
+        var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name))
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
     }
 }

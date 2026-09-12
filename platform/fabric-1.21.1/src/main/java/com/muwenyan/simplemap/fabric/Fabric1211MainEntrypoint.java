@@ -8,6 +8,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.muwenyan.simplemap.core.model.DimensionId;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.UuidArgument;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 public final class Fabric1211MainEntrypoint implements ModInitializer {
@@ -38,6 +39,13 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
                                                                     source.getEntityOrException().getUUID(),
                                                                     new DimensionId(source.getLevel().dimension().location().toString()), command).size();
                                         })))));
-        dispatcher.register(Commands.literal("simplemap").then(Commands.literal("waypoint").then(list).then(add)));
+        var waypoint = Commands.literal("waypoint").then(list).then(add)
+                .then(Commands.literal("remove").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().clientController().executeWaypointCommand(
+                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
+                        "waypoint remove " + UuidArgument.getUuid(context, "id")).size())))
+                .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapFabric1211Bootstrap().clientController().executeWaypointCommand(
+                        context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
+                        "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
+        dispatcher.register(Commands.literal("simplemap").then(waypoint));
     }
 }
