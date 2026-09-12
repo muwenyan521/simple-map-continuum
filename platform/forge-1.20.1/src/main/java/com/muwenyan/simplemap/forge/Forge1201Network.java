@@ -12,10 +12,15 @@ public final class Forge1201Network {
             new ResourceLocation("simplemap", "protocol"), () -> VERSION, VERSION::equals, VERSION::equals);
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Forge1201Network() { }
+    public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
 
     public static void register() {
         CHANNEL.registerMessage(0, FrameMessage.class, Forge1201Network::encode, Forge1201Network::decode,
                 (message, context) -> { context.get().enqueueWork(() -> { try { ENDPOINT.receive(message.payload); } catch (com.muwenyan.simplemap.core.protocol.ProtocolException ignored) { } }); context.get().setPacketHandled(true); });
+    }
+
+    public static void sendToServer(byte[] payload) {
+        CHANNEL.sendToServer(new FrameMessage(payload));
     }
 
     private static void encode(FrameMessage message, FriendlyByteBuf buffer) { buffer.writeByteArray(message.payload); }

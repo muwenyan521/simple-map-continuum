@@ -16,6 +16,6 @@ public final class MapProtocolEndpoint {
         received.incrementAndGet();
     }
 
-    public AtomicLong receivedCount() { return received; }
+    public long receivedCount() { return received.get(); }
     public java.util.Optional<MapBookFrame> lastFrame() { return java.util.Optional.ofNullable(lastFrame.get()); }
 }

@@ -15,6 +15,6 @@ class MapProtocolEndpointTest {
         MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(), new byte[]{1, 2});
         endpoint.receive(FrameCodec.encode(frame));
         assertEquals(frame, endpoint.lastFrame().orElseThrow());
-        assertEquals(1, endpoint.receivedCount().get());
+        assertEquals(1, endpoint.receivedCount());
     }
 }

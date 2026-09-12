@@ -9,6 +9,7 @@ public final class Fabric1201Network {
     private static final ResourceLocation CHANNEL = new ResourceLocation("simplemap", "protocol");
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Fabric1201Network() { }
+    public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(CHANNEL, (server, player, handler, buffer, responseSender) -> {
             byte[] payload = new byte[buffer.readableBytes()];
