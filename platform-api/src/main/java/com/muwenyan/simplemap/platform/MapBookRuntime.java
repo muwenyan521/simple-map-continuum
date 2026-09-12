@@ -3,6 +3,7 @@ package com.muwenyan.simplemap.platform;
 import com.muwenyan.simplemap.core.book.MapBook;
 import com.muwenyan.simplemap.core.book.MapBookItemState;
 import com.muwenyan.simplemap.core.book.MapBookStatus;
+import com.muwenyan.simplemap.core.book.MapBookCrafting;
 import com.muwenyan.simplemap.platform.file.MapBookFileService;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,6 +36,27 @@ public final class MapBookRuntime {
         target.merge(Objects.requireNonNull(actor, "actor"), Objects.requireNonNull(source, "source"));
         files.write(target);
         return target;
+    }
+
+    public synchronized MapBookItemState copyItem(MapBookItemState written, MapBookItemState empty,
+                                                   UUID actor, UUID owner) throws IOException {
+        if (!MapBookCrafting.matchesCopy(java.util.List.of(written, empty))) {
+            throw new IllegalArgumentException("invalid map book copy inputs");
+        }
+        MapBook source = load(written.id().orElseThrow());
+        MapBook copy = copy(source, actor, owner);
+        return MapBookItemState.written(copy, written.title());
+    }
+
+    public synchronized MapBookItemState mergeItems(MapBookItemState left, MapBookItemState right,
+                                                     UUID actor, String title) throws IOException {
+        if (!MapBookCrafting.matchesMerge(java.util.List.of(left, right))) {
+            throw new IllegalArgumentException("invalid map book merge inputs");
+        }
+        MapBook target = load(left.id().orElseThrow());
+        MapBook source = load(right.id().orElseThrow());
+        merge(target, source, actor);
+        return MapBookItemState.written(target, title);
     }
 
     public static MapBookItemState emptyItem() { return MapBookItemState.empty(); }

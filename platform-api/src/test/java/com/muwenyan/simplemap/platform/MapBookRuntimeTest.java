@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class MapBookRuntimeTest {
     @TempDir Path temporary;
@@ -20,6 +21,19 @@ class MapBookRuntimeTest {
         runtime.save(source);
         var copy = runtime.copy(source, owner, owner);
         assertEquals(1, runtime.load(copy.id()).snapshot().regions().size());
-        org.junit.jupiter.api.Assertions.assertNotEquals(source.id(), copy.id());
+        assertNotEquals(source.id(), copy.id());
+    }
+
+    @Test
+    void copyItemCreatesWrittenStateAndPersistsArchive() throws Exception {
+        MapBookRuntime runtime = new MapBookRuntime(temporary);
+        UUID owner = UUID.randomUUID();
+        var source = runtime.create(owner);
+        source.save(owner, new RegionPos(0, 0), new byte[]{7});
+        runtime.save(source);
+        var state = runtime.copyItem(com.muwenyan.simplemap.core.book.MapBookItemState.written(source, "Atlas"),
+                com.muwenyan.simplemap.core.book.MapBookItemState.empty(), owner, owner);
+        assertEquals(com.muwenyan.simplemap.core.book.MapBookStatus.WRITTEN, state.status());
+        assertEquals(1, runtime.load(state.id().orElseThrow()).snapshot().regions().size());
     }
 }
