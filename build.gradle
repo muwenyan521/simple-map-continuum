@@ -128,6 +128,17 @@ tasks.register('architectureBoundaryCheck') {
         if (!missing.isEmpty()) {
             throw new GradleException("missing target metadata: ${missing}")
         }
+        def dedicatedEntrypoints = [
+            'platform/forge-1.20.1/src/main/java/com/muwenyan/simplemap/forge/Forge1201Entrypoint.java',
+            'platform/neoforge-1.21.1/src/main/java/com/muwenyan/simplemap/neoforge/NeoForge1211Entrypoint.java'
+        ]
+        def clientLeaks = dedicatedEntrypoints.findAll { path ->
+            def source = file(path).getText('UTF-8')
+            source.contains('net.minecraft.client') || source.contains('com.mojang.blaze3d')
+        }
+        if (!clientLeaks.isEmpty()) {
+            throw new GradleException("dedicated entrypoint client leak: ${clientLeaks}")
+        }
     }
 }
 
