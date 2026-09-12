@@ -13,6 +13,7 @@ import com.muwenyan.simplemap.core.style.WaterShading;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 public final class ClientMapConfigCodec {
     private ClientMapConfigCodec() { }
@@ -34,7 +35,11 @@ public final class ClientMapConfigCodec {
                 .append("cave.light=").append(config.cave().lightMode()).append('\n')
                 .append("style.relief=").append(config.style().relief()).append('\n')
                 .append("style.water=").append(config.style().water()).append('\n')
-                .append("style.flowers=").append(config.style().flowers()).append('\n');
+                .append("style.flowers=").append(config.style().flowers()).append('\n')
+                .append("style.colorProfile=").append(config.style().colorProfile()).append('\n');
+        config.style().blockOverrides().entrySet().stream().sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> output.append("style.override.").append(entry.getKey()).append('=')
+                        .append(entry.getValue()).append('\n'));
         appendFeatures(output, config.features());
         return output.toString();
     }
@@ -52,9 +57,16 @@ public final class ClientMapConfigCodec {
                 bool(values, "minimap.coordinates"));
         CaveConfig cave = new CaveConfig(enumValue(values, "cave.mode", CaveMode.class), integer(values, "cave.topY"),
                 integer(values, "cave.maxLayers"), enumValue(values, "cave.light", CaveLightMode.class));
-        MapStyle style = new MapStyle(com.muwenyan.simplemap.core.color.ColorProfile.BALANCED,
+        Map<Integer, Integer> overrides = new TreeMap<>();
+        values.forEach((key, value) -> {
+            if (key.startsWith("style.override.")) {
+                try { overrides.put(Integer.parseInt(key.substring("style.override.".length())), Integer.decode(value)); }
+                catch (NumberFormatException exception) { throw new IllegalArgumentException("invalid style override", exception); }
+            }
+        });
+        MapStyle style = new MapStyle(enumValue(values, "style.colorProfile", com.muwenyan.simplemap.core.color.ColorProfile.class),
                 enumValue(values, "style.relief", ReliefMode.class), enumValue(values, "style.water", WaterShading.class),
-                bool(values, "style.flowers"), Map.of());
+                bool(values, "style.flowers"), overrides);
         MapFeatureFlags features = new MapFeatureFlags(bool(values, "feature.fullscreenMap"), bool(values, "feature.minimap"),
                 bool(values, "feature.waypoints"), bool(values, "feature.blockInformation"), bool(values, "feature.biomeInformation"),
                 bool(values, "feature.caveMap"), bool(values, "feature.terrainRelief"), bool(values, "feature.waterShading"),
