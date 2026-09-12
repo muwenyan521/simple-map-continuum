@@ -13,20 +13,22 @@ import java.util.Optional;
 
 public final class RegionFilePersistencePort implements PersistencePort {
     private final RegionCacheService cache;
+    private final CaveTileFilePersistencePort caves;
 
     public RegionFilePersistencePort(Path root) {
-        cache = new RegionCacheService(Objects.requireNonNull(root, "root"));
+        Path normalized = Objects.requireNonNull(root, "root");
+        cache = new RegionCacheService(normalized);
+        caves = new CaveTileFilePersistencePort(normalized);
     }
 
     @Override
     public Optional<CaveTile> read(TileKey key) {
-        Objects.requireNonNull(key, "key");
-        return Optional.empty();
+        return caves.read(Objects.requireNonNull(key, "key"));
     }
 
     @Override
     public void write(CaveTile tile) {
-        throw new UnsupportedOperationException("cave tile persistence requires a cave backend");
+        caves.write(Objects.requireNonNull(tile, "tile"));
     }
 
     @Override
