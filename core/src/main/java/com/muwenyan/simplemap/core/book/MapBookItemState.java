@@ -14,6 +14,9 @@ public record MapBookItemState(MapBookStatus status, UUID bookId, String title) 
         if (status == MapBookStatus.EMPTY && bookId != null) {
             throw new IllegalArgumentException("empty book cannot have an id");
         }
+        if (status == MapBookStatus.LEARNING) {
+            throw new IllegalArgumentException("learning state cannot be stored in an item");
+        }
         if (status != MapBookStatus.EMPTY && bookId == null) {
             throw new IllegalArgumentException("written book requires an id");
         }

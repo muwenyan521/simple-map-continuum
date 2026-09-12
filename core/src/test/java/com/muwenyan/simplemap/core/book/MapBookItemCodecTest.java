@@ -28,4 +28,10 @@ class MapBookItemCodecTest {
         trailing[4] = 1;
         assertThrows(java.io.IOException.class, () -> MapBookItemCodec.decode(trailing));
     }
+
+    @Test
+    void rejectsTransientLearningState() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new MapBookItemState(MapBookStatus.LEARNING, UUID.randomUUID(), "Map Book"));
+    }
 }
