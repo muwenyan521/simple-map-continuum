@@ -42,6 +42,16 @@ public final class NeoForge1211MapScreen extends Screen {
                 graphics.fill(left + x * size, top + z * size, left + (x + 1) * size, top + (z + 1) * size,
                         cell == null ? 0x40202020 : cell.colorArgb());
             }
+            if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE) {
+                for (var entry : bootstrap.clientController().caveSnapshots().entrySet()) {
+                    var run = entry.getValue().columns().stream().flatMap(java.util.List::stream).findFirst();
+                    if (run.isPresent()) {
+                        int cx = left + (entry.getKey().x() - region.origin().x()) * size;
+                        int cz = top + (entry.getKey().z() - region.origin().z()) * size;
+                        graphics.fill(cx, cz, cx + size, cz + size, run.get().argb());
+                    }
+                }
+            }
             if (Minecraft.getInstance().player != null) {
                 var player = Minecraft.getInstance().player;
                 int px = left + (player.chunkPosition().x - region.origin().x()) * size;
