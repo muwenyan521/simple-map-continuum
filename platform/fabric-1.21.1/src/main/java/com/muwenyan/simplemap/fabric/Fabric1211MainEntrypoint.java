@@ -63,8 +63,12 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
 
     private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         bindServerStorage(source);
-        return new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
+        int result = new MapFabric1211Bootstrap().serverController().executeWaypointCommand(
                 source.getEntityOrException().getUUID(),
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(source.getPlayerOrException(),
+                new Fabric1211Network.FramePayload(new MapFabric1211Bootstrap().serverController()
+                        .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), result)));
+        return result;
     }
 }

@@ -110,8 +110,13 @@ public final class NeoForge1211Entrypoint {
 
     private static int executeWaypoint(net.minecraft.commands.CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         bindServerStorage(source);
-        return new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
+        int result = new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
                 source.getEntityOrException().getUUID(),
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
+        if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            NeoForge1211Network.sendToPlayer(player, new MapNeoForge1211Bootstrap().serverController()
+                    .encodeWaypointSyncFrame(player.getUUID(), result));
+        }
+        return result;
     }
 }

@@ -65,8 +65,14 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
 
     private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         bindServerStorage(source);
-        return new MapFabric1201Bootstrap().serverController().executeWaypointCommand(
+        int result = new MapFabric1201Bootstrap().serverController().executeWaypointCommand(
                 source.getEntityOrException().getUUID(),
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
+        var buffer = com.mojang.datafixers.util.Pair.of(result, new MapFabric1201Bootstrap().serverController()
+                .encodeWaypointSyncFrame(source.getEntityOrException().getUUID(), result));
+        var packet = PacketByteBufs.create(); packet.writeBytes(buffer.getSecond());
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(source.getPlayerOrException(),
+                new net.minecraft.resources.ResourceLocation("simplemap", "protocol"), packet);
+        return result;
     }
 }

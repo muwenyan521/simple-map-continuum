@@ -103,8 +103,13 @@ public final class Forge1201Entrypoint {
 
     private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         bindServerStorage(source);
-        return new MapForge1201Bootstrap().serverController().executeWaypointCommand(
+        int result = new MapForge1201Bootstrap().serverController().executeWaypointCommand(
                 source.getEntityOrException().getUUID(),
                 new DimensionId(source.getLevel().dimension().location().toString()), command).size();
+        if (source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            Forge1201Network.sendToPlayer(player, new MapForge1201Bootstrap().serverController()
+                    .encodeWaypointSyncFrame(player.getUUID(), result));
+        }
+        return result;
     }
 }
