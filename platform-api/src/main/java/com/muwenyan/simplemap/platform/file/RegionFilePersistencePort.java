@@ -22,8 +22,8 @@ public final class RegionFilePersistencePort implements PersistencePort {
     }
 
     @Override
-    public Optional<CaveTile> read(TileKey key) {
-        return caves.read(Objects.requireNonNull(key, "key"));
+    public Optional<CaveTile> read(long epoch, TileKey key) {
+        return caves.read(epoch, Objects.requireNonNull(key, "key"));
     }
 
     @Override

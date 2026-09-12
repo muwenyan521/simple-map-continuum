@@ -7,7 +7,8 @@ import com.muwenyan.simplemap.core.model.DimensionId;
 import java.util.Optional;
 
 public interface PersistencePort {
-    Optional<CaveTile> read(TileKey key);
+    Optional<CaveTile> read(long epoch, TileKey key);
+
     void write(CaveTile tile);
 
     default Optional<MapRegion> readRegion(DimensionId dimension, int regionX, int regionZ) {
