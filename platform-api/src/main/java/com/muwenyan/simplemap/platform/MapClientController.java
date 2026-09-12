@@ -32,6 +32,7 @@ import com.muwenyan.simplemap.core.minimap.MinimapTile;
 import com.muwenyan.simplemap.platform.file.FileConfigPort;
 import com.muwenyan.simplemap.platform.file.WaypointFileService;
 import com.muwenyan.simplemap.platform.file.CaveRegionFileService;
+import com.muwenyan.simplemap.platform.RegionCacheService;
 import com.muwenyan.simplemap.core.persistence.CaveRegionArchive;
 import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import com.muwenyan.simplemap.core.cave.CaveConfig;
@@ -46,6 +47,8 @@ public final class MapClientController {
     private WaypointFileService waypointFiles;
     private CaveRegionFileService caveFiles;
     private java.nio.file.Path caveRoot;
+    private RegionCacheService regionFiles;
+    private java.nio.file.Path regionRoot;
     private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
     private MinimapConfig minimapConfig = MinimapConfig.defaults();
@@ -82,6 +85,13 @@ public final class MapClientController {
         if (!normalized.equals(caveRoot)) {
             caveRoot = normalized;
             caveFiles = new CaveRegionFileService(normalized);
+        }
+    }
+    public synchronized void bindRegionStorage(java.nio.file.Path root) {
+        java.nio.file.Path normalized = Objects.requireNonNull(root, "root").toAbsolutePath().normalize();
+        if (!normalized.equals(regionRoot)) {
+            regionRoot = normalized;
+            regionFiles = new RegionCacheService(normalized);
         }
     }
     public synchronized void saveWaypoints() {
@@ -262,7 +272,18 @@ public final class MapClientController {
                 runtime.scanSurface(new ChunkPos(x, z), source, target.revision() + 1);
             }
         }
+        if (regionFiles != null) {
+            try { regionFiles.write(target); }
+            catch (java.io.IOException exception) { throw new IllegalStateException("cannot persist surface region", exception); }
+        }
         return target.revision() > 0;
+    }
+
+    public synchronized boolean restoreSurface(DimensionId dimension, int regionX, int regionZ) {
+        if (regionFiles == null) throw new IllegalStateException("surface storage is not bound");
+        try {
+            return regionFiles.read(dimension, regionX, regionZ).map(region -> { runtime.setRegion(region); return true; }).orElse(false);
+        } catch (java.io.IOException exception) { throw new IllegalStateException("cannot restore surface region", exception); }
     }
 
     public synchronized int refreshCave(DimensionId dimension, ChunkPos center, int radius, CaveConfig caveConfig) {

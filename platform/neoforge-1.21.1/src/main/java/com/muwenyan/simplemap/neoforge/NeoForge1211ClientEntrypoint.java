@@ -47,6 +47,7 @@ public final class NeoForge1211ClientEntrypoint {
         BOOTSTRAP.bindWorld(new NeoForge1211WorldSource(() -> Minecraft.getInstance().level));
         BOOTSTRAP.clientController().bindBookStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().bindCaveStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/caves"));
+        BOOTSTRAP.clientController().bindRegionStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/regions"));
         BOOTSTRAP.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
         BOOTSTRAP.clientController().loadMinimapConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap-minimap.cfg"));
