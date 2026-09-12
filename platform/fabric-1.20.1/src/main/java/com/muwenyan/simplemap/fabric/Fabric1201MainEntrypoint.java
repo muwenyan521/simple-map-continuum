@@ -32,7 +32,7 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
         net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             var source = handler.player.createCommandSourceStack();
             bindServerStorage(source);
-            var bytes = new MapFabric1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0);
+            var bytes = new MapFabric1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), new MapFabric1201Bootstrap().serverController().waypointRevision());
             var buffer = PacketByteBufs.create(); buffer.writeBytes(bytes);
             sender.sendPacket(new net.minecraft.resources.ResourceLocation("simplemap", "protocol"), buffer);
         });

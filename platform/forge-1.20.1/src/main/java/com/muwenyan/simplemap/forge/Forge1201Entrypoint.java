@@ -94,7 +94,7 @@ public final class Forge1201Entrypoint {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
         bindServerStorage(player.createCommandSourceStack());
         Forge1201Network.sendToPlayer(player,
-                new MapForge1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
+                new MapForge1201Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), new MapForge1201Bootstrap().serverController().waypointRevision()));
     }
 
     private static void onDeath(LivingDeathEvent event) {

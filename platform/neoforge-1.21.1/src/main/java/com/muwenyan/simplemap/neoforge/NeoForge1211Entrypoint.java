@@ -97,7 +97,7 @@ public final class NeoForge1211Entrypoint {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
         bindServerStorage(player.createCommandSourceStack());
         NeoForge1211Network.sendToPlayer(player,
-                new MapNeoForge1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0));
+                new MapNeoForge1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), new MapNeoForge1211Bootstrap().serverController().waypointRevision()));
     }
 
     private static void onDeath(LivingDeathEvent event) {

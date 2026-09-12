@@ -32,7 +32,7 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
             var source = handler.player.createCommandSourceStack();
             bindServerStorage(source);
             sender.sendPacket(new Fabric1211Network.FramePayload(
-                    new MapFabric1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), 0)));
+                    new MapFabric1211Bootstrap().serverController().encodeWaypointSyncFrame(java.util.UUID.randomUUID(), new MapFabric1211Bootstrap().serverController().waypointRevision())));
         });
     }
 
