@@ -16,10 +16,11 @@ public final class MapProtocolEndpoint {
     private final AtomicReference<ProtocolException> lastError = new AtomicReference<>();
     private final AtomicLong received = new AtomicLong();
     private final AtomicReference<WaypointSyncMessage> lastWaypointSync = new AtomicReference<>();
-    private final Consumer<MapBookFrame> observer;
+    private volatile Consumer<MapBookFrame> observer;
 
     public MapProtocolEndpoint() { this(frame -> { }); }
     public MapProtocolEndpoint(Consumer<MapBookFrame> observer) { this.observer = Objects.requireNonNull(observer, "observer"); }
+    public void setObserver(Consumer<MapBookFrame> observer) { this.observer = Objects.requireNonNull(observer, "observer"); }
 
     public void receive(byte[] payload) throws ProtocolException {
         MapBookFrame frame = FrameCodec.decode(payload);

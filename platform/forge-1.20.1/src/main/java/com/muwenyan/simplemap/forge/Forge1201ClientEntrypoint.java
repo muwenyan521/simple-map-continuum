@@ -28,6 +28,7 @@ public final class Forge1201ClientEntrypoint {
 
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
+        Forge1201Network.observe(BOOTSTRAP.clientController());
         event.register(TOGGLE_MODE);
         event.register(OPEN_MAP);
         event.register(TOGGLE_MINIMAP);

@@ -30,6 +30,7 @@ public final class NeoForge1211ClientEntrypoint {
 
     @SubscribeEvent
     public static void registerKeys(RegisterKeyMappingsEvent event) {
+        NeoForge1211Network.observe(BOOTSTRAP.clientController());
         event.register(TOGGLE_MODE);
         event.register(OPEN_MAP);
         event.register(TOGGLE_MINIMAP);

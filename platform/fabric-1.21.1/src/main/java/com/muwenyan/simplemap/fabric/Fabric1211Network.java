@@ -1,6 +1,7 @@
 package com.muwenyan.simplemap.fabric;
 
 import com.muwenyan.simplemap.platform.MapProtocolEndpoint;
+import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -14,6 +15,9 @@ public final class Fabric1211Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Fabric1211Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void observe(com.muwenyan.simplemap.platform.MapClientController controller) {
+        ENDPOINT.setObserver(frame -> { if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) controller.applyWaypointSync(ENDPOINT.lastWaypointSync().orElseThrow()); });
+    }
     public static void sendToServer(byte[] payload) { ClientPlayNetworking.send(new FramePayload(payload)); }
     public static void register() {
         PayloadTypeRegistry.playC2S().register(FramePayload.TYPE, FramePayload.CODEC);

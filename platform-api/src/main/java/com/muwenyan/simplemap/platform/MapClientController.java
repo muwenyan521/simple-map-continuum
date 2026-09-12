@@ -148,9 +148,13 @@ public final class MapClientController {
     public synchronized long applyWaypointSync(byte[] payload) {
         try {
             var message = WaypointSyncCodec.decode(payload);
-            waypoints.replaceAll(message.waypoints());
-            return message.revision();
+            return applyWaypointSync(message);
         } catch (ProtocolException exception) { throw new IllegalArgumentException("invalid waypoint sync", exception); }
+    }
+    public synchronized long applyWaypointSync(com.muwenyan.simplemap.core.protocol.WaypointSyncMessage message) {
+        Objects.requireNonNull(message, "message");
+        waypoints.replaceAll(message.waypoints());
+        return message.revision();
     }
 
     public MinimapFrame buildMinimap(PlayerMapState player, MinimapConfig config, long generation) {

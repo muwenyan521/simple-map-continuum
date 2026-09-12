@@ -1,6 +1,7 @@
 package com.muwenyan.simplemap.forge;
 
 import com.muwenyan.simplemap.platform.MapProtocolEndpoint;
+import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
@@ -15,6 +16,9 @@ public final class Forge1201Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Forge1201Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void observe(com.muwenyan.simplemap.platform.MapClientController controller) {
+        ENDPOINT.setObserver(frame -> { if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) controller.applyWaypointSync(ENDPOINT.lastWaypointSync().orElseThrow()); });
+    }
 
     public static void register() {
         CHANNEL.registerMessage(0, FrameMessage.class, Forge1201Network::encode, Forge1201Network::decode,

@@ -1,6 +1,7 @@
 package com.muwenyan.simplemap.neoforge;
 
 import com.muwenyan.simplemap.platform.MapProtocolEndpoint;
+import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,6 +13,9 @@ public final class NeoForge1211Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private NeoForge1211Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void observe(com.muwenyan.simplemap.platform.MapClientController controller) {
+        ENDPOINT.setObserver(frame -> { if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) controller.applyWaypointSync(ENDPOINT.lastWaypointSync().orElseThrow()); });
+    }
     public static void sendToPlayer(net.minecraft.server.level.ServerPlayer player, byte[] payload) {
         net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, new FramePayload(payload));
     }
