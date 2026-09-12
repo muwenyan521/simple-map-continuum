@@ -20,6 +20,8 @@ public final class Forge1201ClientEntrypoint {
             "key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap");
     private static final KeyMapping TOGGLE_MINIMAP = new KeyMapping(
             "key.simplemap.toggle_minimap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.simplemap");
+    private static final KeyMapping ZOOM_IN = new KeyMapping("key.simplemap.zoom_in", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_EQUAL, "category.simplemap");
+    private static final KeyMapping ZOOM_OUT = new KeyMapping("key.simplemap.zoom_out", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, "category.simplemap");
     private static final MapForge1201Bootstrap BOOTSTRAP = new MapForge1201Bootstrap();
 
     private Forge1201ClientEntrypoint() { }
@@ -29,6 +31,8 @@ public final class Forge1201ClientEntrypoint {
         event.register(TOGGLE_MODE);
         event.register(OPEN_MAP);
         event.register(TOGGLE_MINIMAP);
+        event.register(ZOOM_IN);
+        event.register(ZOOM_OUT);
         BOOTSTRAP.bindWorld(new Forge1201WorldSource(() -> Minecraft.getInstance().level));
         BOOTSTRAP.clientController().bindBookStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().bindCaveStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap/caves"));
@@ -46,6 +50,8 @@ public final class Forge1201ClientEntrypoint {
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
             while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
             while (TOGGLE_MINIMAP.consumeClick()) BOOTSTRAP.clientController().toggleMinimap();
+            while (ZOOM_IN.consumeClick()) BOOTSTRAP.clientController().zoomMinimap(1.25d);
+            while (ZOOM_OUT.consumeClick()) BOOTSTRAP.clientController().zoomMinimap(0.8d);
         }
 
         @SubscribeEvent

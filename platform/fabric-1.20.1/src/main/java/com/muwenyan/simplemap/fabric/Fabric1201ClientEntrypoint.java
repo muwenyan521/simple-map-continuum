@@ -20,6 +20,8 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
             new KeyMapping("key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap"));
     private static final KeyMapping TOGGLE_MINIMAP = KeyBindingHelper.registerKeyBinding(
             new KeyMapping("key.simplemap.toggle_minimap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.simplemap"));
+    private static final KeyMapping ZOOM_IN = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.zoom_in", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_EQUAL, "category.simplemap"));
+    private static final KeyMapping ZOOM_OUT = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.simplemap.zoom_out", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, "category.simplemap"));
 
     @Override
     public void onInitializeClient() {
@@ -45,6 +47,8 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
             }
             while (OPEN_MAP.consumeClick()) client.setScreen(new Fabric1201MapScreen(bootstrap));
             while (TOGGLE_MINIMAP.consumeClick()) bootstrap.clientController().toggleMinimap();
+            while (ZOOM_IN.consumeClick()) bootstrap.clientController().zoomMinimap(1.25d);
+            while (ZOOM_OUT.consumeClick()) bootstrap.clientController().zoomMinimap(0.8d);
         });
         HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
             if (Minecraft.getInstance().player == null || !bootstrap.clientController().minimapEnabled()) return;
