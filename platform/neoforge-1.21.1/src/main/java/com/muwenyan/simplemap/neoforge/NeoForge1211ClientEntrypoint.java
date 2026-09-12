@@ -47,7 +47,23 @@ public final class NeoForge1211ClientEntrypoint {
                     new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
                     player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
                     com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
-            event.getGuiGraphics().drawString(Minecraft.getInstance().font, "Map " + frame.tiles().size(), 4, 4, 0xFFFFFFFF, true);
+            drawMinimap(event.getGuiGraphics(), frame);
+        }
+
+        private static void drawMinimap(net.minecraft.client.gui.GuiGraphics graphics,
+                                        com.muwenyan.simplemap.core.minimap.MinimapFrame frame) {
+            var config = frame.config();
+            int size = config.sizePixels();
+            int left = 4;
+            int top = 4;
+            graphics.fill(left - 2, top - 2, left + size + 2, top + size + 2, 0xA0000000);
+            for (var tile : frame.tiles()) {
+                var point = com.muwenyan.simplemap.core.minimap.MinimapProjection.chunkCenterToScreen(tile.chunk(), frame.playerX(), frame.playerZ(), config.zoom(), frame.playerYaw(), config.rotateWithPlayer(), size);
+                if (!com.muwenyan.simplemap.core.minimap.MinimapProjection.visible(point, size, config.shape())) continue;
+                int x = left + (int) Math.floor(point.x()) - 2;
+                int y = top + (int) Math.floor(point.z()) - 2;
+                graphics.fill(x, y, x + 4, y + 4, tile.argb());
+            }
         }
     }
 }
