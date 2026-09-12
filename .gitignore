@@ -11,6 +11,7 @@ bin/
 
 # Minecraft development runs and local data
 run/
+**/runs/
 *.log
 config/
 
