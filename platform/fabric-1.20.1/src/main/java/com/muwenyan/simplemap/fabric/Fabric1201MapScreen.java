@@ -74,4 +74,16 @@ public final class Fabric1201MapScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() { return false; }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        bootstrap.clientController().zoomMinimap(delta > 0 ? 1.25d : 0.8d);
+        return true;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        bootstrap.clientController().runtime().navigation().pan(-dragX, -dragY);
+        return true;
+    }
 }
