@@ -18,9 +18,11 @@ import com.muwenyan.simplemap.core.cave.CaveConfig;
 import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import java.util.List;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicLong;
 
 public final class NeoForge1211WorldSource implements WorldSourcePort, SurfaceColumnSourcePort, CaveColumnSourcePort {
     private final Supplier<ClientLevel> level;
+    private final AtomicLong revision = new AtomicLong();
 
     public NeoForge1211WorldSource(Supplier<ClientLevel> level) {
         this.level = java.util.Objects.requireNonNull(level, "level");
@@ -36,7 +38,7 @@ public final class NeoForge1211WorldSource implements WorldSourcePort, SurfaceCo
             int worldZ = position.z() * 16 + z;
             payload.putInt(current.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, worldX, worldZ));
         }
-        return Optional.of(new ChunkSnapshot(dimension, position, 0, payload.array()));
+        return Optional.of(new ChunkSnapshot(dimension, position, revision.incrementAndGet(), payload.array()));
     }
 
     @Override
