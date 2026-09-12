@@ -36,10 +36,13 @@ public final class NeoForge1211Entrypoint {
     }
 
     private static void registerCommands(RegisterCommandsEvent event) {
-        var list = Commands.literal("list").executes(context -> new MapNeoForge1211Bootstrap().serverController()
-                .visibleWaypoints(new DimensionId(context.getSource().getLevel().dimension().location().toString())).size());
+        var list = Commands.literal("list").executes(context -> {
+            bindServerStorage(context.getSource());
+            return new MapNeoForge1211Bootstrap().serverController().visibleWaypoints(new DimensionId(context.getSource().getLevel().dimension().location().toString())).size();
+        });
         var z = Commands.argument("z", IntegerArgumentType.integer()).executes(context -> {
             var source = context.getSource();
+            bindServerStorage(source);
             String command = "waypoint add " + StringArgumentType.getString(context, "name") + " "
                     + IntegerArgumentType.getInteger(context, "x") + " "
                     + IntegerArgumentType.getInteger(context, "y") + " "
@@ -57,5 +60,14 @@ public final class NeoForge1211Entrypoint {
                 .then(Commands.literal("follow").then(Commands.argument("id", UuidArgument.uuid()).executes(context -> new MapNeoForge1211Bootstrap().serverController().executeWaypointCommand(
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()), "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
+    }
+
+    private static void bindServerStorage(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> context) {
+        bindServerStorage(context.getSource());
+    }
+
+    private static void bindServerStorage(net.minecraft.commands.CommandSourceStack source) {
+        new MapNeoForge1211Bootstrap().serverController().bindWaypointStorage(
+                source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
     }
 }

@@ -22,6 +22,7 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
     private static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         var list = Commands.literal("list").executes(context -> {
             var source = context.getSource();
+            bindServerStorage(source);
             return new MapFabric1201Bootstrap().serverController().visibleWaypoints(
                     new DimensionId(source.getLevel().dimension().location().toString())).size();
         });
@@ -31,6 +32,7 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
                                 .then(Commands.argument("z", IntegerArgumentType.integer())
                                         .executes(context -> {
                                             var source = context.getSource();
+                                            bindServerStorage(source);
                                             String command = "waypoint add " + StringArgumentType.getString(context, "name") + " "
                                                     + IntegerArgumentType.getInteger(context, "x") + " "
                                                     + IntegerArgumentType.getInteger(context, "y") + " "
@@ -47,5 +49,10 @@ public final class Fabric1201MainEntrypoint implements ModInitializer {
                         context.getSource().getEntityOrException().getUUID(), new DimensionId(context.getSource().getLevel().dimension().location().toString()),
                         "waypoint follow " + UuidArgument.getUuid(context, "id")).size())));
         dispatcher.register(Commands.literal("simplemap").then(waypoint));
+    }
+
+    private static void bindServerStorage(CommandSourceStack source) {
+        new MapFabric1201Bootstrap().serverController().bindWaypointStorage(
+                source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
     }
 }
