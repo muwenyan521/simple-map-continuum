@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {"item": "minecraft:book"},
+    {"item": "minecraft:compass"},
+    {"item": "minecraft:map"}
+  ],
+  "result": {"id": "simplemap:empty_map_book", "count": 1}
+}
