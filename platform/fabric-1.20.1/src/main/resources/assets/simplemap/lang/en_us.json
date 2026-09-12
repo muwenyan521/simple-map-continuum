@@ -3,6 +3,7 @@
   "item.simplemap.empty_map_book": "Empty Map Book",
   "category.simplemap": "Simple Map",
   "key.simplemap.toggle_mode": "Toggle map mode",
+  "key.simplemap.toggle_minimap": "Toggle minimap",
   "screen.simplemap.map": "Simple Map",
   "screen.simplemap.mode": "Mode: %s",
   "screen.simplemap.cells": "Mapped chunks: %s",

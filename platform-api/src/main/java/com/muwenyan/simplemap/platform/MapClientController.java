@@ -31,6 +31,7 @@ public final class MapClientController {
     private final WaypointStore waypoints = new WaypointStore();
     private MapBookRuntime books;
     private WaypointFileService waypointFiles;
+    private boolean minimapEnabled = true;
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -60,6 +61,8 @@ public final class MapClientController {
     }
     public MapMode mode() { return runtime.mode().mode(); }
     public MapMode toggleMode() { return runtime.mode().toggle(); }
+    public synchronized boolean minimapEnabled() { return minimapEnabled; }
+    public synchronized boolean toggleMinimap() { minimapEnabled = !minimapEnabled; return minimapEnabled; }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
         List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),

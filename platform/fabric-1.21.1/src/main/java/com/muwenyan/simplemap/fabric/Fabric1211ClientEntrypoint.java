@@ -15,6 +15,8 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
                     "category.simplemap"));
     private static final KeyMapping OPEN_MAP = KeyBindingHelper.registerKeyBinding(
             new KeyMapping("key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap"));
+    private static final KeyMapping TOGGLE_MINIMAP = KeyBindingHelper.registerKeyBinding(
+            new KeyMapping("key.simplemap.toggle_minimap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.simplemap"));
 
     @Override
     public void onInitializeClient() {
@@ -28,9 +30,10 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
                 bootstrap.clientController().toggleMode();
             }
             while (OPEN_MAP.consumeClick()) client.setScreen(new Fabric1211MapScreen(bootstrap));
+            while (TOGGLE_MINIMAP.consumeClick()) bootstrap.clientController().toggleMinimap();
         });
         HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
-            if (Minecraft.getInstance().player == null) return;
+            if (Minecraft.getInstance().player == null || !bootstrap.clientController().minimapEnabled()) return;
             var player = Minecraft.getInstance().player;
             var frame = bootstrap.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
                     new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),

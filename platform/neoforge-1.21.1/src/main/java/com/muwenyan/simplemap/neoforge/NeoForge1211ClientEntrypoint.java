@@ -18,6 +18,8 @@ public final class NeoForge1211ClientEntrypoint {
             "key.simplemap.toggle_mode", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "category.simplemap");
     private static final KeyMapping OPEN_MAP = new KeyMapping(
             "key.simplemap.open_map", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.simplemap");
+    private static final KeyMapping TOGGLE_MINIMAP = new KeyMapping(
+            "key.simplemap.toggle_minimap", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "category.simplemap");
     private static final MapNeoForge1211Bootstrap BOOTSTRAP = new MapNeoForge1211Bootstrap();
 
     private NeoForge1211ClientEntrypoint() { }
@@ -26,6 +28,7 @@ public final class NeoForge1211ClientEntrypoint {
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_MODE);
         event.register(OPEN_MAP);
+        event.register(TOGGLE_MINIMAP);
         BOOTSTRAP.bindWorld(new NeoForge1211WorldSource(() -> Minecraft.getInstance().level));
         BOOTSTRAP.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         BOOTSTRAP.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
@@ -39,12 +42,13 @@ public final class NeoForge1211ClientEntrypoint {
         public static void clientTick(ClientTickEvent.Post event) {
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
             while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new NeoForge1211MapScreen(BOOTSTRAP));
+            while (TOGGLE_MINIMAP.consumeClick()) BOOTSTRAP.clientController().toggleMinimap();
         }
 
         @SubscribeEvent
         public static void renderHud(RenderGuiEvent.Post event) {
             var player = Minecraft.getInstance().player;
-            if (player == null) return;
+            if (player == null || !BOOTSTRAP.clientController().minimapEnabled()) return;
             var frame = BOOTSTRAP.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
                     new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
                     player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
