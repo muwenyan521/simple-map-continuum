@@ -7,6 +7,13 @@ import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.muwenyan.simplemap.core.model.DimensionId;
 
 @Mod("simplemap")
 public final class Forge1201Entrypoint {
@@ -17,6 +24,7 @@ public final class Forge1201Entrypoint {
     public Forge1201Entrypoint() {
         ITEMS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
         net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
+        MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
         new MapForge1201Bootstrap().descriptor();
     }
 
@@ -25,5 +33,25 @@ public final class Forge1201Entrypoint {
             event.accept(EMPTY_MAP_BOOK);
             event.accept(MAP_BOOK);
         }
+    }
+
+    private static void registerCommands(RegisterCommandsEvent event) {
+        var list = Commands.literal("list").executes(context -> new MapForge1201Bootstrap().clientController()
+                .visibleWaypoints(new DimensionId(context.getSource().getLevel().dimension().location().toString())).size());
+        var z = Commands.argument("z", IntegerArgumentType.integer()).executes(context -> {
+            var source = context.getSource();
+            String command = "waypoint add " + StringArgumentType.getString(context, "name") + " "
+                    + IntegerArgumentType.getInteger(context, "x") + " "
+                    + IntegerArgumentType.getInteger(context, "y") + " "
+                    + IntegerArgumentType.getInteger(context, "z");
+            return new MapForge1201Bootstrap().clientController().executeWaypointCommand(
+                    source.getEntityOrException().getUUID(),
+                    new DimensionId(source.getLevel().dimension().location().toString()), command).size();
+        });
+        var y = Commands.argument("y", IntegerArgumentType.integer()).then(z);
+        var x = Commands.argument("x", IntegerArgumentType.integer()).then(y);
+        var name = Commands.argument("name", StringArgumentType.word()).then(x);
+        var waypoint = Commands.literal("waypoint").then(list).then(Commands.literal("add").then(name));
+        event.getDispatcher().register(Commands.literal("simplemap").then(waypoint));
     }
 }
