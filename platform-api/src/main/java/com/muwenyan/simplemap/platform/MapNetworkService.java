@@ -4,6 +4,8 @@ import com.muwenyan.simplemap.core.protocol.MapBookFrame;
 import com.muwenyan.simplemap.core.protocol.MapPacketRouter;
 import com.muwenyan.simplemap.core.protocol.FrameCodec;
 import com.muwenyan.simplemap.core.protocol.ProtocolException;
+import com.muwenyan.simplemap.core.protocol.HandshakeSession;
+import com.muwenyan.simplemap.core.protocol.MapBookHello;
 import com.muwenyan.simplemap.platform.port.NetworkPort;
 import java.io.IOException;
 import java.util.Objects;
@@ -29,5 +31,10 @@ public final class MapNetworkService {
 
     public void receive(byte[] payload) throws ProtocolException {
         router.dispatch(payload);
+    }
+
+    public MapBookHello negotiate(HandshakeSession session, MapBookHello remote) throws ProtocolException {
+        Objects.requireNonNull(session, "session").sendHello();
+        return session.acceptHello(Objects.requireNonNull(remote, "remote"));
     }
 }
