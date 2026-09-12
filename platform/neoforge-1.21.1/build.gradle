@@ -1,6 +1,24 @@
+plugins {
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
+}
+
+group = 'com.muwenyan.simplemap'
+version = rootProject.ext.projectVersion
+
+base {
+    archivesName = 'neoforge-1.21.1'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
 dependencies {
-    compileOnly('net.neoforged.fancymodloader:loader:4.0.24') {
-        transitive = false
+    implementation 'net.neoforged:neoforge:21.1.235'
+}
+
+tasks.withType(ProcessResources).configureEach {
+    inputs.property('version', project.version)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(version: project.version)
     }
 }
 
