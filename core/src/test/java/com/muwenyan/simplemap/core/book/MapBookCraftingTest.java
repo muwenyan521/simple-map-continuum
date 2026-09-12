@@ -15,7 +15,10 @@ class MapBookCraftingTest {
         MapBookItemState written = MapBookItemState.written(book, "Map Book");
         MapBookItemState empty = MapBookItemState.empty();
         assertTrue(MapBookCrafting.matchesCopy(List.of(written, empty)));
-        assertEquals(written, MapBookCrafting.copy(written, empty));
+        UUID copyId = UUID.randomUUID();
+        assertEquals(copyId, MapBookCrafting.copy(written, empty, copyId).bookId());
         assertTrue(MapBookCrafting.matchesMerge(List.of(written, written)));
+        assertEquals(MapBookStatus.WRITTEN,
+                MapBookCrafting.merge(List.of(written, written), UUID.randomUUID(), "Merged").status());
     }
 }
