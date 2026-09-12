@@ -10,6 +10,7 @@ public final class Fabric1201Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Fabric1201Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void sendToServer(byte[] payload) { ClientPlayNetworking.send(CHANNEL, new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.wrappedBuffer(payload))); }
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(CHANNEL, (server, player, handler, buffer, responseSender) -> {
             byte[] payload = new byte[buffer.readableBytes()];

@@ -14,6 +14,7 @@ public final class Fabric1211Network {
     private static final MapProtocolEndpoint ENDPOINT = new MapProtocolEndpoint();
     private Fabric1211Network() { }
     public static MapProtocolEndpoint endpoint() { return ENDPOINT; }
+    public static void sendToServer(byte[] payload) { ClientPlayNetworking.send(new FramePayload(payload)); }
     public static void register() {
         PayloadTypeRegistry.playC2S().register(FramePayload.TYPE, FramePayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(FramePayload.TYPE, (payload, context) -> {
