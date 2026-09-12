@@ -37,6 +37,14 @@ public final class WaypointStore {
     }
     public synchronized void clearFollowed() { followed = null; }
     public synchronized void clear() { values.clear(); }
+    public synchronized void replaceAll(java.util.List<Waypoint> waypoints) {
+        if (waypoints == null || waypoints.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException("invalid waypoints");
+        }
+        values.clear();
+        values.addAll(waypoints);
+        if (followed != null && values.stream().noneMatch(w -> w.id().equals(followed))) followed = null;
+    }
     public synchronized void clearDimension(DimensionId dimension) {
         if (dimension == null) throw new NullPointerException("dimension");
         values.removeIf(w -> w.dimension().equals(dimension));

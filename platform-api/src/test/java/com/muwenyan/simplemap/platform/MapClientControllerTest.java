@@ -58,6 +58,16 @@ class MapClientControllerTest {
     }
 
     @Test
+    void waypointSyncRoundTripsThroughController() {
+        var controller = new MapClientController();
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        controller.executeWaypointCommand(java.util.UUID.randomUUID(), dimension, "waypoint add home 1 2 3");
+        var receiver = new MapClientController();
+        org.junit.jupiter.api.Assertions.assertEquals(9, receiver.applyWaypointSync(controller.encodeWaypointSync(9)));
+        org.junit.jupiter.api.Assertions.assertEquals(1, receiver.visibleWaypoints(dimension).size());
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");

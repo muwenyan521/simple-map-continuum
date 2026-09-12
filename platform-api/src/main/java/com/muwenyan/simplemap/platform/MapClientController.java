@@ -15,6 +15,9 @@ import com.muwenyan.simplemap.core.navigation.Waypoint;
 import com.muwenyan.simplemap.core.waypoint.WaypointCommandExecutor;
 import com.muwenyan.simplemap.core.waypoint.WaypointCommandParser;
 import com.muwenyan.simplemap.core.waypoint.WaypointStore;
+import com.muwenyan.simplemap.core.protocol.WaypointSyncCodec;
+import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
+import com.muwenyan.simplemap.core.protocol.ProtocolException;
 import java.util.List;
 import java.util.UUID;
 import java.util.Objects;
@@ -117,6 +120,17 @@ public final class MapClientController {
     }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
     public synchronized java.util.Optional<Waypoint> followedWaypoint() { return waypoints.followed(); }
+    public synchronized byte[] encodeWaypointSync(long revision) {
+        try { return WaypointSyncCodec.encode(new WaypointSyncMessage(revision, waypoints.all())); }
+        catch (ProtocolException exception) { throw new IllegalStateException("cannot encode waypoint sync", exception); }
+    }
+    public synchronized long applyWaypointSync(byte[] payload) {
+        try {
+            var message = WaypointSyncCodec.decode(payload);
+            waypoints.replaceAll(message.waypoints());
+            return message.revision();
+        } catch (ProtocolException exception) { throw new IllegalArgumentException("invalid waypoint sync", exception); }
+    }
 
     public MinimapFrame buildMinimap(PlayerMapState player, MinimapConfig config, long generation) {
         Objects.requireNonNull(player, "player");
