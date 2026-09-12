@@ -16,9 +16,15 @@ public final class Fabric1211MapBookItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-        if (written && (data == null || !data.copyTag().contains("MapBookID"))) {
+        if (written && !hasBookId(data)) {
             return InteractionResultHolder.fail(stack);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
+    private static boolean hasBookId(CustomData data) {
+        if (data == null) return false;
+        try { java.util.UUID.fromString(data.copyTag().getString("MapBookID")); return true; }
+        catch (IllegalArgumentException exception) { return false; }
     }
 }

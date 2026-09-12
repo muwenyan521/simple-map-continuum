@@ -13,7 +13,13 @@ public final class Fabric1201MapBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (written && !stack.hasTag()) return InteractionResultHolder.fail(stack);
+        if (written && !hasBookId(stack)) return InteractionResultHolder.fail(stack);
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+    }
+
+    private static boolean hasBookId(ItemStack stack) {
+        if (!stack.hasTag()) return false;
+        try { java.util.UUID.fromString(stack.getTag().getString("MapBookID")); return true; }
+        catch (IllegalArgumentException exception) { return false; }
     }
 }
