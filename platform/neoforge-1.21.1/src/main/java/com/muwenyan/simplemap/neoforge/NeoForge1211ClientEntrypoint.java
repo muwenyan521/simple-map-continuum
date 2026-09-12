@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
 
+@SuppressWarnings("removal")
 @EventBusSubscriber(modid = "simplemap", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public final class NeoForge1211ClientEntrypoint {
     private static final KeyMapping TOGGLE_MODE = new KeyMapping(
