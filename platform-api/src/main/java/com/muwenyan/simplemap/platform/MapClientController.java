@@ -153,7 +153,7 @@ public final class MapClientController {
                 runtime.scanCave(new ChunkPos(x, z), source, caveConfig, caveSnapshots.size() + 1)
                         .ifPresent(snapshot -> {
                             caveSnapshots.put(snapshot.chunk(), snapshot);
-                            if (caveFiles != null) persistCaveSnapshot(snapshot, caveConfig);
+                            if (caveFiles != null) persistCaveSnapshot(dimension, snapshot, caveConfig);
                         });
                 scanned++;
             }
@@ -163,14 +163,16 @@ public final class MapClientController {
 
     public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() { return Map.copyOf(caveSnapshots); }
 
-    private void persistCaveSnapshot(CaveSnapshot snapshot, CaveConfig config) {
+    private void persistCaveSnapshot(DimensionId dimension, CaveSnapshot snapshot, CaveConfig config) {
         try {
             int regionX = Math.floorDiv(snapshot.chunk().x(), 32);
             int regionZ = Math.floorDiv(snapshot.chunk().z(), 32);
+            CaveRegionFileService dimensionFiles = new CaveRegionFileService(caveRoot.resolve(
+                    dimension.value().replace(':', '_').replace('/', '_')));
             Map<ChunkPos, CaveSnapshot> region = new LinkedHashMap<>();
-            region.putAll(caveFiles.read(0, mode().ordinal(), regionX, regionZ));
+            region.putAll(dimensionFiles.read(0, mode().ordinal(), regionX, regionZ));
             region.put(snapshot.chunk(), snapshot);
-            caveFiles.write(0, mode().ordinal(), regionX, regionZ, region);
+            dimensionFiles.write(0, mode().ordinal(), regionX, regionZ, region);
         } catch (java.io.IOException exception) {
             throw new IllegalStateException("cannot persist cave snapshot", exception);
         }
