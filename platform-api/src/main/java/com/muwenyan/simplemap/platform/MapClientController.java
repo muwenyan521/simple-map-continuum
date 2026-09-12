@@ -62,8 +62,10 @@ public final class MapClientController {
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
     public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
-        return new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),
+        List<Waypoint> result = new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),
                 Objects.requireNonNull(dimension, "dimension"), WaypointCommandParser.parse(command));
+        if (waypointFiles != null) saveWaypoints();
+        return result;
     }
     public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
 
