@@ -19,6 +19,8 @@ public final class NeoForge1211MapScreen extends Screen {
             var dimension = new DimensionId(player.level().dimension().location().toString());
             var center = new ChunkPos(player.chunkPosition().x, player.chunkPosition().z);
             if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE)
+                bootstrap.clientController().restoreCave(dimension, 0, Math.floorDiv(center.x(), 32), Math.floorDiv(center.z(), 32));
+            if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE)
                 bootstrap.clientController().refreshCave(dimension, center, 4, com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
             else bootstrap.clientController().refreshSurface(dimension, center, 4);
         }
