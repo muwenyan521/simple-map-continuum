@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public final class MapBookArchiveCodec {
     private static final int MAGIC = 0x534D424B;
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final int MAX_REGIONS = 4096;
     private static final int MAX_PAYLOAD = 4 * 1024 * 1024;
 
@@ -36,6 +36,11 @@ public final class MapBookArchiveCodec {
         writeUuid(out, snapshot.owner());
         out.writeByte(snapshot.status().ordinal());
         out.writeLong(snapshot.revision());
+        out.writeInt(snapshot.permissions().size());
+        for (var permission : snapshot.permissions().entrySet()) {
+            writeUuid(out, permission.getKey());
+            out.writeByte(permission.getValue().ordinal());
+        }
         out.writeInt(snapshot.regions().size());
         for (MapBookRegion region : snapshot.regions()) {
             byte[] payload = region.payload();
@@ -61,9 +66,11 @@ public final class MapBookArchiveCodec {
         }
         try {
             DataInputStream in = new DataInputStream(new ByteArrayInputStream(encoded));
-            if (in.readInt() != MAGIC || in.readUnsignedByte() != VERSION) {
+            if (in.readInt() != MAGIC) {
                 throw new IOException("unsupported book archive");
             }
+            int version = in.readUnsignedByte();
+            if (version < 1 || version > VERSION) throw new IOException("unsupported book archive");
             UUID id = readUuid(in);
             UUID owner = readUuid(in);
             int statusValue = in.readUnsignedByte();
@@ -72,6 +79,17 @@ public final class MapBookArchiveCodec {
             }
             MapBookStatus status = MapBookStatus.values()[statusValue];
             long revision = in.readLong();
+            java.util.Map<UUID, BookPermission> permissions = new java.util.HashMap<>();
+            if (version >= 2) {
+                int permissionCount = in.readInt();
+                if (permissionCount < 1 || permissionCount > 4096) throw new IOException("invalid permission count");
+                for (int i = 0; i < permissionCount; i++) {
+                    UUID subject = readUuid(in);
+                    int value = in.readUnsignedByte();
+                    if (value < 0 || value >= BookPermission.values().length) throw new IOException("invalid permission");
+                    permissions.put(subject, BookPermission.values()[value]);
+                }
+            }
             int count = in.readInt();
             if (count < 0 || count > MAX_REGIONS) {
                 throw new IOException("invalid region count");
@@ -89,7 +107,7 @@ public final class MapBookArchiveCodec {
             if (in.available() != 0) {
                 throw new IOException("trailing book archive data");
             }
-            return new MapBook(new MapBookSnapshot(id, owner, status, revision, regions));
+            return new MapBook(new MapBookSnapshot(id, owner, status, revision, regions, permissions));
         } catch (EOFException | RuntimeException exception) {
             if (exception instanceof IOException ioException) {
                 throw ioException;

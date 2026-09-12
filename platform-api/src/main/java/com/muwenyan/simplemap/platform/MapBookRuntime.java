@@ -4,6 +4,7 @@ import com.muwenyan.simplemap.core.book.MapBook;
 import com.muwenyan.simplemap.core.book.MapBookItemState;
 import com.muwenyan.simplemap.core.book.MapBookStatus;
 import com.muwenyan.simplemap.core.book.MapBookCrafting;
+import com.muwenyan.simplemap.core.book.BookPermission;
 import com.muwenyan.simplemap.platform.file.MapBookFileService;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +25,20 @@ public final class MapBookRuntime {
     public synchronized MapBook load(UUID id) throws IOException { return files.readRecovering(Objects.requireNonNull(id, "id")); }
 
     public synchronized void save(MapBook book) throws IOException { files.write(Objects.requireNonNull(book, "book")); }
+
+    public synchronized MapBook grant(UUID bookId, UUID actor, UUID subject, BookPermission permission) throws IOException {
+        MapBook book = load(bookId);
+        book.grant(actor, subject, permission);
+        save(book);
+        return book;
+    }
+
+    public synchronized MapBook revoke(UUID bookId, UUID actor, UUID subject) throws IOException {
+        MapBook book = load(bookId);
+        book.revoke(actor, subject);
+        save(book);
+        return book;
+    }
 
     public synchronized MapBook copy(MapBook source, UUID actor, UUID owner) throws IOException {
         Objects.requireNonNull(source, "source");

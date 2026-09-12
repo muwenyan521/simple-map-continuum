@@ -34,6 +34,9 @@ public final class MapBook {
         }
         revision = snapshot.revision();
         status = snapshot.status();
+        permissions.clear();
+        permissions.putAll(snapshot.permissions());
+        permissions.putIfAbsent(owner, BookPermission.OWNER);
     }
 
     public synchronized UUID id() { return id; }
@@ -111,7 +114,7 @@ public final class MapBook {
         List<MapBookRegion> copy = new ArrayList<>(regions.values());
         copy.sort(Comparator.comparing((MapBookRegion r) -> r.position().x())
                 .thenComparing(r -> r.position().z()));
-        return new MapBookSnapshot(id, owner, status, revision, copy);
+        return new MapBookSnapshot(id, owner, status, revision, copy, permissions);
     }
 
     private void putRegion(RegionPos position, byte[] payload) {

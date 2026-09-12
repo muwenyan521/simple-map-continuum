@@ -54,4 +54,20 @@ class MapBookRuntimeTest {
         assertEquals(2, runtime.load(merged.id().orElseThrow()).snapshot().regions().size());
         org.junit.jupiter.api.Assertions.assertNotEquals(left.id(), merged.id().orElseThrow());
     }
+
+    @Test
+    void persistsPermissionChanges() throws Exception {
+        MapBookRuntime runtime = new MapBookRuntime(temporary);
+        UUID owner = UUID.randomUUID();
+        UUID reader = UUID.randomUUID();
+        var book = runtime.create(owner);
+        runtime.grant(book.id(), owner, reader, com.muwenyan.simplemap.core.book.BookPermission.WRITE);
+        var loaded = runtime.load(book.id());
+        loaded.save(reader, new RegionPos(2, 2), new byte[]{3});
+        assertEquals(1, loaded.snapshot().regions().size());
+        runtime.revoke(book.id(), owner, reader);
+        var revoked = runtime.load(book.id());
+        org.junit.jupiter.api.Assertions.assertThrows(SecurityException.class,
+                () -> revoked.save(reader, new RegionPos(3, 3), new byte[]{4}));
+    }
 }
