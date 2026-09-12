@@ -48,8 +48,9 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
-        new MapFabric1211Bootstrap().serverController().bindWaypointStorage(
-                source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+        var root = source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        new MapFabric1211Bootstrap().serverController().bindWaypointStorage(root);
+        new MapFabric1211Bootstrap().serverController().bindBookStorage(root);
     }
 
     private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {

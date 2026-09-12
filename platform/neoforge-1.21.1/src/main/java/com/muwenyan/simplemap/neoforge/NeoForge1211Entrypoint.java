@@ -65,8 +65,9 @@ public final class NeoForge1211Entrypoint {
     }
 
     private static void bindServerStorage(net.minecraft.commands.CommandSourceStack source) {
-        new MapNeoForge1211Bootstrap().serverController().bindWaypointStorage(
-                source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+        var root = source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        new MapNeoForge1211Bootstrap().serverController().bindWaypointStorage(root);
+        new MapNeoForge1211Bootstrap().serverController().bindBookStorage(root);
     }
 
     private static int executeWaypoint(net.minecraft.commands.CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {

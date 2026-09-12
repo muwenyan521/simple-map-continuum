@@ -62,8 +62,9 @@ public final class Forge1201Entrypoint {
     }
 
     private static void bindServerStorage(CommandSourceStack source) {
-        new MapForge1201Bootstrap().serverController().bindWaypointStorage(
-                source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+        var root = source.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+        new MapForge1201Bootstrap().serverController().bindWaypointStorage(root);
+        new MapForge1201Bootstrap().serverController().bindBookStorage(root);
     }
 
     private static int executeWaypoint(CommandSourceStack source, String command) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
