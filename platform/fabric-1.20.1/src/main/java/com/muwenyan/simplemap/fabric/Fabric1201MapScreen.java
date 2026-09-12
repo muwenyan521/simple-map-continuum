@@ -23,7 +23,10 @@ public final class Fabric1201MapScreen extends Screen {
                 bootstrap.clientController().restoreCave(dimension, 0, Math.floorDiv(center.x(), 32), Math.floorDiv(center.z(), 32));
             if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE)
                 bootstrap.clientController().refreshCave(dimension, center, 4, com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
-            else bootstrap.clientController().refreshSurface(dimension, center, 4);
+            else {
+                bootstrap.clientController().restoreSurface(dimension, Math.floorDiv(center.x(), 32), Math.floorDiv(center.z(), 32));
+                bootstrap.clientController().refreshSurface(dimension, center, 4);
+            }
         }
     }
 
