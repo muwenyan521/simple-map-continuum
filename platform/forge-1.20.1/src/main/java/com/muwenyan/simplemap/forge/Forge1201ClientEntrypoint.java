@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -35,6 +36,17 @@ public final class Forge1201ClientEntrypoint {
             if (event.phase != TickEvent.Phase.END) return;
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
             while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
+        }
+
+        @SubscribeEvent
+        public static void renderHud(RenderGuiEvent.Post event) {
+            var player = Minecraft.getInstance().player;
+            if (player == null) return;
+            var frame = BOOTSTRAP.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
+                    new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
+                    player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
+                    com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
+            event.getGuiGraphics().drawString(Minecraft.getInstance().font, "Map " + frame.tiles().size(), 4, 4, 0xFFFFFFFF, true);
         }
     }
 }

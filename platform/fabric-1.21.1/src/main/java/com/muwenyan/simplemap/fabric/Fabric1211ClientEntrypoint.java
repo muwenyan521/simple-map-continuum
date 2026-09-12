@@ -7,6 +7,7 @@ import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.Minecraft;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping TOGGLE_MODE = KeyBindingHelper.registerKeyBinding(
@@ -25,6 +26,15 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
                 bootstrap.clientController().toggleMode();
             }
             while (OPEN_MAP.consumeClick()) client.setScreen(new Fabric1211MapScreen(bootstrap));
+        });
+        HudRenderCallback.EVENT.register((graphics, tickDelta) -> {
+            if (Minecraft.getInstance().player == null) return;
+            var player = Minecraft.getInstance().player;
+            var frame = bootstrap.clientController().buildMinimap(new com.muwenyan.simplemap.core.navigation.PlayerMapState(
+                    new com.muwenyan.simplemap.core.model.DimensionId(player.level().dimension().location().toString()),
+                    player.getX(), player.getZ(), player.getBlockY(), player.getYRot()),
+                    com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
+            graphics.drawString(Minecraft.getInstance().font, "Map " + frame.tiles().size(), 4, 4, 0xFFFFFFFF, true);
         });
     }
 }
