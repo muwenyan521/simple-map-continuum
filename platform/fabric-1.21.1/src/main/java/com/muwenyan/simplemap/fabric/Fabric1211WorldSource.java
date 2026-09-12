@@ -63,15 +63,16 @@ public final class Fabric1211WorldSource implements WorldSourcePort, SurfaceColu
         int x = chunk.x() * 16 + localX;
         int z = chunk.z() * 16 + localZ;
         int top = current.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z) - 1;
-        for (int y = Math.min(top, config.topY()); y >= current.getMinBuildHeight(); y--) {
+        List<CaveColumnRun> runs = new java.util.ArrayList<>();
+        for (int y = Math.min(top, config.topY()); y >= current.getMinBuildHeight() && runs.size() < config.maxLayers(); y--) {
             net.minecraft.core.BlockPos position = new net.minecraft.core.BlockPos(x, y, z);
             BlockState state = current.getBlockState(position);
-            if (!state.isAir() && state.isSolidRender(current, position)) {
+            if (!state.isAir() && (state.isSolidRender(current, position) || !state.getFluidState().isEmpty())) {
                 int color = state.getMapColor(current, position).col | 0xFF000000;
-                return List.of(new CaveColumnRun(y, y, color, current.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, position), !state.getFluidState().isEmpty(), state.getLightEmission() > 0));
+                runs.add(new CaveColumnRun(y, y, color, current.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, position), !state.getFluidState().isEmpty(), state.getLightEmission() > 0));
             }
         }
-        return List.of();
+        return List.copyOf(runs);
     }
 
     @Override
