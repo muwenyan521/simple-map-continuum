@@ -6,6 +6,8 @@ import com.muwenyan.simplemap.core.protocol.ProtocolException;
 import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncCodec;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,11 +16,16 @@ public final class MapProtocolEndpoint {
     private final AtomicReference<ProtocolException> lastError = new AtomicReference<>();
     private final AtomicLong received = new AtomicLong();
     private final AtomicReference<WaypointSyncMessage> lastWaypointSync = new AtomicReference<>();
+    private final Consumer<MapBookFrame> observer;
+
+    public MapProtocolEndpoint() { this(frame -> { }); }
+    public MapProtocolEndpoint(Consumer<MapBookFrame> observer) { this.observer = Objects.requireNonNull(observer, "observer"); }
 
     public void receive(byte[] payload) throws ProtocolException {
         MapBookFrame frame = FrameCodec.decode(payload);
         lastFrame.set(frame);
         if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) lastWaypointSync.set(WaypointSyncCodec.decode(frame.body()));
+        observer.accept(frame);
         lastError.set(null);
         received.incrementAndGet();
     }

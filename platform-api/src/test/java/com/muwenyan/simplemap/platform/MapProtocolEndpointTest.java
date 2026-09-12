@@ -37,4 +37,13 @@ class MapProtocolEndpointTest {
         endpoint.receive(FrameCodec.encode(frame));
         assertEquals(4, endpoint.lastWaypointSync().orElseThrow().revision());
     }
+
+    @Test
+    void notifiesObserverAfterFrameValidation() throws Exception {
+        var observed = new java.util.concurrent.atomic.AtomicReference<MapBookFrame>();
+        MapProtocolEndpoint endpoint = new MapProtocolEndpoint(observed::set);
+        MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(), new byte[]{3});
+        endpoint.receive(FrameCodec.encode(frame));
+        assertEquals(frame, observed.get());
+    }
 }
