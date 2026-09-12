@@ -10,6 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 
 @Mod.EventBusSubscriber(modid = "simplemap", value = net.minecraftforge.api.distmarker.Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Forge1201ClientEntrypoint {
@@ -53,6 +54,12 @@ public final class Forge1201ClientEntrypoint {
                 event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
                 event.setCanceled(true);
             }
+        }
+
+        @SubscribeEvent
+        public static void loggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+            BOOTSTRAP.clientController().saveWaypoints();
+            BOOTSTRAP.clientController().saveConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
         }
 
         @SubscribeEvent

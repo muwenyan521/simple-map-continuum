@@ -11,6 +11,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import org.lwjgl.glfw.GLFW;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 
 @SuppressWarnings("removal")
 @EventBusSubscriber(modid = "simplemap", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
@@ -54,6 +55,12 @@ public final class NeoForge1211ClientEntrypoint {
                 event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
                 event.setCanceled(true);
             }
+        }
+
+        @SubscribeEvent
+        public static void loggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+            BOOTSTRAP.clientController().saveWaypoints();
+            BOOTSTRAP.clientController().saveConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
         }
 
         @SubscribeEvent

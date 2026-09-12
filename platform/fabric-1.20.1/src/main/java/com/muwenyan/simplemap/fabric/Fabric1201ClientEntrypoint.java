@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.world.InteractionResultHolder;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 
 public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping TOGGLE_MODE = KeyBindingHelper.registerKeyBinding(
@@ -27,6 +28,7 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
         bootstrap.bindWorld(new Fabric1201WorldSource(() -> Minecraft.getInstance().level));
         bootstrap.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         bootstrap.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> save(bootstrap, client));
         UseItemCallback.EVENT.register((player, level, hand) -> {
             var item = player.getItemInHand(hand).getItem();
             if (item == Fabric1201Items.EMPTY_MAP_BOOK || item == Fabric1201Items.MAP_BOOK) {
@@ -52,6 +54,12 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
                     com.muwenyan.simplemap.core.minimap.MinimapConfig.defaults(), 0);
             drawMinimap(graphics, frame);
         });
+    }
+
+    private static void save(MapFabric1201Bootstrap bootstrap, Minecraft client) {
+        java.nio.file.Path root = client.gameDirectory.toPath();
+        bootstrap.clientController().saveWaypoints();
+        bootstrap.clientController().saveConfig(root.resolve("config/simplemap.cfg"));
     }
 
     private static void drawMinimap(net.minecraft.client.gui.GuiGraphics graphics,
