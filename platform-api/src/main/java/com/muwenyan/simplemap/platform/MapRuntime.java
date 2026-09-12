@@ -9,6 +9,7 @@ import com.muwenyan.simplemap.core.render.MapRenderFrame;
 import com.muwenyan.simplemap.core.render.RenderPlan;
 import com.muwenyan.simplemap.core.render.RenderPlanner;
 import com.muwenyan.simplemap.core.model.ChunkSnapshot;
+import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.BlockPos;
 import com.muwenyan.simplemap.core.info.WorldInfo;
 import com.muwenyan.simplemap.core.streaming.CenterOutChunkPlanner;
@@ -21,6 +22,11 @@ import com.muwenyan.simplemap.core.telemetry.MapTelemetry;
 import com.muwenyan.simplemap.platform.port.RenderPort;
 import com.muwenyan.simplemap.platform.port.ConfigPort;
 import com.muwenyan.simplemap.platform.port.PersistencePort;
+import com.muwenyan.simplemap.platform.port.SurfaceColumnSourcePort;
+import com.muwenyan.simplemap.core.surface.ColumnSource;
+import com.muwenyan.simplemap.core.surface.SurfaceRegionAssembler;
+import com.muwenyan.simplemap.core.surface.SurfaceScanner;
+import com.muwenyan.simplemap.core.surface.SurfaceSample;
 import com.muwenyan.simplemap.platform.port.WorldSourcePort;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +104,15 @@ public final class MapRuntime {
 
     public List<ChunkSnapshot> loadedChunks() {
         return chunks.snapshots();
+    }
+
+    public boolean scanSurface(ChunkPos chunk, SurfaceColumnSourcePort source, long revision) {
+        Objects.requireNonNull(chunk, "chunk");
+        Objects.requireNonNull(source, "source");
+        MapRegion region = Objects.requireNonNull(currentRegion, "current region is not set");
+        ColumnSource columns = (localX, localZ) -> source.sample(chunk, localX, localZ);
+        SurfaceSample sample = SurfaceScanner.scan(chunk, columns, revision).orElse(null);
+        return sample != null && SurfaceRegionAssembler.apply(region, sample);
     }
 
     public void saveRegion(PersistencePort persistence) {
