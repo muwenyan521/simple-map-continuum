@@ -84,7 +84,8 @@ public record SurfaceRegionArchive(long[] pixels, int[] tints, String[] biomes, 
         }
         long[] coverage = new long[COVERAGE_WORDS];
         if (version >= 4) for (int i = 0; i < coverage.length; i++) coverage[i] = pixelsIn.readLong();
-        else Arrays.fill(coverage, -1L);
+        else coverage = inferLegacyCoverage(pixels);
+        if (version < 6) clearLegacyFluidCompletion(pixels, coverage);
         if (pixelsIn.available() != 0) throw new IOException("trailing surface payload");
         return new SurfaceRegionArchive(pixels, tints, biomes, blocks, coverage, version);
     }
@@ -122,5 +123,49 @@ public record SurfaceRegionArchive(long[] pixels, int[] tints, String[] biomes, 
         }
         if (output.size() != expected) throw new IOException("unexpected surface payload length");
         return output.toByteArray();
+    }
+
+    private static long[] inferLegacyCoverage(long[] pixels) {
+        long[] coverage = new long[COVERAGE_WORDS];
+        for (int chunkZ = 0; chunkZ < 32; chunkZ++) {
+            for (int chunkX = 0; chunkX < 32; chunkX++) {
+                boolean complete = true;
+                for (int z = 0; z < 16 && complete; z++) {
+                    int row = (chunkZ * 16 + z) * SIZE + chunkX * 16;
+                    for (int x = 0; x < 16; x++) {
+                        if (PackedSurfaceCell.empty(pixels[row + x])) {
+                            complete = false;
+                            break;
+                        }
+                    }
+                }
+                if (complete) {
+                    int index = chunkZ * 32 + chunkX;
+                    coverage[index >>> 6] |= 1L << (index & 63);
+                }
+            }
+        }
+        return coverage;
+    }
+
+    private static void clearLegacyFluidCompletion(long[] pixels, long[] coverage) {
+        for (int chunkZ = 0; chunkZ < 32; chunkZ++) {
+            for (int chunkX = 0; chunkX < 32; chunkX++) {
+                int index = chunkZ * 32 + chunkX;
+                if ((coverage[index >>> 6] & (1L << (index & 63))) == 0L) continue;
+                boolean fluid = false;
+                for (int z = 0; z < 16 && !fluid; z++) {
+                    int row = (chunkZ * 16 + z) * SIZE + chunkX * 16;
+                    for (int x = 0; x < 16; x++) {
+                        long pixel = pixels[row + x];
+                        if (PackedSurfaceCell.fluid(pixel) && !PackedSurfaceCell.glowing(pixel)) {
+                            fluid = true;
+                            break;
+                        }
+                    }
+                }
+                if (fluid) coverage[index >>> 6] &= ~(1L << (index & 63));
+            }
+        }
     }
 }

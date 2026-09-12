@@ -20,6 +20,8 @@ class SurfaceRegionArchiveTest {
         SurfaceRegionArchive decoded = SurfaceRegionArchive.decode(current.encode());
         assertEquals(6, decoded.version()); assertArrayEquals(pixels, decoded.pixels()); assertArrayEquals(tints, decoded.tints());
         SurfaceRegionArchive legacy = new SurfaceRegionArchive(pixels, tints, biomes, blocks, coverage, 1);
-        assertEquals(1, SurfaceRegionArchive.decode(legacy.encode()).version());
+        SurfaceRegionArchive legacyDecoded = SurfaceRegionArchive.decode(legacy.encode());
+        assertEquals(1, legacyDecoded.version());
+        assertEquals(0L, legacyDecoded.completeChunks()[0]);
     }
 }
