@@ -9,4 +9,8 @@ public record CaveTile(TileKey key, long epoch, byte[] pixels) {
         pixels = Objects.requireNonNull(pixels, "pixels").clone();
     }
     @Override public byte[] pixels() { return pixels.clone(); }
+
+    public static CaveTile empty(TileKey key, long epoch) {
+        return new CaveTile(key, epoch, new byte[0]);
+    }
 }
