@@ -7,12 +7,14 @@ import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.ChunkSnapshot;
 import com.muwenyan.simplemap.core.model.DimensionId;
 import com.muwenyan.simplemap.platform.port.WorldSourcePort;
+import com.muwenyan.simplemap.platform.port.SurfaceColumnSourcePort;
+import com.muwenyan.simplemap.core.surface.SurfaceColumn;
 import java.util.Optional;
 import java.util.function.Supplier;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 
-public final class NeoForge1211WorldSource implements WorldSourcePort {
+public final class NeoForge1211WorldSource implements WorldSourcePort, SurfaceColumnSourcePort {
     private final Supplier<ClientLevel> level;
 
     public NeoForge1211WorldSource(Supplier<ClientLevel> level) {
@@ -24,6 +26,20 @@ public final class NeoForge1211WorldSource implements WorldSourcePort {
         ClientLevel current = level.get();
         if (current == null || !dimension.equals(dimension(current))) return Optional.empty();
         return Optional.of(new ChunkSnapshot(dimension, position, 0, new byte[0]));
+    }
+
+    @Override
+    public Optional<SurfaceColumn> sample(ChunkPos chunk, int localX, int localZ) {
+        if (localX < 0 || localX >= 16 || localZ < 0 || localZ >= 16) throw new IllegalArgumentException("local coordinates out of range");
+        ClientLevel current = level.get();
+        if (current == null) return Optional.empty();
+        int x = chunk.x() * 16 + localX;
+        int z = chunk.z() * 16 + localZ;
+        int y = current.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+        net.minecraft.core.BlockPos nativePosition = new net.minecraft.core.BlockPos(x, y, z);
+        var state = current.getBlockState(nativePosition);
+        int color = state.getMapColor(current, nativePosition).col | 0xFF000000;
+        return Optional.of(new SurfaceColumn(localX, localZ, y, color, !state.getFluidState().isEmpty(), state.isSolidRender(current, nativePosition)));
     }
 
     @Override
