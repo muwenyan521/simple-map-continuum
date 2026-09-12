@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.client.Minecraft;
 import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.DimensionId;
+import com.muwenyan.simplemap.core.map.MapCell;
 
 public final class NeoForge1211MapScreen extends Screen {
     private final MapNeoForge1211Bootstrap bootstrap;
@@ -28,6 +29,17 @@ public final class NeoForge1211MapScreen extends Screen {
         graphics.drawCenteredString(font, Component.translatable("screen.simplemap.cells",
                 bootstrap.clientController().runtime().currentRegion() == null ? 0
                         : bootstrap.clientController().runtime().currentRegion().completedCells().size()), width / 2, height / 2 + 10, 0xFFB0D0B0);
+        var region = bootstrap.clientController().runtime().currentRegion();
+        if (region != null) {
+            int size = Math.min(12, Math.max(1, Math.min(width, height) / 40));
+            int left = width / 2 - 16 * size;
+            int top = height / 2 - 16 * size;
+            for (int z = 0; z < 32; z++) for (int x = 0; x < 32; x++) {
+                MapCell cell = region.cell(x, z);
+                graphics.fill(left + x * size, top + z * size, left + (x + 1) * size, top + (z + 1) * size,
+                        cell == null ? 0x40202020 : cell.colorArgb());
+            }
+        }
         graphics.drawCenteredString(font, Component.translatable("screen.simplemap.close"), width / 2, height - 30, 0xFFAAAAAA);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
