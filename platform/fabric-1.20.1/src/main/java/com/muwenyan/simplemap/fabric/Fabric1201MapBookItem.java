@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
 import com.muwenyan.simplemap.core.book.MapBookItemState;
 import com.muwenyan.simplemap.core.book.MapBookStatus;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
 import com.muwenyan.simplemap.platform.MapBookRuntime;
 
 public final class Fabric1201MapBookItem extends Item {
@@ -68,5 +69,12 @@ public final class Fabric1201MapBookItem extends Item {
         var tag = stack.getOrCreateTag();
         tag.putString("MapBookID", state.id().orElseThrow().toString());
         tag.putString("MapBookTitle", state.title());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, java.util.List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+        var state = readState(stack);
+        tooltip.add(Component.literal(state.status() == MapBookStatus.EMPTY ? "Empty map book" : "Written: " + state.title()));
+        state.id().ifPresent(id -> tooltip.add(Component.literal("Archive: " + id)));
     }
 }

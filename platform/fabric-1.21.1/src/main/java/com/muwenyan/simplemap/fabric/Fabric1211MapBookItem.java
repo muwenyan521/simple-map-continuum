@@ -11,6 +11,7 @@ import net.minecraft.world.item.component.CustomData;
 import com.muwenyan.simplemap.core.book.MapBookItemState;
 import com.muwenyan.simplemap.core.book.MapBookStatus;
 import java.util.UUID;
+import net.minecraft.network.chat.Component;
 import com.muwenyan.simplemap.platform.MapBookRuntime;
 
 public final class Fabric1211MapBookItem extends Item {
@@ -68,5 +69,12 @@ public final class Fabric1211MapBookItem extends Item {
             tag.putString("MapBookTitle", state.title());
         }
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, java.util.List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
+        var state = readState(stack);
+        tooltip.add(Component.literal(state.status() == MapBookStatus.EMPTY ? "Empty map book" : "Written: " + state.title()));
+        state.id().ifPresent(id -> tooltip.add(Component.literal("Archive: " + id)));
     }
 }
