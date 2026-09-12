@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CaveTileFilePersistencePortTest {
     @TempDir
@@ -34,5 +35,19 @@ class CaveTileFilePersistencePortTest {
 
         assertEquals(1, port.read(7, key).orElseThrow().pixels().length);
         assertEquals(java.util.Optional.empty(), port.read(8, key));
+    }
+
+    @Test
+    void migratesLegacyTileWithoutDeletingOriginal() throws java.io.IOException {
+        TileKey key = new TileKey(new DimensionId("minecraft:overworld"), new RegionPos(0, 0), 0, 1, 2);
+        CaveTileFilePersistencePort port = new CaveTileFilePersistencePort(temporary);
+        Path legacy = temporary.resolve("minecraft_overworld/m0/t.1.2.cvr");
+        java.nio.file.Files.createDirectories(legacy.getParent());
+        java.nio.file.Files.write(legacy, com.muwenyan.simplemap.core.persistence.CaveTileCodec.encode(new CaveTile(key, 4, new byte[]{4})));
+
+        assertTrue(port.migrateLegacy(4, key));
+        assertTrue(java.nio.file.Files.isRegularFile(legacy));
+        assertTrue(java.nio.file.Files.isRegularFile(legacy.resolveSibling("t.1.2.cvr.bak")));
+        assertEquals(1, port.read(4, key).orElseThrow().pixels().length);
     }
 }

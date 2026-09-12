@@ -34,6 +34,24 @@ public final class CaveTileFilePersistencePort implements PersistencePort {
         }
     }
 
+    public boolean migrateLegacy(long epoch, TileKey key) {
+        if (epoch < 0) throw new IllegalArgumentException("epoch must be non-negative");
+        TileKey checked = Objects.requireNonNull(key, "key");
+        Path legacy = legacyPath(checked);
+        if (!Files.isRegularFile(legacy)) return false;
+        try {
+            CaveTile tile = CaveTileCodec.decode(Files.readAllBytes(legacy));
+            if (tile.epoch() != epoch || !tile.key().equals(checked)) {
+                throw new IllegalStateException("legacy cave tile namespace mismatch");
+            }
+            write(tile);
+            Files.copy(legacy, legacy.resolveSibling(legacy.getFileName() + ".bak"), StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException exception) {
+            throw new IllegalStateException("cannot migrate legacy cave tile", exception);
+        }
+    }
+
     @Override
     public void write(CaveTile tile) {
         Objects.requireNonNull(tile, "tile");
@@ -70,6 +88,12 @@ public final class CaveTileFilePersistencePort implements PersistencePort {
     private Path pathForNamespace(long epoch, TileKey key) {
         String dimension = key.dimension().value().replace(':', '_').replace('/', '_');
         return root.resolve(dimension).resolve("e" + epoch).resolve("m" + key.lod())
+                .resolve("t." + key.x() + "." + key.z() + ".cvr");
+    }
+
+    private Path legacyPath(TileKey key) {
+        String dimension = key.dimension().value().replace(':', '_').replace('/', '_');
+        return root.resolve(dimension).resolve("m" + key.lod())
                 .resolve("t." + key.x() + "." + key.z() + ".cvr");
     }
 }
