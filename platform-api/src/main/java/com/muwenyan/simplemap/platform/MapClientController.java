@@ -11,10 +11,17 @@ import com.muwenyan.simplemap.core.model.ChunkPos;
 import com.muwenyan.simplemap.core.model.DimensionId;
 import com.muwenyan.simplemap.core.model.RegionPos;
 import com.muwenyan.simplemap.core.map.MapRegion;
+import com.muwenyan.simplemap.core.navigation.Waypoint;
+import com.muwenyan.simplemap.core.waypoint.WaypointCommandExecutor;
+import com.muwenyan.simplemap.core.waypoint.WaypointCommandParser;
+import com.muwenyan.simplemap.core.waypoint.WaypointStore;
+import java.util.List;
+import java.util.UUID;
 import java.util.Objects;
 
 public final class MapClientController {
     private final MapRuntime runtime;
+    private final WaypointStore waypoints = new WaypointStore();
 
     public MapClientController() {
         this((dimension, position) -> java.util.Optional.empty());
@@ -31,6 +38,11 @@ public final class MapClientController {
     public MapMode mode() { return runtime.mode().mode(); }
     public MapMode toggleMode() { return runtime.mode().toggle(); }
     public void setMode(MapMode mode) { runtime.mode().set(Objects.requireNonNull(mode, "mode")); }
+    public List<Waypoint> executeWaypointCommand(UUID actor, DimensionId dimension, String command) {
+        return new WaypointCommandExecutor(waypoints).execute(Objects.requireNonNull(actor, "actor"),
+                Objects.requireNonNull(dimension, "dimension"), WaypointCommandParser.parse(command));
+    }
+    public List<Waypoint> visibleWaypoints(DimensionId dimension) { return waypoints.visible(Objects.requireNonNull(dimension, "dimension")); }
 
     public boolean refreshSurface(DimensionId dimension, ChunkPos center, int radius) {
         Objects.requireNonNull(dimension, "dimension");

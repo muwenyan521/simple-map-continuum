@@ -4,6 +4,7 @@ import com.muwenyan.simplemap.core.model.MapMode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.UUID;
 
 class MapClientControllerTest {
     @Test
@@ -35,5 +36,14 @@ class MapClientControllerTest {
         assertEquals(true, controller.refreshSurface(new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld"),
                 new com.muwenyan.simplemap.core.model.ChunkPos(1, 1), 1));
         assertEquals(9, controller.runtime().currentRegion().completedCells().size());
+    }
+
+    @Test
+    void executesWaypointCommandThroughController() {
+        MapClientController controller = new MapClientController();
+        UUID actor = UUID.randomUUID();
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        assertEquals(1, controller.executeWaypointCommand(actor, dimension, "waypoint add home 1 64 2").size());
+        assertEquals("home", controller.visibleWaypoints(dimension).get(0).name());
     }
 }
