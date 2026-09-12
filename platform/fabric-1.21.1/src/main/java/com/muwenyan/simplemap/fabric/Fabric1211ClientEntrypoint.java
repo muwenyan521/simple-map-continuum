@@ -22,6 +22,7 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
         bootstrap.descriptor();
         bootstrap.bindWorld(new Fabric1211WorldSource(() -> Minecraft.getInstance().level));
         bootstrap.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
+        bootstrap.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (TOGGLE_MODE.consumeClick()) {
                 bootstrap.clientController().toggleMode();
