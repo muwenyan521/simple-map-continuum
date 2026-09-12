@@ -8,6 +8,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.Minecraft;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.minecraft.world.InteractionResultHolder;
 
 public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
     private static final KeyMapping TOGGLE_MODE = KeyBindingHelper.registerKeyBinding(
@@ -25,6 +27,14 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
         bootstrap.bindWorld(new Fabric1201WorldSource(() -> Minecraft.getInstance().level));
         bootstrap.clientController().bindWaypointStorage(Minecraft.getInstance().gameDirectory.toPath().resolve("simplemap"));
         bootstrap.clientController().loadConfig(Minecraft.getInstance().gameDirectory.toPath().resolve("config/simplemap.cfg"));
+        UseItemCallback.EVENT.register((player, level, hand) -> {
+            var item = player.getItemInHand(hand).getItem();
+            if (item == Fabric1201Items.EMPTY_MAP_BOOK || item == Fabric1201Items.MAP_BOOK) {
+                Minecraft.getInstance().setScreen(new Fabric1201MapScreen(bootstrap));
+                return InteractionResultHolder.success(player.getItemInHand(hand));
+            }
+            return InteractionResultHolder.pass(player.getItemInHand(hand));
+        });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (TOGGLE_MODE.consumeClick()) {
                 bootstrap.clientController().toggleMode();

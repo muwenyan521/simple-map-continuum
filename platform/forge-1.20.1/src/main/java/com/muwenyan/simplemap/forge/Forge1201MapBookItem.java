@@ -1,6 +1,5 @@
 package com.muwenyan.simplemap.forge;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +14,6 @@ public final class Forge1201MapBookItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (written && !stack.hasTag()) return InteractionResultHolder.fail(stack);
-        if (level.isClientSide) Minecraft.getInstance().setScreen(new Forge1201MapScreen(new MapForge1201Bootstrap()));
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 }

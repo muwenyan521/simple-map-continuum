@@ -1,6 +1,5 @@
 package com.muwenyan.simplemap.fabric;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +14,6 @@ public final class Fabric1201MapBookItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (written && !stack.hasTag()) return InteractionResultHolder.fail(stack);
-        if (level.isClientSide) Minecraft.getInstance().setScreen(new Fabric1201MapScreen(new MapFabric1201Bootstrap()));
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 }

@@ -9,6 +9,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 
 @Mod.EventBusSubscriber(modid = "simplemap", value = net.minecraftforge.api.distmarker.Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Forge1201ClientEntrypoint {
@@ -42,6 +43,16 @@ public final class Forge1201ClientEntrypoint {
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
             while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
             while (TOGGLE_MINIMAP.consumeClick()) BOOTSTRAP.clientController().toggleMinimap();
+        }
+
+        @SubscribeEvent
+        public static void useBook(PlayerInteractEvent.RightClickItem event) {
+            var item = event.getItemStack().getItem();
+            if (item == Forge1201Entrypoint.MAP_BOOK.get() || item == Forge1201Entrypoint.EMPTY_MAP_BOOK.get()) {
+                Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
+                event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+                event.setCanceled(true);
+            }
         }
 
         @SubscribeEvent

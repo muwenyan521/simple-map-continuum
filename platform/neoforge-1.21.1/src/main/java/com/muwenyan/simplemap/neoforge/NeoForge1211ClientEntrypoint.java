@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import org.lwjgl.glfw.GLFW;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @SuppressWarnings("removal")
 @EventBusSubscriber(modid = "simplemap", value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
@@ -43,6 +44,16 @@ public final class NeoForge1211ClientEntrypoint {
             while (TOGGLE_MODE.consumeClick()) BOOTSTRAP.clientController().toggleMode();
             while (OPEN_MAP.consumeClick()) Minecraft.getInstance().setScreen(new NeoForge1211MapScreen(BOOTSTRAP));
             while (TOGGLE_MINIMAP.consumeClick()) BOOTSTRAP.clientController().toggleMinimap();
+        }
+
+        @SubscribeEvent
+        public static void useBook(PlayerInteractEvent.RightClickItem event) {
+            var item = event.getItemStack().getItem();
+            if (item == NeoForge1211Entrypoint.MAP_BOOK.get() || item == NeoForge1211Entrypoint.EMPTY_MAP_BOOK.get()) {
+                Minecraft.getInstance().setScreen(new NeoForge1211MapScreen(BOOTSTRAP));
+                event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+                event.setCanceled(true);
+            }
         }
 
         @SubscribeEvent
