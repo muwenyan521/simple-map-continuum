@@ -358,6 +358,30 @@ public final class MapClientController {
         return Map.copyOf(caveSnapshots.getOrDefault(Objects.requireNonNull(dimension, "dimension"), Map.of()));
     }
 
+    public synchronized java.util.Optional<com.muwenyan.simplemap.core.cave.CaveLayer> projectCave(
+            DimensionId dimension, ChunkPos chunk, int playerY, CaveConfig caveConfig) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(chunk, "chunk");
+        Objects.requireNonNull(caveConfig, "caveConfig");
+        CaveSnapshot snapshot = caveSnapshots.getOrDefault(dimension, Map.of()).get(chunk);
+        if (snapshot == null) return java.util.Optional.empty();
+        List<com.muwenyan.simplemap.core.cave.CaveLayer> layers = snapshot.columns().stream()
+                .flatMap(List::stream).map(com.muwenyan.simplemap.core.cave.CaveColumnRun::layer).toList();
+        return com.muwenyan.simplemap.core.cave.CaveProjection.select(layers, playerY, caveConfig);
+    }
+
+    public synchronized List<com.muwenyan.simplemap.core.cave.CaveLayer> projectCaveLayers(
+            DimensionId dimension, ChunkPos chunk, int playerY, CaveConfig caveConfig) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(chunk, "chunk");
+        Objects.requireNonNull(caveConfig, "caveConfig");
+        CaveSnapshot snapshot = caveSnapshots.getOrDefault(dimension, Map.of()).get(chunk);
+        if (snapshot == null) return List.of();
+        List<com.muwenyan.simplemap.core.cave.CaveLayer> layers = snapshot.columns().stream()
+                .flatMap(List::stream).map(com.muwenyan.simplemap.core.cave.CaveColumnRun::layer).toList();
+        return com.muwenyan.simplemap.core.cave.CaveProjection.limitAndShade(layers, playerY, caveConfig);
+    }
+
     public synchronized int restoreCave(DimensionId dimension, int epoch, int regionX, int regionZ) {
         if (caveFiles == null) throw new IllegalStateException("cave storage is not bound");
         Objects.requireNonNull(dimension, "dimension");

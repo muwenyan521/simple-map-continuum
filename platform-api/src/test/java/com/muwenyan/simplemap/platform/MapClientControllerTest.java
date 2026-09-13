@@ -243,6 +243,36 @@ class MapClientControllerTest {
     }
 
     @Test
+    void caveProjectionUsesPlayerHeightAndConfiguredLayerLimit() {
+        class Source implements com.muwenyan.simplemap.platform.port.WorldSourcePort,
+                com.muwenyan.simplemap.platform.port.CaveColumnSourcePort {
+            @Override public java.util.Optional<com.muwenyan.simplemap.core.model.ChunkSnapshot> snapshot(
+                    com.muwenyan.simplemap.core.model.DimensionId dimension,
+                    com.muwenyan.simplemap.core.model.ChunkPos position) { return java.util.Optional.empty(); }
+            @Override public java.util.List<com.muwenyan.simplemap.core.cave.CaveColumnRun> sample(
+                    com.muwenyan.simplemap.core.model.ChunkPos chunk, int x, int z,
+                    com.muwenyan.simplemap.core.cave.CaveConfig config) {
+                if (x != 0 || z != 0) return java.util.List.of();
+                return java.util.List.of(new com.muwenyan.simplemap.core.cave.CaveColumnRun(
+                        20, 10, 0xFF112233, 8, false, false),
+                        new com.muwenyan.simplemap.core.cave.CaveColumnRun(
+                                80, 60, 0xFF445566, 12, false, false));
+            }
+        }
+        var controller = new MapClientController(new Source());
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var chunk = new com.muwenyan.simplemap.core.model.ChunkPos(0, 0);
+        controller.refreshCave(dimension, chunk, 0, com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
+        var auto = controller.projectCave(dimension, chunk, 30,
+                new com.muwenyan.simplemap.core.cave.CaveConfig(com.muwenyan.simplemap.core.cave.CaveMode.AUTO,
+                        320, 8, com.muwenyan.simplemap.core.cave.CaveLightMode.RAW));
+        org.junit.jupiter.api.Assertions.assertEquals(20, auto.orElseThrow().topY());
+        org.junit.jupiter.api.Assertions.assertEquals(2, controller.projectCaveLayers(dimension, chunk, 30,
+                new com.muwenyan.simplemap.core.cave.CaveConfig(com.muwenyan.simplemap.core.cave.CaveMode.ON,
+                        320, 2, com.muwenyan.simplemap.core.cave.CaveLightMode.RAW)).size());
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
