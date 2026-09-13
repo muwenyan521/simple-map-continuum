@@ -30,7 +30,15 @@ public final class MapBookTransferService {
 
     public synchronized MapBookTransferResult accept(UUID sessionId, byte[] region, long nowMillis)
             throws ProtocolException {
-        return session(sessionId).acceptRegion(region, nowMillis);
+        MapBookTransferSession session = session(sessionId);
+        try {
+            return session.acceptRegion(region, nowMillis);
+        } catch (ProtocolException | RuntimeException exception) {
+            if (session.state() != MapBookTransferState.ACTIVE) {
+                sessions.remove(sessionId);
+            }
+            throw exception;
+        }
     }
 
     public synchronized MapBookTransferResult complete(UUID sessionId, long nowMillis) {

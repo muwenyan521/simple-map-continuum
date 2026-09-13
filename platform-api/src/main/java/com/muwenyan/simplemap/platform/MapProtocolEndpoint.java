@@ -6,6 +6,9 @@ import com.muwenyan.simplemap.core.protocol.ProtocolException;
 import com.muwenyan.simplemap.core.protocol.MapBookMessageType;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncCodec;
 import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
+import com.muwenyan.simplemap.core.protocol.MapBookAckAction;
+import com.muwenyan.simplemap.core.protocol.MapBookAckCodec;
+import com.muwenyan.simplemap.core.protocol.MapBookErrorCodec;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,6 +21,7 @@ public final class MapProtocolEndpoint {
     private final AtomicLong received = new AtomicLong();
     private final AtomicReference<WaypointSyncMessage> lastWaypointSync = new AtomicReference<>();
     private final AtomicReference<MapBookTransferResult> lastTransferResult = new AtomicReference<>();
+    private final AtomicReference<MapBookErrorCodec.RemoteError> lastRemoteError = new AtomicReference<>();
     private volatile Consumer<MapBookFrame> observer;
     private volatile MapBookTransferService transferService;
     private volatile LongSupplier clock = System::currentTimeMillis;
@@ -45,6 +49,15 @@ public final class MapProtocolEndpoint {
                         "cannot route map book region", exception);
             }
         }
+        if (frame.type() == MapBookMessageType.ACK && transferService != null) {
+            MapBookAckAction action = MapBookAckCodec.decode(frame.body());
+            lastTransferResult.set(action == MapBookAckAction.COMPLETE
+                    ? transferService.complete(frame.sessionId(), clock.getAsLong())
+                    : transferService.abort(frame.sessionId()));
+        }
+        if (frame.type() == MapBookMessageType.ERROR) {
+            lastRemoteError.set(MapBookErrorCodec.decode(frame.body()));
+        }
         observer.accept(frame);
         lastError.set(null);
         received.incrementAndGet();
@@ -65,4 +78,5 @@ public final class MapProtocolEndpoint {
     public java.util.Optional<ProtocolException> lastError() { return java.util.Optional.ofNullable(lastError.get()); }
     public java.util.Optional<WaypointSyncMessage> lastWaypointSync() { return java.util.Optional.ofNullable(lastWaypointSync.get()); }
     public java.util.Optional<MapBookTransferResult> lastTransferResult() { return java.util.Optional.ofNullable(lastTransferResult.get()); }
+    public java.util.Optional<MapBookErrorCodec.RemoteError> lastRemoteError() { return java.util.Optional.ofNullable(lastRemoteError.get()); }
 }

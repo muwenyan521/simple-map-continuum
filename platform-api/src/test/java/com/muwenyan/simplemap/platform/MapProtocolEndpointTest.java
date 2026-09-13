@@ -72,4 +72,33 @@ class MapProtocolEndpointTest {
         assertEquals(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY,
                 endpoint.lastError().orElseThrow().code());
     }
+
+    @Test
+    void ackCompletesBoundTransferAndErrorIsRetained() throws Exception {
+        UUID owner = UUID.randomUUID();
+        var book = new com.muwenyan.simplemap.core.book.MapBook(UUID.randomUUID(), owner);
+        var service = new MapBookTransferService(1024, 1000);
+        UUID session = service.start(book, owner, MapBookTransferMode.SAVE, 0);
+        var endpoint = new MapProtocolEndpoint();
+        endpoint.bindTransferService(service, () -> 1L);
+        endpoint.receive(FrameCodec.encode(new MapBookFrame(1, MapBookMessageType.ACK, session,
+                com.muwenyan.simplemap.core.protocol.MapBookAckCodec.encode(
+                        com.muwenyan.simplemap.core.protocol.MapBookAckAction.COMPLETE))));
+        assertEquals(MapBookTransferState.COMPLETED, endpoint.lastTransferResult().orElseThrow().state());
+        var error = new MapBookFrame(1, MapBookMessageType.ERROR, UUID.randomUUID(),
+                com.muwenyan.simplemap.core.protocol.MapBookErrorCodec.encode(
+                        com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.LIMIT_EXCEEDED, "too large"));
+        endpoint.receive(FrameCodec.encode(error));
+        assertEquals(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.LIMIT_EXCEEDED,
+                endpoint.lastRemoteError().orElseThrow().code());
+    }
+
+    @Test
+    void errorCodecPreservesMessagesLongerThanOneByte() throws Exception {
+        String message = "x".repeat(300);
+        var decoded = com.muwenyan.simplemap.core.protocol.MapBookErrorCodec.decode(
+                com.muwenyan.simplemap.core.protocol.MapBookErrorCodec.encode(
+                        com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY, message));
+        assertEquals(message, decoded.message());
+    }
 }

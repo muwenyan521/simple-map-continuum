@@ -36,4 +36,15 @@ class MapBookTransferServiceTest {
         assertEquals(0, service.activeCount());
         assertEquals(0, book.snapshot().regions().size());
     }
+
+    @Test
+    void malformedRegionRemovesAbortedSession() {
+        UUID owner = UUID.randomUUID();
+        MapBook book = new MapBook(UUID.randomUUID(), owner);
+        MapBookTransferService service = new MapBookTransferService(1024, 1000);
+        UUID session = service.start(book, owner, MapBookTransferMode.LEARN, 0);
+        assertThrows(com.muwenyan.simplemap.core.protocol.ProtocolException.class,
+                () -> service.accept(session, new byte[]{1, 2, 3}, 1));
+        assertEquals(0, service.activeCount());
+    }
 }
