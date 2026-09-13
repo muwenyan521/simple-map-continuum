@@ -124,6 +124,11 @@ public final class NeoForge1211ClientEntrypoint {
                 graphics.drawString(Minecraft.getInstance().font, player.getBlockX() + ", " + player.getBlockZ(), left + 2, top + size - 10, 0xFFFFFFFF, true);
             }
             graphics.drawString(Minecraft.getInstance().font, "N", left + size / 2 - 3, top + 2, 0xFFFF5555, true);
+            var hudPlayer = Minecraft.getInstance().player;
+            if (hudPlayer != null) {
+                var dimension = new com.muwenyan.simplemap.core.model.DimensionId(hudPlayer.level().dimension().location().toString());
+                graphics.drawString(Minecraft.getInstance().font, BOOTSTRAP.clientController().mode().name() + " " + BOOTSTRAP.clientController().waypointCount(dimension), left + 2, top + 12, 0xFFFFFFFF, true);
+            }
         }
     }
 }

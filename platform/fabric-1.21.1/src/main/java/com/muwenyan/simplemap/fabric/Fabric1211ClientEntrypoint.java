@@ -106,5 +106,6 @@ public final class Fabric1211ClientEntrypoint implements ClientModInitializer {
             graphics.drawString(Minecraft.getInstance().font, player.getBlockX() + ", " + player.getBlockZ(), left + 2, top + size - 10, 0xFFFFFFFF, true);
         }
         graphics.drawString(Minecraft.getInstance().font, "N", left + size / 2 - 3, top + 2, 0xFFFF5555, true);
+        graphics.drawString(Minecraft.getInstance().font, "Tiles " + frame.tiles().size(), left + 2, top + 12, 0xFFFFFFFF, true);
     }
 }
