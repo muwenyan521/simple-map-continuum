@@ -55,7 +55,7 @@ public final class MapClientController {
     private java.nio.file.Path waypointRoot;
     private boolean minimapEnabled = true;
     private MinimapConfig minimapConfig = MinimapConfig.defaults();
-    private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
+    private final Map<DimensionId, Map<ChunkPos, CaveSnapshot>> caveSnapshots = new LinkedHashMap<>();
     private final Map<RegionPos, MapRegion> openedBookRegions = new LinkedHashMap<>();
     private long waypointRevision = -1;
 
@@ -272,7 +272,7 @@ public final class MapClientController {
             }
         }
         if (mode() == MapMode.CAVE) {
-            for (var entry : caveSnapshots.entrySet()) {
+            for (var entry : caveSnapshots.getOrDefault(player.dimension(), Map.of()).entrySet()) {
                 var runs = entry.getValue().columns().stream().flatMap(List::stream).findFirst();
                 if (runs.isPresent()) tiles.add(new MinimapTile(entry.getKey(), runs.get().layer().shadedArgb(com.muwenyan.simplemap.core.cave.CaveLightMode.BRIGHT), entry.getValue().revision()));
             }
@@ -319,9 +319,11 @@ public final class MapClientController {
     }
     public synchronized void clearMapCache(DimensionId dimension) {
         Objects.requireNonNull(dimension, "dimension");
-        caveSnapshots.clear();
+        caveSnapshots.remove(dimension);
         runtime.dimensions().remove(dimension);
-        runtime.clearRegion();
+        if (runtime.currentRegion() != null && runtime.currentRegion().dimension().equals(dimension)) {
+            runtime.clearRegion();
+        }
     }
 
     public synchronized int refreshCave(DimensionId dimension, ChunkPos center, int radius, CaveConfig caveConfig) {
@@ -330,12 +332,14 @@ public final class MapClientController {
         Objects.requireNonNull(caveConfig, "caveConfig");
         if (radius < 0 || radius > 8) throw new IllegalArgumentException("invalid radius");
         if (!(runtime.world() instanceof CaveColumnSourcePort source)) return 0;
+        Map<ChunkPos, CaveSnapshot> dimensionSnapshots = caveSnapshots.computeIfAbsent(dimension,
+                ignored -> new LinkedHashMap<>());
         int scanned = 0;
         for (int z = center.z() - radius; z <= center.z() + radius; z++) {
             for (int x = center.x() - radius; x <= center.x() + radius; x++) {
-                runtime.scanCave(new ChunkPos(x, z), source, caveConfig, caveSnapshots.size() + 1)
+                runtime.scanCave(new ChunkPos(x, z), source, caveConfig, dimensionSnapshots.size() + 1L)
                         .ifPresent(snapshot -> {
-                            caveSnapshots.put(snapshot.chunk(), snapshot);
+                            dimensionSnapshots.put(snapshot.chunk(), snapshot);
                             if (caveFiles != null) persistCaveSnapshot(dimension, snapshot, caveConfig);
                         });
                 scanned++;
@@ -344,7 +348,15 @@ public final class MapClientController {
         return scanned;
     }
 
-    public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() { return Map.copyOf(caveSnapshots); }
+    public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots() {
+        Map<ChunkPos, CaveSnapshot> result = new LinkedHashMap<>();
+        caveSnapshots.values().forEach(result::putAll);
+        return Map.copyOf(result);
+    }
+
+    public synchronized Map<ChunkPos, CaveSnapshot> caveSnapshots(DimensionId dimension) {
+        return Map.copyOf(caveSnapshots.getOrDefault(Objects.requireNonNull(dimension, "dimension"), Map.of()));
+    }
 
     public synchronized int restoreCave(DimensionId dimension, int epoch, int regionX, int regionZ) {
         if (caveFiles == null) throw new IllegalStateException("cave storage is not bound");
@@ -353,7 +365,7 @@ public final class MapClientController {
             CaveRegionFileService files = new CaveRegionFileService(caveRoot.resolve(
                     dimension.value().replace(':', '_').replace('/', '_')));
             Map<ChunkPos, CaveSnapshot> restored = files.read(epoch, mode().ordinal(), regionX, regionZ);
-            caveSnapshots.putAll(restored);
+            caveSnapshots.computeIfAbsent(dimension, ignored -> new LinkedHashMap<>()).putAll(restored);
             return restored.size();
         } catch (java.io.IOException exception) {
             throw new IllegalStateException("cannot restore cave snapshots", exception);

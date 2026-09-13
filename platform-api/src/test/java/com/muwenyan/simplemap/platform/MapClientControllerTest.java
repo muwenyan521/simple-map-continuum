@@ -214,6 +214,35 @@ class MapClientControllerTest {
     }
 
     @Test
+    void caveSnapshotsRemainIsolatedByDimension() {
+        class Source implements com.muwenyan.simplemap.platform.port.WorldSourcePort,
+                com.muwenyan.simplemap.platform.port.CaveColumnSourcePort {
+            @Override public java.util.Optional<com.muwenyan.simplemap.core.model.ChunkSnapshot> snapshot(
+                    com.muwenyan.simplemap.core.model.DimensionId dimension,
+                    com.muwenyan.simplemap.core.model.ChunkPos position) { return java.util.Optional.empty(); }
+            @Override public java.util.List<com.muwenyan.simplemap.core.cave.CaveColumnRun> sample(
+                    com.muwenyan.simplemap.core.model.ChunkPos chunk, int x, int z,
+                    com.muwenyan.simplemap.core.cave.CaveConfig config) {
+                return x == 0 && z == 0
+                        ? java.util.List.of(new com.muwenyan.simplemap.core.cave.CaveColumnRun(
+                                20, 10, 0xFF112233, 8, false, false)) : java.util.List.of();
+            }
+        }
+        var controller = new MapClientController(new Source());
+        var overworld = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var nether = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:the_nether");
+        controller.refreshCave(overworld, new com.muwenyan.simplemap.core.model.ChunkPos(0, 0), 0,
+                com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
+        controller.refreshCave(nether, new com.muwenyan.simplemap.core.model.ChunkPos(0, 0), 0,
+                com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.caveSnapshots(overworld).size());
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.caveSnapshots(nether).size());
+        controller.clearMapCache(overworld);
+        org.junit.jupiter.api.Assertions.assertEquals(0, controller.caveSnapshots(overworld).size());
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.caveSnapshots(nether).size());
+    }
+
+    @Test
     void minimapFrameContainsWaypointMarker() {
         MapClientController controller = new MapClientController(new MapClientControllerTestSource());
         var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
