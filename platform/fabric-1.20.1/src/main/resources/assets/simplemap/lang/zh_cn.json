@@ -14,4 +14,7 @@
   "screen.simplemap.mode": "模式：%s",
   "screen.simplemap.cells": "已绘制区块：%s",
   "screen.simplemap.close": "按 Esc 关闭"
+  ,"tooltip.simplemap.empty_book": "空白地图册"
+  ,"tooltip.simplemap.written_book": "已写入：%s"
+  ,"tooltip.simplemap.archive": "归档：%s"
 }

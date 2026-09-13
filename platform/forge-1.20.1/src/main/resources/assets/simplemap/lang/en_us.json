@@ -14,4 +14,7 @@
   "screen.simplemap.mode": "Mode: %s",
   "screen.simplemap.cells": "Mapped chunks: %s",
   "screen.simplemap.close": "Press Escape to close"
+  ,"tooltip.simplemap.empty_book": "Empty map book"
+  ,"tooltip.simplemap.written_book": "Written: %s"
+  ,"tooltip.simplemap.archive": "Archive: %s"
 }

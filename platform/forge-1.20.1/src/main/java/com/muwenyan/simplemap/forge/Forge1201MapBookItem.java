@@ -66,7 +66,7 @@ public final class Forge1201MapBookItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level level, java.util.List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
         var state = readState(stack);
-        tooltip.add(Component.literal(state.status() == MapBookStatus.EMPTY ? "Empty map book" : "Written: " + state.title()));
-        state.id().ifPresent(id -> tooltip.add(Component.literal("Archive: " + id)));
+        tooltip.add(Component.translatable(state.status() == MapBookStatus.EMPTY ? "tooltip.simplemap.empty_book" : "tooltip.simplemap.written_book", state.title()));
+        state.id().ifPresent(id -> tooltip.add(Component.translatable("tooltip.simplemap.archive", id)));
     }
 }
