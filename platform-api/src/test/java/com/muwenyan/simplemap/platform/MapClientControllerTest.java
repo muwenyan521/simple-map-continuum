@@ -132,6 +132,20 @@ class MapClientControllerTest {
     }
 
     @Test
+    void openingEmptyMapBookDoesNotDiscardCurrentRegion() throws Exception {
+        var controller = new MapClientController();
+        controller.bindBookStorage(temporary);
+        var owner = java.util.UUID.randomUUID();
+        var book = controller.books().create(owner);
+        var region = new com.muwenyan.simplemap.core.map.MapRegion(
+                new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld"),
+                new com.muwenyan.simplemap.core.model.ChunkPos(0, 0), 32, 32);
+        controller.runtime().setRegion(region);
+        org.junit.jupiter.api.Assertions.assertEquals(0, controller.openMapBook(owner, book.id()));
+        org.junit.jupiter.api.Assertions.assertEquals(region, controller.runtime().currentRegion());
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();

@@ -76,6 +76,7 @@ public final class MapClientController {
         try {
             MapBook book = books().load(bookId, actor);
             if (book.snapshot().regions().isEmpty()) return 0;
+            runtime.clearRegion();
             int loaded = 0;
             for (var entry : book.snapshot().regions()) {
                 MapRegion region = RegionArchiveCodec.decode(entry.payload(), ArchiveFormat.SMAP);
