@@ -56,6 +56,7 @@ public final class MapClientController {
     private boolean minimapEnabled = true;
     private MinimapConfig minimapConfig = MinimapConfig.defaults();
     private final Map<ChunkPos, CaveSnapshot> caveSnapshots = new LinkedHashMap<>();
+    private final Map<RegionPos, MapRegion> openedBookRegions = new LinkedHashMap<>();
     private long waypointRevision = -1;
 
     public MapClientController() {
@@ -76,17 +77,29 @@ public final class MapClientController {
         try {
             MapBook book = books().load(bookId, actor);
             if (book.snapshot().regions().isEmpty()) return 0;
+            openedBookRegions.clear();
             runtime.clearRegion();
             int loaded = 0;
             for (var entry : book.snapshot().regions()) {
                 MapRegion region = RegionArchiveCodec.decode(entry.payload(), ArchiveFormat.SMAP);
-                runtime.setRegion(region);
+                openedBookRegions.put(entry.position(), region);
                 loaded++;
             }
+            openedBookRegions.values().stream().findFirst().ifPresent(runtime::setRegion);
             return loaded;
         } catch (java.io.IOException exception) {
             throw new IllegalStateException("cannot open map book", exception);
         }
+    }
+    public synchronized Map<RegionPos, MapRegion> openedBookRegions() {
+        return Map.copyOf(openedBookRegions);
+    }
+
+    public synchronized boolean selectBookRegion(RegionPos position) {
+        MapRegion region = openedBookRegions.get(Objects.requireNonNull(position, "position"));
+        if (region == null) return false;
+        runtime.setRegion(region);
+        return true;
     }
     public synchronized void loadConfig(java.nio.file.Path path) { runtime.loadConfig(new FileConfigPort(path)); }
     public synchronized void saveConfig(java.nio.file.Path path) { runtime.saveConfig(new FileConfigPort(path)); }

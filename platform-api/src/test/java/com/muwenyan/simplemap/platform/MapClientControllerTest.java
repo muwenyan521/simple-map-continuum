@@ -132,6 +132,36 @@ class MapClientControllerTest {
     }
 
     @Test
+    void openingMapBookRetainsAllArchivedRegionsForSelection() throws Exception {
+        var controller = new MapClientController();
+        controller.bindBookStorage(temporary);
+        var owner = java.util.UUID.randomUUID();
+        var book = controller.books().create(owner);
+        var dimension = new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld");
+        var first = new com.muwenyan.simplemap.core.map.MapRegion(dimension,
+                new com.muwenyan.simplemap.core.model.ChunkPos(0, 0), 32, 32);
+        first.apply(0, 0, new com.muwenyan.simplemap.core.map.MapCell(
+                new com.muwenyan.simplemap.core.model.BlockPos(1, 64, 1), 0xFF00FF00, 64, false, true));
+        var second = new com.muwenyan.simplemap.core.map.MapRegion(dimension,
+                new com.muwenyan.simplemap.core.model.ChunkPos(32, 0), 32, 32);
+        second.apply(0, 0, new com.muwenyan.simplemap.core.map.MapCell(
+                new com.muwenyan.simplemap.core.model.BlockPos(513, 64, 1), 0xFFFF0000, 64, false, true));
+        book.save(owner, new com.muwenyan.simplemap.core.model.RegionPos(0, 0),
+                com.muwenyan.simplemap.core.persistence.RegionArchiveCodec.encode(first,
+                        com.muwenyan.simplemap.core.persistence.ArchiveFormat.SMAP));
+        book.save(owner, new com.muwenyan.simplemap.core.model.RegionPos(1, 0),
+                com.muwenyan.simplemap.core.persistence.RegionArchiveCodec.encode(second,
+                        com.muwenyan.simplemap.core.persistence.ArchiveFormat.SMAP));
+        controller.books().save(book);
+
+        org.junit.jupiter.api.Assertions.assertEquals(2, controller.openMapBook(owner, book.id()));
+        org.junit.jupiter.api.Assertions.assertEquals(2, controller.openedBookRegions().size());
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.runtime().currentRegion().completedCells().size());
+        org.junit.jupiter.api.Assertions.assertTrue(controller.selectBookRegion(new com.muwenyan.simplemap.core.model.RegionPos(1, 0)));
+        org.junit.jupiter.api.Assertions.assertEquals(0xFFFF0000, controller.runtime().currentRegion().cell(0, 0).colorArgb());
+    }
+
+    @Test
     void openingEmptyMapBookDoesNotDiscardCurrentRegion() throws Exception {
         var controller = new MapClientController();
         controller.bindBookStorage(temporary);
