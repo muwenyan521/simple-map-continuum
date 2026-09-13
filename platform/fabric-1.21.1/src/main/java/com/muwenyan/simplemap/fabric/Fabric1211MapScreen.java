@@ -57,12 +57,15 @@ public final class Fabric1211MapScreen extends Screen {
                         cell == null ? 0x40202020 : cell.colorArgb());
             }
             if (bootstrap.clientController().mode() == com.muwenyan.simplemap.core.model.MapMode.CAVE) {
-                for (var entry : bootstrap.clientController().caveSnapshots().entrySet()) {
-                    var run = entry.getValue().columns().stream().flatMap(java.util.List::stream).findFirst();
-                    if (run.isPresent()) {
+                var caveDimension = new DimensionId(Minecraft.getInstance().player.level().dimension().location().toString());
+                int cavePlayerY = Minecraft.getInstance().player.getBlockY();
+                for (var entry : bootstrap.clientController().caveSnapshots(caveDimension).entrySet()) {
+                    var layer = bootstrap.clientController().projectCave(caveDimension, entry.getKey(), cavePlayerY,
+                            com.muwenyan.simplemap.core.cave.CaveConfig.defaults());
+                    if (layer.isPresent()) {
                         int cx = left + (entry.getKey().x() - region.origin().x()) * size;
                         int cz = top + (entry.getKey().z() - region.origin().z()) * size;
-                        graphics.fill(cx, cz, cx + size, cz + size, run.get().layer().shadedArgb(com.muwenyan.simplemap.core.cave.CaveLightMode.BRIGHT));
+                        graphics.fill(cx, cz, cx + size, cz + size, layer.orElseThrow().argb());
                     }
                 }
             }
