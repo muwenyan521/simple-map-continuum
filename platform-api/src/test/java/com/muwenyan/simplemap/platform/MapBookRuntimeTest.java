@@ -83,4 +83,13 @@ class MapBookRuntimeTest {
         org.junit.jupiter.api.Assertions.assertThrows(SecurityException.class,
                 () -> restored.save(reader, new RegionPos(1, 1), new byte[]{1}));
     }
+
+    @Test
+    void actorReadAccessIsCheckedOnLoad() throws Exception {
+        MapBookRuntime runtime = new MapBookRuntime(temporary);
+        UUID owner = UUID.randomUUID();
+        var book = runtime.create(owner);
+        org.junit.jupiter.api.Assertions.assertThrows(SecurityException.class,
+                () -> runtime.load(book.id(), UUID.randomUUID()));
+    }
 }

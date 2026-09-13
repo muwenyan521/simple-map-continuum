@@ -34,9 +34,12 @@ import com.muwenyan.simplemap.platform.file.WaypointFileService;
 import com.muwenyan.simplemap.platform.file.CaveRegionFileService;
 import com.muwenyan.simplemap.platform.RegionCacheService;
 import com.muwenyan.simplemap.core.persistence.CaveRegionArchive;
+import com.muwenyan.simplemap.core.persistence.ArchiveFormat;
+import com.muwenyan.simplemap.core.persistence.RegionArchiveCodec;
 import com.muwenyan.simplemap.platform.port.CaveColumnSourcePort;
 import com.muwenyan.simplemap.core.cave.CaveConfig;
 import com.muwenyan.simplemap.core.cave.CaveSnapshot;
+import com.muwenyan.simplemap.core.book.MapBook;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -69,6 +72,21 @@ public final class MapClientController {
     public MapRuntime runtime() { return runtime; }
     public synchronized void bindBookStorage(java.nio.file.Path root) { books = new MapBookRuntime(root); }
     public synchronized MapBookRuntime books() { return Objects.requireNonNull(books, "book storage is not bound"); }
+    public synchronized int openMapBook(UUID actor, UUID bookId) {
+        try {
+            MapBook book = books().load(bookId, actor);
+            if (book.snapshot().regions().isEmpty()) return 0;
+            int loaded = 0;
+            for (var entry : book.snapshot().regions()) {
+                MapRegion region = RegionArchiveCodec.decode(entry.payload(), ArchiveFormat.SMAP);
+                runtime.setRegion(region);
+                loaded++;
+            }
+            return loaded;
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot open map book", exception);
+        }
+    }
     public synchronized void loadConfig(java.nio.file.Path path) { runtime.loadConfig(new FileConfigPort(path)); }
     public synchronized void saveConfig(java.nio.file.Path path) { runtime.saveConfig(new FileConfigPort(path)); }
     public synchronized void bindWaypointStorage(java.nio.file.Path root) {

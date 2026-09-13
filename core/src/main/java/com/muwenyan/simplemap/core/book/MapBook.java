@@ -117,6 +117,8 @@ public final class MapBook {
         return new MapBookSnapshot(id, owner, status, revision, copy, permissions);
     }
 
+    public synchronized void requireRead(UUID actor) { assertReadable(actor); }
+
     private void putRegion(RegionPos position, byte[] payload) {
         if (position == null || payload == null || payload.length == 0) {
             throw new IllegalArgumentException("position/payload");

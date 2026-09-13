@@ -23,6 +23,11 @@ public final class MapBookRuntime {
     }
 
     public synchronized MapBook load(UUID id) throws IOException { return files.readRecovering(Objects.requireNonNull(id, "id")); }
+    public synchronized MapBook load(UUID id, UUID actor) throws IOException {
+        MapBook book = load(id);
+        book.requireRead(Objects.requireNonNull(actor, "actor"));
+        return book;
+    }
 
     public synchronized void save(MapBook book) throws IOException { files.write(Objects.requireNonNull(book, "book")); }
 
