@@ -9,6 +9,8 @@ import com.muwenyan.simplemap.core.protocol.WaypointSyncMessage;
 import com.muwenyan.simplemap.core.protocol.MapBookAckAction;
 import com.muwenyan.simplemap.core.protocol.MapBookAckCodec;
 import com.muwenyan.simplemap.core.protocol.MapBookErrorCodec;
+import com.muwenyan.simplemap.core.protocol.MapBookHello;
+import com.muwenyan.simplemap.core.protocol.MapBookHelloCodec;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -22,6 +24,7 @@ public final class MapProtocolEndpoint {
     private final AtomicReference<WaypointSyncMessage> lastWaypointSync = new AtomicReference<>();
     private final AtomicReference<MapBookTransferResult> lastTransferResult = new AtomicReference<>();
     private final AtomicReference<MapBookErrorCodec.RemoteError> lastRemoteError = new AtomicReference<>();
+    private final AtomicReference<MapBookHello> lastRemoteHello = new AtomicReference<>();
     private volatile Consumer<MapBookFrame> observer;
     private volatile MapBookTransferService transferService;
     private volatile LongSupplier clock = System::currentTimeMillis;
@@ -39,6 +42,9 @@ public final class MapProtocolEndpoint {
         MapBookFrame frame = FrameCodec.decode(payload);
         lastFrame.set(frame);
         if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) lastWaypointSync.set(WaypointSyncCodec.decode(frame.body()));
+        if (frame.type() == MapBookMessageType.HELLO || frame.type() == MapBookMessageType.HELLO_ACK) {
+            lastRemoteHello.set(MapBookHelloCodec.decode(frame.body()));
+        }
         if (frame.type() == MapBookMessageType.REGION_DATA && transferService != null) {
             try {
                 lastTransferResult.set(transferService.accept(frame.sessionId(), frame.body(), clock.getAsLong()));
@@ -79,4 +85,5 @@ public final class MapProtocolEndpoint {
     public java.util.Optional<WaypointSyncMessage> lastWaypointSync() { return java.util.Optional.ofNullable(lastWaypointSync.get()); }
     public java.util.Optional<MapBookTransferResult> lastTransferResult() { return java.util.Optional.ofNullable(lastTransferResult.get()); }
     public java.util.Optional<MapBookErrorCodec.RemoteError> lastRemoteError() { return java.util.Optional.ofNullable(lastRemoteError.get()); }
+    public java.util.Optional<MapBookHello> lastRemoteHello() { return java.util.Optional.ofNullable(lastRemoteHello.get()); }
 }

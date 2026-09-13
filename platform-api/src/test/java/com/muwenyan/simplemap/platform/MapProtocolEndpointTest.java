@@ -15,7 +15,10 @@ class MapProtocolEndpointTest {
     @Test
     void decodesAndRetainsLatestFrame() throws Exception {
         MapProtocolEndpoint endpoint = new MapProtocolEndpoint();
-        MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(), new byte[]{1, 2});
+        var hello = new com.muwenyan.simplemap.core.protocol.MapBookHello(1, 0, 4096,
+                java.util.Set.of("SMAP"), java.util.Set.of("REGION_DATA"));
+        MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(),
+                com.muwenyan.simplemap.core.protocol.MapBookHelloCodec.encode(hello));
         endpoint.receive(FrameCodec.encode(frame));
         assertEquals(frame, endpoint.lastFrame().orElseThrow());
         assertEquals(1, endpoint.receivedCount());
@@ -42,7 +45,10 @@ class MapProtocolEndpointTest {
     void notifiesObserverAfterFrameValidation() throws Exception {
         var observed = new java.util.concurrent.atomic.AtomicReference<MapBookFrame>();
         MapProtocolEndpoint endpoint = new MapProtocolEndpoint(observed::set);
-        MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(), new byte[]{3});
+        var hello = new com.muwenyan.simplemap.core.protocol.MapBookHello(1, 0, 4096,
+                java.util.Set.of("SMAP"), java.util.Set.of("REGION_DATA"));
+        MapBookFrame frame = new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(),
+                com.muwenyan.simplemap.core.protocol.MapBookHelloCodec.encode(hello));
         endpoint.receive(FrameCodec.encode(frame));
         assertEquals(frame, observed.get());
     }
@@ -100,5 +106,15 @@ class MapProtocolEndpointTest {
                 com.muwenyan.simplemap.core.protocol.MapBookErrorCodec.encode(
                         com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY, message));
         assertEquals(message, decoded.message());
+    }
+
+    @Test
+    void retainsDecodedHelloFrames() throws Exception {
+        var hello = new com.muwenyan.simplemap.core.protocol.MapBookHello(1, 0, 4096,
+                java.util.Set.of("SMAP"), java.util.Set.of("REGION_DATA"));
+        var endpoint = new MapProtocolEndpoint();
+        endpoint.receive(FrameCodec.encode(new MapBookFrame(1, MapBookMessageType.HELLO, UUID.randomUUID(),
+                com.muwenyan.simplemap.core.protocol.MapBookHelloCodec.encode(hello))));
+        assertEquals(hello, endpoint.lastRemoteHello().orElseThrow());
     }
 }
