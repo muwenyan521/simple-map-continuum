@@ -113,6 +113,25 @@ class MapClientControllerTest {
     }
 
     @Test
+    void openingMapBookLoadsArchivedRegionsIntoRuntime() throws Exception {
+        var root = temporary;
+        var controller = new MapClientController();
+        controller.bindBookStorage(root);
+        var owner = java.util.UUID.randomUUID();
+        var book = controller.books().create(owner);
+        var region = new com.muwenyan.simplemap.core.map.MapRegion(
+                new com.muwenyan.simplemap.core.model.DimensionId("minecraft:overworld"),
+                new com.muwenyan.simplemap.core.model.ChunkPos(0, 0), 32, 32);
+        region.apply(0, 0, new com.muwenyan.simplemap.core.map.MapCell(
+                new com.muwenyan.simplemap.core.model.BlockPos(1, 64, 1), 0xFF00FF00, 64, false, true));
+        book.save(owner, new com.muwenyan.simplemap.core.model.RegionPos(0, 0),
+                com.muwenyan.simplemap.core.persistence.RegionArchiveCodec.encode(region, com.muwenyan.simplemap.core.persistence.ArchiveFormat.SMAP));
+        controller.books().save(book);
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.openMapBook(owner, book.id()));
+        org.junit.jupiter.api.Assertions.assertEquals(1, controller.runtime().currentRegion().completedCells().size());
+    }
+
+    @Test
     void minimapPresentationControlsCycleAnchorAndCoordinates() {
         var controller = new MapClientController();
         var initial = controller.minimapConfig();
