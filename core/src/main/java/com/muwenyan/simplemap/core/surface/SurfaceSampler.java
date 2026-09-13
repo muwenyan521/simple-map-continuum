@@ -26,6 +26,7 @@ public final class SurfaceSampler {
                 .filter(column -> column.x() == selected.x() && column.z() == selected.z() && column.opaque())
                 .mapToInt(SurfaceColumn::y)
                 .min().orElse(selected.y());
-        return Optional.of(new SurfaceSample(chunk, selected.y(), floor, selected.argb(), selected.fluid(), true, revision));
+        return Optional.of(new SurfaceSample(chunk, selected.y(), floor,
+                SurfaceTint.apply(selected.argb(), selected.biomeArgb()), selected.fluid(), true, revision));
     }
 }

@@ -55,8 +55,12 @@ public final class Fabric1201WorldSource implements WorldSourcePort, SurfaceColu
         net.minecraft.core.BlockPos nativePosition = new net.minecraft.core.BlockPos(x, y, z);
         BlockState state = current.getBlockState(nativePosition);
         int color = state.getMapColor(current, nativePosition).col | 0xFF000000;
-        return Optional.of(new SurfaceColumn(localX, localZ, y, color, !state.getFluidState().isEmpty(),
-                state.isSolidRender(current, nativePosition)));
+        int biomeColor = color;
+        var biome = current.getBiome(nativePosition).value();
+        if (state.is(net.minecraft.tags.BlockTags.LEAVES)) biomeColor = biome.getFoliageColor() | 0xFF000000;
+        else if (!state.getFluidState().isEmpty()) biomeColor = biome.getWaterColor() | 0xFF000000;
+        return Optional.of(new SurfaceColumn(localX, localZ, y, color, biomeColor,
+                !state.getFluidState().isEmpty(), state.isSolidRender(current, nativePosition)));
     }
 
     @Override
