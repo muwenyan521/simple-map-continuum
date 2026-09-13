@@ -47,4 +47,15 @@ class MapBookTransferServiceTest {
                 () -> service.accept(session, new byte[]{1, 2, 3}, 1));
         assertEquals(0, service.activeCount());
     }
+
+    @Test
+    void requestStartChecksActorPermission() throws Exception {
+        UUID owner = UUID.randomUUID();
+        MapBookRuntime runtime = new MapBookRuntime(java.nio.file.Files.createTempDirectory("map-book-request"));
+        var book = runtime.create(owner);
+        var service = new MapBookTransferService(1024, 1000);
+        var request = new com.muwenyan.simplemap.core.protocol.MapBookRequest(book.id(),
+                com.muwenyan.simplemap.core.protocol.MapBookOperation.LEARN);
+        assertThrows(SecurityException.class, () -> service.start(runtime, request, UUID.randomUUID(), 0));
+    }
 }

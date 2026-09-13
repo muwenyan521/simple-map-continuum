@@ -28,6 +28,17 @@ public final class MapBookTransferService {
         return id;
     }
 
+    public synchronized UUID start(MapBookRuntime runtime,
+                                   com.muwenyan.simplemap.core.protocol.MapBookRequest request,
+                                   UUID actor, long nowMillis) throws java.io.IOException {
+        Objects.requireNonNull(runtime, "runtime");
+        Objects.requireNonNull(request, "request");
+        MapBook book = runtime.load(request.bookId(), Objects.requireNonNull(actor, "actor"));
+        MapBookTransferMode mode = request.operation() == com.muwenyan.simplemap.core.protocol.MapBookOperation.SAVE
+                ? MapBookTransferMode.SAVE : MapBookTransferMode.LEARN;
+        return start(book, actor, mode, nowMillis);
+    }
+
     public synchronized MapBookTransferResult accept(UUID sessionId, byte[] region, long nowMillis)
             throws ProtocolException {
         MapBookTransferSession session = session(sessionId);
