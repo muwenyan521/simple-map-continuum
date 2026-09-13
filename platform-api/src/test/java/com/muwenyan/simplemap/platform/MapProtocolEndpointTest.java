@@ -117,4 +117,26 @@ class MapProtocolEndpointTest {
                 com.muwenyan.simplemap.core.protocol.MapBookHelloCodec.encode(hello))));
         assertEquals(hello, endpoint.lastRemoteHello().orElseThrow());
     }
+
+    @Test
+    void unknownAckSessionIsReportedAsProtocolFailure() throws Exception {
+        var endpoint = new MapProtocolEndpoint();
+        endpoint.bindTransferService(new MapBookTransferService(1024, 1000), () -> 1L);
+        assertFalse(endpoint.receiveSafely(FrameCodec.encode(new MapBookFrame(1, MapBookMessageType.ACK,
+                UUID.randomUUID(), com.muwenyan.simplemap.core.protocol.MapBookAckCodec.encode(
+                        com.muwenyan.simplemap.core.protocol.MapBookAckAction.COMPLETE)))));
+        assertEquals(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY,
+                endpoint.lastError().orElseThrow().code());
+    }
+
+    @Test
+    void encodesAckAndErrorFramesForTransportAdapters() throws Exception {
+        UUID session = UUID.randomUUID();
+        assertEquals(MapBookMessageType.ACK,
+                FrameCodec.decode(MapProtocolEndpoint.encodeAckFrame(session,
+                        com.muwenyan.simplemap.core.protocol.MapBookAckAction.COMPLETE)).type());
+        assertEquals(MapBookMessageType.ERROR,
+                FrameCodec.decode(MapProtocolEndpoint.encodeErrorFrame(session,
+                        com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY, "bad")).type());
+    }
 }

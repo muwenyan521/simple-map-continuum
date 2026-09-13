@@ -56,10 +56,17 @@ public final class MapProtocolEndpoint {
             }
         }
         if (frame.type() == MapBookMessageType.ACK && transferService != null) {
-            MapBookAckAction action = MapBookAckCodec.decode(frame.body());
-            lastTransferResult.set(action == MapBookAckAction.COMPLETE
-                    ? transferService.complete(frame.sessionId(), clock.getAsLong())
-                    : transferService.abort(frame.sessionId()));
+            try {
+                MapBookAckAction action = MapBookAckCodec.decode(frame.body());
+                lastTransferResult.set(action == MapBookAckAction.COMPLETE
+                        ? transferService.complete(frame.sessionId(), clock.getAsLong())
+                        : transferService.abort(frame.sessionId()));
+            } catch (ProtocolException exception) {
+                throw exception;
+            } catch (RuntimeException exception) {
+                throw new ProtocolException(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY,
+                        "cannot route map book acknowledgement", exception);
+            }
         }
         if (frame.type() == MapBookMessageType.ERROR) {
             lastRemoteError.set(MapBookErrorCodec.decode(frame.body()));
@@ -86,4 +93,25 @@ public final class MapProtocolEndpoint {
     public java.util.Optional<MapBookTransferResult> lastTransferResult() { return java.util.Optional.ofNullable(lastTransferResult.get()); }
     public java.util.Optional<MapBookErrorCodec.RemoteError> lastRemoteError() { return java.util.Optional.ofNullable(lastRemoteError.get()); }
     public java.util.Optional<MapBookHello> lastRemoteHello() { return java.util.Optional.ofNullable(lastRemoteHello.get()); }
+
+    public static byte[] encodeAckFrame(java.util.UUID sessionId, MapBookAckAction action) {
+        try {
+            return FrameCodec.encode(new MapBookFrame(FrameCodec.FRAME_VERSION, MapBookMessageType.ACK,
+                    Objects.requireNonNull(sessionId, "sessionId"), MapBookAckCodec.encode(action)));
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot encode map book acknowledgement", exception);
+        }
+    }
+
+    public static byte[] encodeErrorFrame(java.util.UUID sessionId,
+                                           com.muwenyan.simplemap.core.protocol.ProtocolErrorCode code,
+                                           String message) {
+        try {
+            return FrameCodec.encode(new MapBookFrame(FrameCodec.FRAME_VERSION, MapBookMessageType.ERROR,
+                    Objects.requireNonNull(sessionId, "sessionId"),
+                    MapBookErrorCodec.encode(code, message)));
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("cannot encode map book error", exception);
+        }
+    }
 }
