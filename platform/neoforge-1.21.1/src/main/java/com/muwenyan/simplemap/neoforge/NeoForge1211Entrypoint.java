@@ -27,6 +27,7 @@ public final class NeoForge1211Entrypoint {
 
     public NeoForge1211Entrypoint() {
         ITEMS.register(net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus());
+        NeoForge1211Recipes.SERIALIZERS.register(net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus());
         net.neoforged.fml.ModLoadingContext.get().getActiveContainer().getEventBus().addListener(NeoForge1211Entrypoint::addCreative);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::registerCommands);
         NeoForge.EVENT_BUS.addListener(NeoForge1211Entrypoint::onCrafted);
@@ -75,6 +76,7 @@ public final class NeoForge1211Entrypoint {
     private static void onCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
         if (event.getCrafting().getItem() != MAP_BOOK.get()) return;
+        if (!NeoForge1211MapBookItem.hasPendingAction(event.getCrafting())) return;
         Container inventory = event.getInventory();
         java.util.List<com.muwenyan.simplemap.core.book.MapBookItemState> states = new java.util.ArrayList<>();
         for (int i = 0; i < inventory.getContainerSize(); i++) {

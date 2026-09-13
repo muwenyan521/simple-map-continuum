@@ -61,6 +61,13 @@ public final class NeoForge1211MapBookItem extends Item {
         catch (IllegalArgumentException exception) { return MapBookItemState.empty(); }
     }
 
+    public static boolean hasPendingAction(ItemStack stack) {
+        CustomData data = stack == null ? null : stack.get(DataComponents.CUSTOM_DATA);
+        if (data == null) return false;
+        var tag = data.copyTag();
+        return tag.contains("MapBookPendingAction") || tag.contains("MapBookPendingMerge");
+    }
+
     public static void writeState(ItemStack stack, MapBookItemState state) {
         if (stack == null || state == null) throw new IllegalArgumentException("stack/state");
         var tag = new net.minecraft.nbt.CompoundTag();

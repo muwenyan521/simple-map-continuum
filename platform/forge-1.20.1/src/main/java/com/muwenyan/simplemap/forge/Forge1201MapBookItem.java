@@ -55,6 +55,11 @@ public final class Forge1201MapBookItem extends Item {
         catch (IllegalArgumentException exception) { return MapBookItemState.empty(); }
     }
 
+    public static boolean hasPendingAction(ItemStack stack) {
+        return stack != null && stack.hasTag() && (stack.getTag().contains("MapBookPendingAction")
+                || stack.getTag().contains("MapBookPendingMerge"));
+    }
+
     public static void writeState(ItemStack stack, MapBookItemState state) {
         if (stack == null || state == null) throw new IllegalArgumentException("stack/state");
         if (state.status() == MapBookStatus.EMPTY) { stack.removeTagKey("MapBookID"); stack.removeTagKey("MapBookTitle"); return; }

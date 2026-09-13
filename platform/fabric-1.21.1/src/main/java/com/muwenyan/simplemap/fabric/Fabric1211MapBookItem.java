@@ -64,11 +64,27 @@ public final class Fabric1211MapBookItem extends Item {
 
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
-        if (!written || level.isClientSide() || level.getServer() == null || readState(stack).status() != MapBookStatus.EMPTY) return;
+        if (!written || level.isClientSide() || level.getServer() == null) return;
         try {
-            var book = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)).create(player.getUUID());
-            writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+            var runtime = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+            CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+            var tag = data == null ? null : data.copyTag();
+            if (tag != null && tag.contains("MapBookPendingMerge")) {
+                var result = runtime.mergeItems(state(tag, "MapBookMergeLeft"), state(tag, "MapBookMergeRight"),
+                        player.getUUID(), "Merged Map Book");
+                writeState(stack, result);
+            } else if (tag != null && "COPY".equals(tag.getString("MapBookPendingAction"))) {
+                var result = runtime.copyItem(readState(stack), MapBookItemState.empty(), player.getUUID(), player.getUUID());
+                writeState(stack, result);
+            } else if (readState(stack).status() == MapBookStatus.EMPTY) {
+                var book = runtime.create(player.getUUID());
+                writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+            } else return;
         } catch (java.io.IOException ignored) { }
+    }
+
+    private static MapBookItemState state(net.minecraft.nbt.CompoundTag tag, String key) {
+        return new MapBookItemState(MapBookStatus.WRITTEN, UUID.fromString(tag.getString(key)), "Map Book");
     }
 
     @Override

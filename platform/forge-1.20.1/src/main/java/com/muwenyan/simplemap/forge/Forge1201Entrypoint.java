@@ -27,6 +27,7 @@ public final class Forge1201Entrypoint {
 
     public Forge1201Entrypoint() {
         ITEMS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
+        Forge1201Recipes.SERIALIZERS.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());
         net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus().addListener(Forge1201Entrypoint::addCreative);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::registerCommands);
         MinecraftForge.EVENT_BUS.addListener(Forge1201Entrypoint::onCrafted);
@@ -72,6 +73,7 @@ public final class Forge1201Entrypoint {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
         Item crafted = event.getCrafting().getItem();
         if (crafted != MAP_BOOK.get()) return;
+        if (!Forge1201MapBookItem.hasPendingAction(event.getCrafting())) return;
         Container inventory = event.getInventory();
         java.util.List<com.muwenyan.simplemap.core.book.MapBookItemState> states = new java.util.ArrayList<>();
         for (int i = 0; i < inventory.getContainerSize(); i++) {

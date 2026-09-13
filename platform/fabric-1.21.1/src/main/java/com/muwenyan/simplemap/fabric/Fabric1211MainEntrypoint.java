@@ -16,6 +16,7 @@ public final class Fabric1211MainEntrypoint implements ModInitializer {
     @Override
     public void onInitialize() {
         Fabric1211Items.register();
+        Fabric1211Recipes.register();
         new MapFabric1211Bootstrap().descriptor();
         Fabric1211Network.register();
         net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {

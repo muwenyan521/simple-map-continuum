@@ -64,11 +64,30 @@ public final class Fabric1201MapBookItem extends Item {
 
     @Override
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
-        if (!written || level.isClientSide() || level.getServer() == null || hasBookId(stack)) return;
+        if (!written || level.isClientSide() || level.getServer() == null) return;
         try {
-            var book = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT)).create(player.getUUID());
-            writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+            var runtime = new MapBookRuntime(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT));
+            var tag = stack.getTag();
+            if (tag != null && tag.contains("MapBookPendingMerge")) {
+                var result = runtime.mergeItems(state(tag, "MapBookMergeLeft"), state(tag, "MapBookMergeRight"),
+                        player.getUUID(), "Merged Map Book");
+                writeState(stack, result);
+            } else if (tag != null && "COPY".equals(tag.getString("MapBookPendingAction"))) {
+                var result = runtime.copyItem(readState(stack), MapBookItemState.empty(), player.getUUID(), player.getUUID());
+                writeState(stack, result);
+            } else if (!hasBookId(stack)) {
+                var book = runtime.create(player.getUUID());
+                writeState(stack, MapBookItemState.written(book, "Map Book of " + player.getName().getString()));
+            } else return;
+            stack.removeTagKey("MapBookPendingAction");
+            stack.removeTagKey("MapBookPendingMerge");
+            stack.removeTagKey("MapBookMergeLeft");
+            stack.removeTagKey("MapBookMergeRight");
         } catch (java.io.IOException ignored) { }
+    }
+
+    private static MapBookItemState state(net.minecraft.nbt.CompoundTag tag, String key) {
+        return new MapBookItemState(MapBookStatus.WRITTEN, UUID.fromString(tag.getString(key)), "Map Book");
     }
 
     @Override

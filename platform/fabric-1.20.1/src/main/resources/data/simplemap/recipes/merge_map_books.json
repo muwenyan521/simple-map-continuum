@@ -1,5 +1,4 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "ingredients": [{"item": "simplemap:map_book"}, {"item": "simplemap:map_book"}],
-  "result": {"item": "simplemap:map_book", "count": 1}
+  "type": "simplemap:merge_book_maps",
+  "category": "misc"
 }
