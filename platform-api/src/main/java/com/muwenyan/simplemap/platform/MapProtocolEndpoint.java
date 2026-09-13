@@ -10,22 +10,41 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongSupplier;
 
 public final class MapProtocolEndpoint {
     private final AtomicReference<MapBookFrame> lastFrame = new AtomicReference<>();
     private final AtomicReference<ProtocolException> lastError = new AtomicReference<>();
     private final AtomicLong received = new AtomicLong();
     private final AtomicReference<WaypointSyncMessage> lastWaypointSync = new AtomicReference<>();
+    private final AtomicReference<MapBookTransferResult> lastTransferResult = new AtomicReference<>();
     private volatile Consumer<MapBookFrame> observer;
+    private volatile MapBookTransferService transferService;
+    private volatile LongSupplier clock = System::currentTimeMillis;
 
     public MapProtocolEndpoint() { this(frame -> { }); }
     public MapProtocolEndpoint(Consumer<MapBookFrame> observer) { this.observer = Objects.requireNonNull(observer, "observer"); }
     public void setObserver(Consumer<MapBookFrame> observer) { this.observer = Objects.requireNonNull(observer, "observer"); }
 
+    public void bindTransferService(MapBookTransferService service, LongSupplier clock) {
+        this.transferService = Objects.requireNonNull(service, "service");
+        this.clock = Objects.requireNonNull(clock, "clock");
+    }
+
     public void receive(byte[] payload) throws ProtocolException {
         MapBookFrame frame = FrameCodec.decode(payload);
         lastFrame.set(frame);
         if (frame.type() == MapBookMessageType.WAYPOINT_SYNC) lastWaypointSync.set(WaypointSyncCodec.decode(frame.body()));
+        if (frame.type() == MapBookMessageType.REGION_DATA && transferService != null) {
+            try {
+                lastTransferResult.set(transferService.accept(frame.sessionId(), frame.body(), clock.getAsLong()));
+            } catch (ProtocolException exception) {
+                throw exception;
+            } catch (RuntimeException exception) {
+                throw new ProtocolException(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.MALFORMED_BODY,
+                        "cannot route map book region", exception);
+            }
+        }
         observer.accept(frame);
         lastError.set(null);
         received.incrementAndGet();
@@ -45,4 +64,5 @@ public final class MapProtocolEndpoint {
     public java.util.Optional<MapBookFrame> lastFrame() { return java.util.Optional.ofNullable(lastFrame.get()); }
     public java.util.Optional<ProtocolException> lastError() { return java.util.Optional.ofNullable(lastError.get()); }
     public java.util.Optional<WaypointSyncMessage> lastWaypointSync() { return java.util.Optional.ofNullable(lastWaypointSync.get()); }
+    public java.util.Optional<MapBookTransferResult> lastTransferResult() { return java.util.Optional.ofNullable(lastTransferResult.get()); }
 }

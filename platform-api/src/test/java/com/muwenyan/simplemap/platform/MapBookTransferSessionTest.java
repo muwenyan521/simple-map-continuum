@@ -60,5 +60,6 @@ class MapBookTransferSessionTest {
         assertThrows(com.muwenyan.simplemap.core.protocol.ProtocolException.class,
                 () -> session.acceptRegion(new byte[]{1, 2, 3, 4, 5}, 1));
         assertEquals(MapBookStatus.EMPTY, book.status());
+        assertEquals(MapBookTransferState.ABORTED, session.state());
     }
 }

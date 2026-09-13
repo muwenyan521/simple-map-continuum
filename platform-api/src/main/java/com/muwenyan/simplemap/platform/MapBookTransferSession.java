@@ -56,15 +56,21 @@ public final class MapBookTransferSession {
             return result();
         }
         if (encodedRegion == null || encodedRegion.length > maxPayloadBytes) {
-            abortLearning();
+            abort();
             throw new ProtocolException(com.muwenyan.simplemap.core.protocol.ProtocolErrorCode.LIMIT_EXCEEDED,
                     "region payload exceeds transfer limit");
         }
-        MapBookRegion region = MapBookRegionCodec.decode(encodedRegion);
-        if (mode == MapBookTransferMode.SAVE) {
-            book.save(actor, region.position(), region.payload());
-        } else {
-            learning.accept(region.position(), region.payload());
+        final MapBookRegion region;
+        try {
+            region = MapBookRegionCodec.decode(encodedRegion);
+            if (mode == MapBookTransferMode.SAVE) {
+                book.save(actor, region.position(), region.payload());
+            } else {
+                learning.accept(region.position(), region.payload());
+            }
+        } catch (ProtocolException | RuntimeException exception) {
+            abort();
+            throw exception;
         }
         acceptedRegions++;
         lastActivityMillis = nowMillis;
