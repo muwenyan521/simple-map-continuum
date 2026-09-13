@@ -44,6 +44,11 @@ public final class Fabric1201ClientEntrypoint implements ClientModInitializer {
         UseItemCallback.EVENT.register((player, level, hand) -> {
             var item = player.getItemInHand(hand).getItem();
             if (item == Fabric1201Items.EMPTY_MAP_BOOK || item == Fabric1201Items.MAP_BOOK) {
+                var state = Fabric1201MapBookItem.readState(player.getItemInHand(hand));
+                if (state.id().isPresent()) {
+                    try { bootstrap.clientController().openMapBook(player.getUUID(), state.id().orElseThrow()); }
+                    catch (RuntimeException ignored) { }
+                }
                 Minecraft.getInstance().setScreen(new Fabric1201MapScreen(bootstrap));
                 return InteractionResultHolder.success(player.getItemInHand(hand));
             }

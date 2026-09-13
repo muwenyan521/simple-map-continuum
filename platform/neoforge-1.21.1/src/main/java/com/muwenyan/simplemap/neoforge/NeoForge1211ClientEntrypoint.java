@@ -74,6 +74,11 @@ public final class NeoForge1211ClientEntrypoint {
         public static void useBook(PlayerInteractEvent.RightClickItem event) {
             var item = event.getItemStack().getItem();
             if (item == NeoForge1211Entrypoint.MAP_BOOK.get() || item == NeoForge1211Entrypoint.EMPTY_MAP_BOOK.get()) {
+                var state = NeoForge1211MapBookItem.readState(event.getItemStack());
+                if (state.id().isPresent()) {
+                    try { BOOTSTRAP.clientController().openMapBook(event.getEntity().getUUID(), state.id().orElseThrow()); }
+                    catch (RuntimeException ignored) { }
+                }
                 Minecraft.getInstance().setScreen(new NeoForge1211MapScreen(BOOTSTRAP));
                 event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
                 event.setCanceled(true);

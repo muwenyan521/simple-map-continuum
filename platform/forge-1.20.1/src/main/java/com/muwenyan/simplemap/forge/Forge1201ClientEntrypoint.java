@@ -73,6 +73,11 @@ public final class Forge1201ClientEntrypoint {
         public static void useBook(PlayerInteractEvent.RightClickItem event) {
             var item = event.getItemStack().getItem();
             if (item == Forge1201Entrypoint.MAP_BOOK.get() || item == Forge1201Entrypoint.EMPTY_MAP_BOOK.get()) {
+                var state = Forge1201MapBookItem.readState(event.getItemStack());
+                if (state.id().isPresent()) {
+                    try { BOOTSTRAP.clientController().openMapBook(event.getEntity().getUUID(), state.id().orElseThrow()); }
+                    catch (RuntimeException ignored) { }
+                }
                 Minecraft.getInstance().setScreen(new Forge1201MapScreen(BOOTSTRAP));
                 event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
                 event.setCanceled(true);
