@@ -87,6 +87,8 @@ public final class Fabric1211MapScreen extends Screen {
                     int wz = top + ((waypoint.position().z() >> 4) - region.origin().z()) * size;
                     int color = bootstrap.clientController().followedWaypoint().map(value -> value.id().equals(waypoint.id())).orElse(false) ? 0xFFFF4040 : 0xFFFFD040;
                     graphics.fill(wx - 2, wz - 2, wx + 3, wz + 3, color);
+                    int distance = Math.max(Math.abs(waypoint.position().x() / 16 - player.chunkPosition().x), Math.abs(waypoint.position().z() / 16 - player.chunkPosition().z));
+                    graphics.drawString(font, distance + "c", wx + 5, wz + 2, color, true);
                 }
             }
         }
